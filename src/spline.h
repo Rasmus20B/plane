@@ -1,15 +1,31 @@
 #pragma once
-#include <array> 
+#include <vector> 
 #include <cmath>
 #include <raylib.h>
 
 #include "vector_calc.h"
 
 namespace plane {
-struct Spline {
-  Vector2 getPoint(Vector2);
-  Vector2 Interpolate(float t, float alpha = 0.5f);
 
-  std::array<Vector2, 4> points;
+struct SplinePt {
+  Vector2 pos;
+  float len;
+};
+struct Spline {
+  void init();
+  SplinePt getPoint(float t, bool looped);
+  float SegmentLength(int node, bool looped);
+  float getNormalisedOffset(float p);
+  
+  //
+  // Vector2 interpolate(float t, float alpha = 1.0f);
+  // Vector2 getDerivative(float t, bool continuous);
+  // Vector2 getDerivative(float t, int i, float u, bool continuous);
+  // Vector2 calculate(float t, bool cont);
+  // Vector2 calculate(float t, int i, float u, bool cont);
+  //
+  // std::vector<Vector2> points;
+  std::vector<SplinePt> pts;
+  float len;
 };
 }
