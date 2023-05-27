@@ -1,0 +1,14 @@
+add_executable(${PROJECT_NAME} 
+  main.cc
+  enemy.h
+  patterns.cc
+  patterns.h
+  planes.cc
+  planes.h
+  player.h
+  projectile.h
+  spline.cc
+  spline.h
+  vector_calc.h
+  vector_calc.cc
+  )
