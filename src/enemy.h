@@ -19,8 +19,8 @@ struct Lifetime {
 };
 struct Enemy {
   SplinePt pos;
-  float prog = 0;
   Spline mpat;
+  float prog = 0;
   float spline_t = 0.01;
   float shoot_t;
   float last_shot;

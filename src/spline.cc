@@ -110,6 +110,34 @@ namespace plane {
   //   return out;
   // }
 
+  SplinePt Spline::getGradient(float t, bool looped) {
+    int p0, p1, p2, p3;
+
+    if(looped) {
+      p1 = (int)t;
+      p2 = (p1 + 1) % pts.size();
+      p3 = (p2 + 1) % pts.size();
+      p0 = p1 >= 1 ? p1 - 1 : pts.size() - 1;
+    } else {
+      p1 = (int)t + 1;
+      p2 = p1 + 1;
+      p3 = p2 + 1;
+      p0 = p1 - 1;
+    }
+
+    t = t - (int)t;
+    float tt = t * t;
+    float ttt = tt * t;
+
+    float q1 = -3.0f * tt + 4.0f*t - 1;
+    float q2 = 9.0f * tt - 10.0f * t;
+    float q3 = -9.0f * tt + 8.0f * t + 1.0f;
+    float q4 = 3.0f*tt - 2.0f*t;
+
+    float tx = 0.5f * (pts[p0].pos.x * q1 + pts[p1].pos.x * q2 + pts[p2].pos.x * q3 + pts[p3].pos.x * q4);
+    float ty = 0.5f * (pts[p0].pos.y * q1 + pts[p1].pos.y * q2 + pts[p2].pos.y * q3 + pts[p3].pos.y * q4);
+    return { tx, ty };
+  }
   SplinePt Spline::getPoint(float t, bool looped = false) {
     int p0, p1, p2, p3;
 

@@ -14,6 +14,7 @@ struct SplinePt {
 struct Spline {
   void init();
   SplinePt getPoint(float t, bool looped);
+  SplinePt getGradient(float t, bool looped = false);
   float SegmentLength(int node, bool looped);
   float getNormalisedOffset(float p);
   

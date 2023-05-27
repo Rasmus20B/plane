@@ -33,8 +33,8 @@ namespace plane {
 
     enemies.push_back(Enemy{
         .pos = {fdiv(config.screen_width, 2), 0 }, 
-        .prog = 0,
         .mpat{ {{Vector2{10, 400}, 0}, {Vector2{0, 100}, 0}, {Vector2{float(config.screen_width) + 20, 100}, 0}, {Vector2{600, 400}, 0}, {Vector2{800, 40}, 0}, {Vector2{1000, -100}, 0}, {Vector2{2000, -200}, 0} }, 0 },
+        .prog = 0,
         .spline_t = 0.01, 
         .shoot_t = 0.7f, 
         .last_shot = 0, 
@@ -44,8 +44,8 @@ namespace plane {
         .dead = false});
     enemies.push_back(Enemy{
         .pos = {fdiv(config.screen_width, 2), 0 }, 
-        .prog = 0,
         .mpat{ {{Vector2{10, 400}, 0}, {Vector2{0, 100}, 0}, {Vector2{float(config.screen_width) + 20, 100}, 0}, {Vector2{600, 400}, 0}, {Vector2{800, 40}, 0}, {Vector2{1000, -100}, 0}, {Vector2{2000, -200}, 0} }, 0 },
+        .prog = 0,
         .spline_t = 0.01, 
         .shoot_t = 0.7f, 
         .last_shot = 0, 
@@ -55,8 +55,8 @@ namespace plane {
         .dead = false});
     enemies.push_back(Enemy{
         .pos = {fdiv(config.screen_width, 2), 0 }, 
-        .prog = 0,
         .mpat{ {{Vector2{10, 400}, 0}, {Vector2{0, 100}, 0}, {Vector2{float(config.screen_width) + 20, 100}, 0}, {Vector2{600, 400}, 0}, {Vector2{800, 40}, 0}, {Vector2{1000, -100}, 0}, {Vector2{2000, -200}, 0} }, 0 },
+        .prog = 0,
         .spline_t = 0.01, 
         .shoot_t = 0.7f, 
         .last_shot = 0, 
@@ -118,10 +118,17 @@ namespace plane {
             e.spline_t = e.mpat.getNormalisedOffset(e.prog += e.speed);
             std::cout << e.spline_t << "\n";
             e.pos = e.mpat.getPoint(e.spline_t, false);
+            SplinePt tmp = e.mpat.getGradient(e.spline_t, false);
+
             std::cout << e.pos.pos.x << ", " << e.pos.pos.y << "\n";
+            std::cout << tmp.pos.x << ", " << tmp.pos.y << "\n";
+
+
+            auto angle = Vec2Angle(e.pos.pos, tmp.pos);
+            std::cout << angle << "\n";
 
             if(GetTime() - e.last_shot > e.shoot_t) {
-              e_bullets.push_back(Projectile{Vector2{e.pos.pos.x, e.pos.pos.y}, 10, 6.0f});
+              e_bullets.push_back(Projectile{Vector2{e.pos.pos.x, e.pos.pos.y}, 10, 14}); 
               e.last_shot = GetTime();
             }
             DrawCircleV(e.pos.pos, e.size, ORANGE);
@@ -138,7 +145,8 @@ namespace plane {
           }
         }
         for(auto &i : e_bullets) {
-          i.pos.y += i.speed;
+          i.pos.y += i.speed + i.angle;
+          i.pos.x += i.angle;
           DrawCircleV(i.pos, i.size, GREEN);
           if(CheckCollisionCircles(i.pos, i.size, p.pos, p.in_size)) {
             std::cout << "FUCKEN DIED\n";
