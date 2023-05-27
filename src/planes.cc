@@ -114,18 +114,12 @@ namespace plane {
         for(auto &e : enemies) {
           if(!e.dead && e.lt.contains(GetTime()) ) {
             if(e.prog >= float(e.mpat.len) - e.speed) e.prog -= e.mpat.len;
-            std::cout << e.mpat.len << "\n";
             e.spline_t = e.mpat.getNormalisedOffset(e.prog += e.speed);
-            std::cout << e.spline_t << "\n";
             e.pos = e.mpat.getPoint(e.spline_t, false);
             SplinePt tmp = e.mpat.getGradient(e.spline_t, false);
 
-            std::cout << e.pos.pos.x << ", " << e.pos.pos.y << "\n";
-            std::cout << tmp.pos.x << ", " << tmp.pos.y << "\n";
-
 
             auto angle = Vec2Angle(e.pos.pos, tmp.pos);
-            std::cout << angle << "\n";
 
             if(GetTime() - e.last_shot > e.shoot_t) {
               e_bullets.push_back(Projectile{Vector2{e.pos.pos.x, e.pos.pos.y}, 10, 14}); 
@@ -149,7 +143,6 @@ namespace plane {
           i.pos.x += i.angle;
           DrawCircleV(i.pos, i.size, GREEN);
           if(CheckCollisionCircles(i.pos, i.size, p.pos, p.in_size)) {
-            std::cout << "FUCKEN DIED\n";
             ded_flag = true;
           }
         }
