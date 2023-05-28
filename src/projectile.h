@@ -1,6 +1,8 @@
 
 #include <raylib.h>
 
+#include <stdlib.h>
+
 namespace plane {
 struct Projectile {
   Vector2 pos;
@@ -8,5 +10,7 @@ struct Projectile {
   float size;
   float angle;
   bool live = true;
+  bool home = false;
+  size_t target;
 };
 }

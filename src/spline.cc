@@ -56,10 +56,8 @@ namespace plane {
     float q3 = -3.0f * ttt + 4.0f * tt + t;
     float q4 = ttt - tt;
 
-    std::cout << "before. p3 :  " << p1 << "\n";
     float tx = 0.5f * (pts[p0].pos.x * q1 + pts[p1].pos.x * q2 + pts[p2].pos.x * q3 + pts[p3].pos.x * q4);
     float ty = 0.5f * (pts[p0].pos.y * q1 + pts[p1].pos.y * q2 + pts[p2].pos.y * q3 + pts[p3].pos.y * q4);
-    std::cout << "after\n";
 
     return { tx, ty };
   }

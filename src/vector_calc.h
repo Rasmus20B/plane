@@ -13,4 +13,5 @@ namespace plane {
   float Vec2Dot(Vector2 a, Vector2 b);
   float Vec2Angle(Vector2 a, Vector2 b);
   Vector2 Vec2len(Vector2 a);
+  Vector2 Vec2Norm(Vector2 a);
 }

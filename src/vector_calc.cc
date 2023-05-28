@@ -1,5 +1,7 @@
 #include "vector_calc.h"
 
+#include <iostream>
+
 namespace plane {
   Vector2 Vec2Sub(Vector2 a, Vector2 b) {
     return {a.x - b.x, a.y - b.y};
@@ -31,5 +33,12 @@ namespace plane {
 
   float Vec2Angle(Vector2 a, Vector2 b) {
     return acos(Vec2Dot(a, b) / (Vec2Len(a) * Vec2Len(b)));
+  }
+  Vector2 Vec2Norm(Vector2 a) {
+    int mag = Vec2Len(a);
+    a.x /= mag;
+    a.y /= mag;
+    std::cout << "Len : " << mag << ". a.x = " << a.x << ", a.y = " << a.y << "\n";
+    return a;
   }
 }

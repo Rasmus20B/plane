@@ -18,6 +18,7 @@ struct Lifetime {
   float end;
 };
 struct Enemy {
+  size_t id;
   SplinePt pos;
   Spline mpat;
   float prog = 0;
@@ -29,5 +30,6 @@ struct Enemy {
   Lifetime lt;
   
   bool dead = false;
+  bool marked = false;
 };
 }

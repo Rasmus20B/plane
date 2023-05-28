@@ -3,6 +3,7 @@
 
 #include "config.h"
 #include <cmath>
+#include <vector> 
 
 namespace plane {
 struct Player {
@@ -11,5 +12,10 @@ struct Player {
   float size = 20.0f;
   float in_size = 2.5f;
   short lives = 3;
+  float b_size = 0;
+  float b_max_size = 300;
+  bool b_fire = false;
+  bool b_charging = false;
+  std::vector<size_t> marked;
 };
 }
