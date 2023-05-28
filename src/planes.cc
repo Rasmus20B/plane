@@ -33,7 +33,7 @@ namespace plane {
 
     enemies.push_back(Enemy{
         .id = 0,
-        .pos = {fdiv(config.screen_width, 2), 0 }, 
+        .pos = {(config.screen_width/ 2), 0 }, 
         .mpat{ {{Vector2{1000, 40}, 0}, {Vector2{800, 70}, 0}, {Vector2{300, 100}, 0}, {Vector2{100, 40}, 0}, {Vector2{100, 80}, 0}, {Vector2{0, -100}, 0}}, 0 },
         .prog = 0,
         .spline_t = 0.01, 
@@ -45,7 +45,7 @@ namespace plane {
         .dead = false});
     enemies.push_back(Enemy{
         .id = 1,
-        .pos = {fdiv(config.screen_width, 2), 0 }, 
+        .pos = {(config.screen_width/ 2), 0 }, 
         .mpat{ {{Vector2{1000, 40}, 0}, {Vector2{800, 70}, 0}, {Vector2{300, 100}, 0}, {Vector2{100, 40}, 0}, {Vector2{100, 80}, 0}, {Vector2{0, -100}, 0}}, 0 },
         .prog = 0,
         .spline_t = 0.01, 
@@ -57,7 +57,7 @@ namespace plane {
         .dead = false});
     enemies.push_back(Enemy{
         .id = 2,
-        .pos = {fdiv(config.screen_width, 2), 0 }, 
+        .pos = {(config.screen_width/ 2), 0 }, 
         .mpat{ {{Vector2{1000, 40}, 0}, {Vector2{800, 70}, 0}, {Vector2{300, 100}, 0}, {Vector2{100, 40}, 0}, {Vector2{100, 80}, 0}, {Vector2{0, -100}, 0}}, 0 },
         .prog = 0,
         .spline_t = 0.01, 
@@ -69,7 +69,7 @@ namespace plane {
         .dead = false});
     enemies.push_back(Enemy{
         .id = 3,
-        .pos = {fdiv(config.screen_width, 2), 0 }, 
+        .pos = {(config.screen_width/ 2), 0 }, 
         .mpat{ {{Vector2{1000, 40}, 0}, {Vector2{800, 70}, 0}, {Vector2{300, 100}, 0}, {Vector2{100, 40}, 0}, {Vector2{100, 80}, 0}, {Vector2{0, -100}, 0}}, 0 },
         .prog = 0,
         .spline_t = 0.01, 
@@ -82,7 +82,7 @@ namespace plane {
 
     enemies.push_back(Enemy{
         .id = 4,
-        .pos = {fdiv(config.screen_width, 2), 0 }, 
+        .pos = {(config.screen_width/ 2), 0 }, 
         .mpat{ {{Vector2{1000, 40}, 0}, {Vector2{800, 70}, 0}, {Vector2{300, 100}, 0}, {Vector2{100, 40}, 0}, {Vector2{100, 80}, 0}, {Vector2{0, -100}, 0}}, 0 },
         .prog = 0,
         .spline_t = 0.01, 
@@ -94,7 +94,7 @@ namespace plane {
         .dead = false});
     enemies.push_back(Enemy{
         .id = 5,
-        .pos = {fdiv(config.screen_width, 2), 0 }, 
+        .pos = {(config.screen_width/ 2), 0 }, 
         .mpat{ {{Vector2{10, 400}, 0}, {Vector2{0, 100}, 0}, {Vector2{float(config.screen_width) + 20, 100}, 0}, {Vector2{600, 400}, 0}, {Vector2{800, 40}, 0}, {Vector2{1000, -200}, 0}, {Vector2{2000, -400}, 0} }, 0 },
         .prog = 0,
         .spline_t = 0.01, 
@@ -106,7 +106,7 @@ namespace plane {
         .dead = false});
     enemies.push_back(Enemy{
         .id = 6,
-        .pos = {fdiv(config.screen_width, 2), 0 }, 
+        .pos = {(config.screen_width/ 2), 0 }, 
         .mpat{ {{Vector2{10, 400}, 0}, {Vector2{0, 100}, 0}, {Vector2{float(config.screen_width) + 20, 100}, 0}, {Vector2{600, 400}, 0}, {Vector2{800, 40}, 0}, {Vector2{1000, -100}, 0}, {Vector2{2000, -200}, 0} }, 0 },
         .prog = 0,
         .spline_t = 0.01, 
@@ -117,7 +117,7 @@ namespace plane {
         .lt = {0.1, 11}, 
         .dead = false});
     enemies.push_back(Enemy{
-        .pos = {fdiv(config.screen_width, 2), 0 }, 
+        .pos = {(config.screen_width/ 2), 0 }, 
         .mpat{ {{Vector2{10, 400}, 0}, {Vector2{0, 100}, 0}, {Vector2{float(config.screen_width) + 20, 100}, 0}, {Vector2{600, 400}, 0}, {Vector2{800, 40}, 0}, {Vector2{1000, -100}, 0}, {Vector2{2000, -200}, 0} }, 0 },
         .prog = 0,
         .spline_t = 0.01, 
@@ -129,7 +129,7 @@ namespace plane {
         .dead = false});
     enemies.push_back(Enemy{
         .id = 7,
-        .pos = {fdiv(config.screen_width, 2), 0 }, 
+        .pos = {(config.screen_width/ 2), 0 }, 
         .mpat{ {{Vector2{10, 400}, 0}, {Vector2{0, 100}, 0}, {Vector2{float(config.screen_width) + 20, 100}, 0}, {Vector2{600, 400}, 0}, {Vector2{800, 40}, 0}, {Vector2{1000, -100}, 0}, {Vector2{2000, -200}, 0} }, 0 },
         .prog = 0,
         .spline_t = 0.01, 
@@ -141,7 +141,7 @@ namespace plane {
         .dead = false});
     enemies.push_back(Enemy{
         .id = 8,
-        .pos = {fdiv(config.screen_width, 2), 0 }, 
+        .pos = {(config.screen_width/ 2), 0 }, 
         .mpat{ {{Vector2{10, 400}, 0}, {Vector2{0, 100}, 0}, {Vector2{float(config.screen_width) + 20, 100}, 0}, {Vector2{600, 400}, 0}, {Vector2{800, 40}, 0}, {Vector2{1000, -100}, 0}, {Vector2{2000, -200}, 0} }, 0 },
         .prog = 0,
         .spline_t = 0.01, 
