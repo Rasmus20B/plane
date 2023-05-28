@@ -33,12 +33,68 @@ namespace plane {
 
     enemies.push_back(Enemy{
         .pos = {fdiv(config.screen_width, 2), 0 }, 
-        .mpat{ {{Vector2{10, 400}, 0}, {Vector2{0, 100}, 0}, {Vector2{float(config.screen_width) + 20, 100}, 0}, {Vector2{600, 400}, 0}, {Vector2{800, 40}, 0}, {Vector2{1000, -100}, 0}, {Vector2{2000, -200}, 0} }, 0 },
+        .mpat{ {{Vector2{1000, 40}, 0}, {Vector2{800, 70}, 0}, {Vector2{300, 100}, 0}, {Vector2{100, 40}, 0}, {Vector2{100, 80}, 0}, {Vector2{0, -100}, 0}}, 0 },
         .prog = 0,
         .spline_t = 0.01, 
         .shoot_t = 0.7f, 
         .last_shot = 0, 
-        .speed = 5.0f, 
+        .speed = 8.0f, 
+        .size = 20, 
+        .lt = {0, 11}, 
+        .dead = false});
+    enemies.push_back(Enemy{
+        .pos = {fdiv(config.screen_width, 2), 0 }, 
+        .mpat{ {{Vector2{1000, 40}, 0}, {Vector2{800, 70}, 0}, {Vector2{300, 100}, 0}, {Vector2{100, 40}, 0}, {Vector2{100, 80}, 0}, {Vector2{0, -100}, 0}}, 0 },
+        .prog = 0,
+        .spline_t = 0.01, 
+        .shoot_t = 0.7f, 
+        .last_shot = 0, 
+        .speed = 8.0f, 
+        .size = 20, 
+        .lt = {0.20f, 11}, 
+        .dead = false});
+    enemies.push_back(Enemy{
+        .pos = {fdiv(config.screen_width, 2), 0 }, 
+        .mpat{ {{Vector2{1000, 40}, 0}, {Vector2{800, 70}, 0}, {Vector2{300, 100}, 0}, {Vector2{100, 40}, 0}, {Vector2{100, 80}, 0}, {Vector2{0, -100}, 0}}, 0 },
+        .prog = 0,
+        .spline_t = 0.01, 
+        .shoot_t = 0.7f, 
+        .last_shot = 0, 
+        .speed = 8.0f, 
+        .size = 20, 
+        .lt = {0.60, 11}, 
+        .dead = false});
+    enemies.push_back(Enemy{
+        .pos = {fdiv(config.screen_width, 2), 0 }, 
+        .mpat{ {{Vector2{1000, 40}, 0}, {Vector2{800, 70}, 0}, {Vector2{300, 100}, 0}, {Vector2{100, 40}, 0}, {Vector2{100, 80}, 0}, {Vector2{0, -100}, 0}}, 0 },
+        .prog = 0,
+        .spline_t = 0.01, 
+        .shoot_t = 0.2f, 
+        .last_shot = 0, 
+        .speed = 8.0f, 
+        .size = 20, 
+        .lt = {0.80, 11}, 
+        .dead = false});
+
+    enemies.push_back(Enemy{
+        .pos = {fdiv(config.screen_width, 2), 0 }, 
+        .mpat{ {{Vector2{1000, 40}, 0}, {Vector2{800, 70}, 0}, {Vector2{300, 100}, 0}, {Vector2{100, 40}, 0}, {Vector2{100, 80}, 0}, {Vector2{0, -100}, 0}}, 0 },
+        .prog = 0,
+        .spline_t = 0.01, 
+        .shoot_t = 0.7f, 
+        .last_shot = 0, 
+        .speed = 8.0f, 
+        .size = 20, 
+        .lt = {1, 11}, 
+        .dead = false});
+    enemies.push_back(Enemy{
+        .pos = {fdiv(config.screen_width, 2), 0 }, 
+        .mpat{ {{Vector2{10, 400}, 0}, {Vector2{0, 100}, 0}, {Vector2{float(config.screen_width) + 20, 100}, 0}, {Vector2{600, 400}, 0}, {Vector2{800, 40}, 0}, {Vector2{1000, -200}, 0}, {Vector2{2000, -400}, 0} }, 0 },
+        .prog = 0,
+        .spline_t = 0.01, 
+        .shoot_t = 0.7f, 
+        .last_shot = 0, 
+        .speed = 8.0f, 
         .size = 20, 
         .lt = {0, 11}, 
         .dead = false});
@@ -65,7 +121,7 @@ namespace plane {
         .lt = {0.40f, 11}, 
         .dead = false});
     for(int j = 0; j < enemies.size(); j++) {
-        for(int i = 0; i < enemies[i].mpat.pts.size(); i++) {
+        for(int i = 0; i < enemies[j].mpat.pts.size(); i++) {
           enemies[j].mpat.len += (enemies[j].mpat.pts[i].len = enemies[j].mpat.SegmentLength(i, true));
         }
     }
@@ -81,7 +137,7 @@ namespace plane {
     //     {Vector2{1, 1}, Vector2{20, 2}, Vector2{400, 40}, Vector2{800, 3}}, 
     //     0, 0.7f, 0, 0.02f, 20, {0, 11}, false});
 
-    while(!WindowShouldClose() && !ded_flag) {
+    while(!WindowShouldClose() && p.lives) {
       if(IsKeyDown(KEY_UP)) {
         p.pos.y -= p.speed;
       }
@@ -97,7 +153,7 @@ namespace plane {
 
       if(IsKeyDown(KEY_SPACE)) {
         if(GetTime() - t_lastShot > 0.10) {
-          Projectile tmp{ Vector2(p.pos), 10, 5.0f};
+          Projectile tmp{ Vector2(p.pos), 10, 10.0f};
           p_bullets.push_back(tmp);
           t_lastShot = GetTime();
         }
@@ -113,37 +169,42 @@ namespace plane {
 
         for(auto &e : enemies) {
           if(!e.dead && e.lt.contains(GetTime()) ) {
-            if(e.prog >= float(e.mpat.len) - e.speed) e.prog -= e.mpat.len;
+            if(e.prog + e.speed >= e.mpat.len) e.prog = 0;
             e.spline_t = e.mpat.getNormalisedOffset(e.prog += e.speed);
-            e.pos = e.mpat.getPoint(e.spline_t, false);
-            SplinePt tmp = e.mpat.getGradient(e.spline_t, false);
-
-
+            std::cout << e.spline_t << "\n";
+            e.pos = e.mpat.getPoint(e.spline_t, true);
+            SplinePt tmp = e.mpat.getGradient(e.spline_t, true);
             auto angle = Vec2Angle(e.pos.pos, tmp.pos);
-
+            // Shooting at player
             if(GetTime() - e.last_shot > e.shoot_t) {
-              e_bullets.push_back(Projectile{Vector2{e.pos.pos.x, e.pos.pos.y}, 10, 14}); 
+              e_bullets.push_back(Projectile{Vector2{e.pos.pos.x, e.pos.pos.y}, 10, 14, angle}); 
               e.last_shot = GetTime();
             }
             DrawCircleV(e.pos.pos, e.size, ORANGE);
           }
         }
         for(auto &i : p_bullets ) {
-          i.pos.y -= i.speed;
-          DrawCircleV(i.pos, i.size, BLUE);
-          for(auto &e : enemies) {
-            if(!e.dead  && CheckCollisionCircles(i.pos, i.size, e.pos.pos, e.size)) {
-              e.dead = true;
-              score++;
+          if(i.live) {
+            i.pos.y -= i.speed;
+            DrawCircleV(i.pos, i.size, BLUE);
+            for(auto &e : enemies) {
+              if(!e.dead  && CheckCollisionCircles(i.pos, i.size, e.pos.pos, e.size)) {
+                e.dead = true;
+                i.live = false;
+                score++;
+              }
             }
           }
         }
         for(auto &i : e_bullets) {
-          i.pos.y += i.speed + i.angle;
-          i.pos.x += i.angle;
-          DrawCircleV(i.pos, i.size, GREEN);
-          if(CheckCollisionCircles(i.pos, i.size, p.pos, p.in_size)) {
-            ded_flag = true;
+          if(i.live) {
+            i.pos.y += i.speed + i.angle;
+            i.pos.x += i.angle;
+            DrawCircleV(i.pos, i.size, GREEN);
+            if(CheckCollisionCircles(i.pos, i.size, p.pos, p.in_size)) {
+              p.lives--;
+              i.live = false;
+            }
           }
         }
         DrawFPS((config.screen_width / 6) * 5, 20);

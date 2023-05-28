@@ -7,5 +7,6 @@ struct Projectile {
   float speed;
   float size;
   float angle;
+  bool live = true;
 };
 }
