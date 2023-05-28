@@ -4,8 +4,8 @@
 
 namespace plane {
 struct Config {
-  double screen_width;
-  double screen_height;
+  float screen_width;
+  float screen_height;
 };
 
 static Config config = { 1080, 720 };
