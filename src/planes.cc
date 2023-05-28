@@ -23,7 +23,7 @@ namespace plane {
     bool ded_flag;
     std::vector<Projectile> p_bullets;
     std::vector<Projectile> e_bullets;
-    std::vector<Enemy> enemies;
+    std::vector<Enemy<1>> enemies;
     p_bullets.reserve(40);
     e_bullets.reserve(200);
     enemies.reserve(100);
@@ -31,7 +31,7 @@ namespace plane {
     float t_lasteShot = GetTime();
     float t_laste = GetTime();
 
-    enemies.push_back(Enemy{
+    enemies.push_back(Enemy<1>{
         .id = 0,
         .pos = {(config.screen_width/ 2), 0 }, 
         .mpat{ {{Vector2{1000, 40}, 0}, {Vector2{800, 70}, 0}, {Vector2{300, 100}, 0}, {Vector2{100, 40}, 0}, {Vector2{100, 80}, 0}, {Vector2{0, -100}, 0}}, 0 },
@@ -42,8 +42,10 @@ namespace plane {
         .speed = 8.0f, 
         .size = 20, 
         .lt = {0, 11}, 
-        .dead = false});
-    enemies.push_back(Enemy{
+        .dead = false,
+        .points{}
+        });
+    enemies.push_back(Enemy<1>{
         .id = 1,
         .pos = {(config.screen_width/ 2), 0 }, 
         .mpat{ {{Vector2{1000, 40}, 0}, {Vector2{800, 70}, 0}, {Vector2{300, 100}, 0}, {Vector2{100, 40}, 0}, {Vector2{100, 80}, 0}, {Vector2{0, -100}, 0}}, 0 },
@@ -54,8 +56,10 @@ namespace plane {
         .speed = 8.0f, 
         .size = 20, 
         .lt = {0.20f, 11}, 
-        .dead = false});
-    enemies.push_back(Enemy{
+        .dead = false,
+        .points{}
+        });
+    enemies.push_back(Enemy<1>{
         .id = 2,
         .pos = {(config.screen_width/ 2), 0 }, 
         .mpat{ {{Vector2{1000, 40}, 0}, {Vector2{800, 70}, 0}, {Vector2{300, 100}, 0}, {Vector2{100, 40}, 0}, {Vector2{100, 80}, 0}, {Vector2{0, -100}, 0}}, 0 },
@@ -66,8 +70,10 @@ namespace plane {
         .speed = 8.0f, 
         .size = 20, 
         .lt = {0.60, 11}, 
-        .dead = false});
-    enemies.push_back(Enemy{
+        .dead = false,
+        .points{}
+        });
+    enemies.push_back(Enemy<1>{
         .id = 3,
         .pos = {(config.screen_width/ 2), 0 }, 
         .mpat{ {{Vector2{1000, 40}, 0}, {Vector2{800, 70}, 0}, {Vector2{300, 100}, 0}, {Vector2{100, 40}, 0}, {Vector2{100, 80}, 0}, {Vector2{0, -100}, 0}}, 0 },
@@ -78,9 +84,11 @@ namespace plane {
         .speed = 8.0f, 
         .size = 20, 
         .lt = {0.80, 11}, 
-        .dead = false});
+        .dead = false,
+        .points{}
+        });
 
-    enemies.push_back(Enemy{
+    enemies.push_back(Enemy<1>{
         .id = 4,
         .pos = {(config.screen_width/ 2), 0 }, 
         .mpat{ {{Vector2{1000, 40}, 0}, {Vector2{800, 70}, 0}, {Vector2{300, 100}, 0}, {Vector2{100, 40}, 0}, {Vector2{100, 80}, 0}, {Vector2{0, -100}, 0}}, 0 },
@@ -91,8 +99,11 @@ namespace plane {
         .speed = 12.0f, 
         .size = 20, 
         .lt = {1, 11}, 
-        .dead = false});
-    enemies.push_back(Enemy{
+        .dead = false,
+        .points{}
+        });
+
+    enemies.push_back(Enemy<1>{
         .id = 5,
         .pos = {(config.screen_width/ 2), 0 }, 
         .mpat{ {{Vector2{10, 400}, 0}, {Vector2{0, 100}, 0}, {Vector2{float(config.screen_width) + 20, 100}, 0}, {Vector2{600, 400}, 0}, {Vector2{800, 40}, 0}, {Vector2{1000, -200}, 0}, {Vector2{2000, -400}, 0} }, 0 },
@@ -103,8 +114,10 @@ namespace plane {
         .speed = 6.0f, 
         .size = 20, 
         .lt = {0, 11}, 
-        .dead = false});
-    enemies.push_back(Enemy{
+        .dead = false,
+        .points{}
+        });
+    enemies.push_back(Enemy<1>{
         .id = 6,
         .pos = {(config.screen_width/ 2), 0 }, 
         .mpat{ {{Vector2{10, 400}, 0}, {Vector2{0, 100}, 0}, {Vector2{float(config.screen_width) + 20, 100}, 0}, {Vector2{600, 400}, 0}, {Vector2{800, 40}, 0}, {Vector2{1000, -100}, 0}, {Vector2{2000, -200}, 0} }, 0 },
@@ -116,7 +129,7 @@ namespace plane {
         .size = 20, 
         .lt = {0.1, 11}, 
         .dead = false});
-    enemies.push_back(Enemy{
+    enemies.push_back(Enemy<1>{
         .id = 7,
         .pos = {(config.screen_width/ 2), 0 }, 
         .mpat{ {{Vector2{10, 400}, 0}, {Vector2{0, 100}, 0}, {Vector2{float(config.screen_width) + 20, 100}, 0}, {Vector2{600, 400}, 0}, {Vector2{800, 40}, 0}, {Vector2{1000, -100}, 0}, {Vector2{2000, -200}, 0} }, 0 },
@@ -127,8 +140,11 @@ namespace plane {
         .speed = 5.0f, 
         .size = 20, 
         .lt = {0.20f, 11}, 
-        .dead = false});
-    enemies.push_back(Enemy{
+        .dead = false,
+        .points{}
+        });
+
+    enemies.push_back(Enemy<1>{
         .id = 8,
         .pos = {(config.screen_width/ 2), 0 }, 
         .mpat{ {{Vector2{10, 400}, 0}, {Vector2{0, 100}, 0}, {Vector2{float(config.screen_width) + 20, 100}, 0}, {Vector2{600, 400}, 0}, {Vector2{800, 40}, 0}, {Vector2{1000, -100}, 0}, {Vector2{2000, -200}, 0} }, 0 },
@@ -139,8 +155,11 @@ namespace plane {
         .speed = 9.0f, 
         .size = 20, 
         .lt = {0.20f, 11}, 
-        .dead = false});
-    enemies.push_back(Enemy{
+        .dead = false,
+        .points{}
+        });
+
+    enemies.push_back(Enemy<1>{
         .id = 9,
         .pos = {(config.screen_width/ 2), 0 }, 
         .mpat{ {{Vector2{10, 400}, 0}, {Vector2{0, 100}, 0}, {Vector2{float(config.screen_width) + 20, 100}, 0}, {Vector2{600, 400}, 0}, {Vector2{800, 40}, 0}, {Vector2{1000, -100}, 0}, {Vector2{2000, -200}, 0} }, 0 },
@@ -151,7 +170,9 @@ namespace plane {
         .speed = 5.0f, 
         .size = 20, 
         .lt = {0.40f, 11}, 
-        .dead = false});
+        .dead = false,
+        .points{},
+        });
 
     for(int j = 0; j < enemies.size(); j++) {
         for(int i = 0; i < enemies[j].mpat.pts.size(); i++) {

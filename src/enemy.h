@@ -17,6 +17,8 @@ struct Lifetime {
   float start;
   float end;
 };
+
+template<int N>
 struct Enemy {
   size_t id;
   SplinePt pos;
@@ -28,8 +30,11 @@ struct Enemy {
   float speed = 0.01;
   float size;
   Lifetime lt;
-  
   bool dead = false;
   bool marked = false;
+  std::array<SplinePt, N> points;
+
+  // routine that uses a time to determine what to do, which point to go to, etc
+  static std::function<void(float time)> routine;
 };
 }
