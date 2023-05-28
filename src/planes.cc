@@ -117,6 +117,7 @@ namespace plane {
         .lt = {0.1, 11}, 
         .dead = false});
     enemies.push_back(Enemy{
+        .id = 7,
         .pos = {fdiv(config.screen_width, 2), 0 }, 
         .mpat{ {{Vector2{10, 400}, 0}, {Vector2{0, 100}, 0}, {Vector2{float(config.screen_width) + 20, 100}, 0}, {Vector2{600, 400}, 0}, {Vector2{800, 40}, 0}, {Vector2{1000, -100}, 0}, {Vector2{2000, -200}, 0} }, 0 },
         .prog = 0,
@@ -128,7 +129,7 @@ namespace plane {
         .lt = {0.20f, 11}, 
         .dead = false});
     enemies.push_back(Enemy{
-        .id = 7,
+        .id = 8,
         .pos = {fdiv(config.screen_width, 2), 0 }, 
         .mpat{ {{Vector2{10, 400}, 0}, {Vector2{0, 100}, 0}, {Vector2{float(config.screen_width) + 20, 100}, 0}, {Vector2{600, 400}, 0}, {Vector2{800, 40}, 0}, {Vector2{1000, -100}, 0}, {Vector2{2000, -200}, 0} }, 0 },
         .prog = 0,
@@ -140,7 +141,7 @@ namespace plane {
         .lt = {0.20f, 11}, 
         .dead = false});
     enemies.push_back(Enemy{
-        .id = 8,
+        .id = 9,
         .pos = {fdiv(config.screen_width, 2), 0 }, 
         .mpat{ {{Vector2{10, 400}, 0}, {Vector2{0, 100}, 0}, {Vector2{float(config.screen_width) + 20, 100}, 0}, {Vector2{600, 400}, 0}, {Vector2{800, 40}, 0}, {Vector2{1000, -100}, 0}, {Vector2{2000, -200}, 0} }, 0 },
         .prog = 0,
@@ -171,6 +172,9 @@ namespace plane {
       if(IsKeyDown(KEY_LEFT)) {
         p.pos.x -= p.speed;
       }
+
+      p.pos.x += GetFrameTime() * 100 * GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_X);
+      p.pos.y += GetFrameTime() * 100 * GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_Y);
 
       if(IsKeyDown(KEY_SPACE)) {
         if(GetTime() - t_lastShot > 0.10) {
@@ -210,7 +214,7 @@ namespace plane {
 
             // Shooting at player
             if(GetTime() - e.last_shot > e.shoot_t) {
-              e_bullets.push_back(Projectile{Vector2{e.pos.pos.x, e.pos.pos.y}, 40, 14, angle}); 
+              e_bullets.push_back(Projectile{Vector2{e.pos.pos.x, e.pos.pos.y}, 20, 14, angle}); 
               e.last_shot = GetTime();
             }
             DrawCircleV(e.pos.pos, e.size, ORANGE);
@@ -224,6 +228,7 @@ namespace plane {
         }
         if(p.b_fire && p.b_size) {
           for(auto &i : p.marked ) {
+            enemies[i].marked = false;
             p_bullets.push_back(
                 {p.pos, 20, 14, 0, true, true, i}
                 );
@@ -231,6 +236,7 @@ namespace plane {
           p.b_size = 0;
           p.b_charging = false;
           p.marked.clear();
+          
         }
         for(auto &i : p_bullets ) {
           if(i.live) {
