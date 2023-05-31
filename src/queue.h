@@ -1,9 +1,8 @@
 #include <atomic>
 #include <mutex>
 #include <concepts>
-
-#include <iostream>
-
+#include <optional> 
+#include <bit> 
 template<class T, size_t N>
 requires(std::has_single_bit(N))
 struct alignas(N) Queue{
