@@ -28,7 +28,6 @@ struct Task {
   TaskState state;
 };
 
-
 struct TaskManager {
   TaskManager() {
     n_threads = std::thread::hardware_concurrency();
@@ -48,18 +47,18 @@ struct TaskManager {
     auto state = this->status;
     while(state == TASK_MGR_STATE_RUNNING) {
       state = this->status;
-      auto task = queue.pop_and_get();
-      if(task.has_value()) {
-        auto res = task.value().func;
-        res();
+      auto otask = task_queue.pop_and_get();
+      Task task;
+      if(otask.has_value()) task = otask.value();
+      if(task.func) {
+        task.func();
       }
       else continue;
     }
-
   }
   std::atomic<uint32_t> n_tasks{};
   std::mutex queue_lock;
-  Queue<Task, 256> queue;
+  Queue<Task, 256> task_queue;
   std::vector<std::thread> threads;
   TaskManagerState status;
   uint16_t n_threads;

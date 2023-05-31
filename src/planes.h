@@ -5,6 +5,8 @@
 #include "projectile.h"
 #include "enemy.h"
 
+#include "stage1.h"
+
 namespace plane {
 
   int main_loop();

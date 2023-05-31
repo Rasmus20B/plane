@@ -10,6 +10,8 @@ add_executable(${PROJECT_NAME}
   queue.h
   spline.cc
   spline.h
+  stage1.cc
+  stage1.h
   tasking.cc
   tasking.h
   vector_calc.h

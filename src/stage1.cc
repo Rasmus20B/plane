@@ -2,43 +2,23 @@
 
 namespace plane {
 
-  int stage1::loop() {
 
-    /*
-    spawn(enemytype, 100)
-    spawn(projectile, 100)
+  void *enem1() {
+    for(int i = 0; i < 3; i++) {
+      std::cout << "REKT BRUV\n";
+      std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    }
+  }
 
-
-    */
-
+  void *stage1() {
+    std::cout << "we're in t stage one heres\n";
+    tmgr.task_queue.push(Task{
+        .func = &enem1,
+        .state{},
+        });
 
     return 0;
   }
 }
-/*
- *
- * TASK(burst_enemy, positions) {
- *  while(notdead, t <= lt.second) {
- *    enemyprojectiles.push_back(pos, pattern, etc);
- *    WAIT(25)
- *  }
- * }
- *
- * enemy_spawner() {
- *  for(int i = 0; i < 4; i++) {
- *    TASK(burst_enemy, position + 300)
- *    TASK(burst_enemy, position - 300)
- *    WAIT(20);
- *  }
- * }
-
-   While(1) {
-    delayed_spawn(enemy_spawner, time);
-    delayed_spawn(enemy2_spawner, time);
-    delayed_spawn(enemy3, time);
-   }
-
-TODO : just use a routine for each enemy, regular function
-
-*/
+//TODO : just use a routine for each enemy, regular function
 

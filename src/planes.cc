@@ -180,7 +180,12 @@ namespace plane {
         }
     }
 
+      tmgr.task_queue.push({
+        .func = &stage1,
+        .state{}
+      });
     while(!WindowShouldClose() && p.lives) {
+
       if(IsKeyDown(KEY_UP)) {
         p.pos.y -= p.speed;
       }
@@ -235,7 +240,7 @@ namespace plane {
 
             // Shooting at player
             if(GetTime() - e.last_shot > e.shoot_t) {
-              e_bullets.push_back(Projectile{Vector2{e.pos.pos.x, e.pos.pos.y}, 20, 14, angle}); 
+              e_bullets.push_back(Projectile{Vector2{e.pos.pos.x, e.pos.pos.y}, 10, 14, angle}); 
               e.last_shot = GetTime();
             }
             DrawCircleV(e.pos.pos, e.size, ORANGE);

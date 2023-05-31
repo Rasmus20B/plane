@@ -3,10 +3,8 @@
 #include <array>
 #include <vector>
 
+#include "tasking.h"
+
 namespace plane {
-struct stage1 {
-  int init();
-  int loop();
-  int finish();
-};
+  void *stage1();
 }
