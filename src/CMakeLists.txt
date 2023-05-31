@@ -7,8 +7,11 @@ add_executable(${PROJECT_NAME}
   planes.h
   player.h
   projectile.h
+  queue.h
   spline.cc
   spline.h
+  tasking.cc
+  tasking.h
   vector_calc.h
   vector_calc.cc
   )

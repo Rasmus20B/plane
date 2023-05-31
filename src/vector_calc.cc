@@ -38,7 +38,6 @@ namespace plane {
     int mag = Vec2Len(a);
     a.x /= mag;
     a.y /= mag;
-    std::cout << "Len : " << mag << ". a.x = " << a.x << ", a.y = " << a.y << "\n";
     return a;
   }
 }

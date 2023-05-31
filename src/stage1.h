@@ -3,7 +3,10 @@
 #include <array>
 #include <vector>
 
+namespace plane {
 struct stage1 {
-
-  std::vector<int> fucks;
+  int init();
+  int loop();
+  int finish();
 };
+}
