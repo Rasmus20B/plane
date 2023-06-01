@@ -10,7 +10,6 @@
 
 #include <thread>
 
-#include <iostream>
 namespace plane {
 
 enum TaskState {
@@ -40,7 +39,7 @@ struct TaskManager {
   ~TaskManager() {
     status = TASK_MGR_STATE_STOPPED;
     for(auto &t: threads) {
-      t.join();
+      t.detach();
     }
   }
 
@@ -54,7 +53,7 @@ struct TaskManager {
       if(task.func) {
         task.func();
       }
-      else continue;
+      else std::this_thread::yield();
     }
   }
   std::atomic<uint32_t> n_tasks{};
@@ -62,8 +61,8 @@ struct TaskManager {
   Queue<Task, 256> task_queue;
   std::vector<std::thread> threads;
   TaskManagerState status;
+  std::atomic<bool> paused = false;
   uint16_t n_threads;
 };
-
 inline TaskManager tmgr{};
 }

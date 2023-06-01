@@ -1,3 +1,4 @@
+#include <atomic>
 #include <vector> 
 
 #include <raylib.h> 
@@ -199,6 +200,16 @@ namespace plane {
         p.pos.x -= p.speed;
       }
 
+      if(IsKeyPressed(KEY_ENTER)) {
+        if(!tmgr.paused.load(std::memory_order_release)) {
+          tmgr.paused.store(true);
+          tmgr.paused.notify_all();
+          std::cout << "paused = " << tmgr.paused << "\n";
+        } else {
+          tmgr.paused.store(false);
+          tmgr.paused.notify_all();
+        }
+      }
       p.pos.x += GetFrameTime() * 100 * GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_X);
       p.pos.y += GetFrameTime() * 100 * GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_Y);
 
@@ -303,6 +314,10 @@ namespace plane {
         DrawFPS((config.screen_width / 6) * 5, 20);
         DrawText(std::to_string(score).data(), (config.screen_width / 6) * 5, 40, 20, RED);
         DrawText(std::to_string(p.lives).data(), (config.screen_width / 6) * 5, 60, 20, RED);
+
+        if(tmgr.paused.load()) {
+          DrawText("Paused", (config.screen_width/2), 200, 20, RED);
+        }
       EndDrawing();
     }
   

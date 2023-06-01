@@ -6,6 +6,7 @@ namespace plane {
   void *enem1() {
     for(int i = 0; i < 3; i++) {
       std::cout << "REKT BRUV\n";
+      tmgr.paused.wait(1);
       std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
   }
