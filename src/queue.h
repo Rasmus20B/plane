@@ -3,14 +3,19 @@
 #include <concepts>
 #include <optional> 
 #include <bit> 
+
 template<class T, size_t N>
-requires(std::has_single_bit(N))
+requires(std::has_single_bit(N), sizeof(T) < 64)
 struct alignas(N) Queue{
   bool push(T val) {
     std::scoped_lock<std::mutex> lock(m);
-    if(head == capacity)
-      return false;
-    
+    if(head == capacity && !populated[0]) {
+      head = 0;
+      buf[head] = val;
+      populated[head] = true;
+      head++;
+      return true;
+    }
     buf[head] = val;
     populated[head] = true;
     head++;
@@ -19,6 +24,8 @@ struct alignas(N) Queue{
 
   void pop() {
     std::scoped_lock<std::mutex> lock(m);
+    if(tail == head) return;
+    if(tail == capacity) tail = 0;
     if(head > tail) {
       populated[tail] = false;
       tail++;
@@ -27,8 +34,12 @@ struct alignas(N) Queue{
   
   std::optional<T> pop_and_get() {
     std::scoped_lock<std::mutex> lock(m);
-    if(populated[tail] && head > tail){ 
-
+    if(populated[tail]){ 
+      if(tail == capacity - 1) {
+        tail = 0;
+        populated[capacity - 1] = false;
+        return buf[capacity - 1];
+      }
       populated[tail] = false;
       tail++;
       return buf[tail-1];

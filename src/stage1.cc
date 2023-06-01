@@ -13,7 +13,7 @@ namespace plane {
   void *stage1() {
     std::cout << "we're in t stage one heres\n";
     tmgr.task_queue.push(Task{
-        .func = &enem1,
+        .func = enem1,
         .state{},
         });
 
