@@ -53,7 +53,7 @@ struct TaskManager {
       if(task.func) {
         task.func();
       }
-      else std::this_thread::yield();
+      else this->work.wait(true);
     }
   }
   std::atomic<uint32_t> n_tasks{};
@@ -62,6 +62,7 @@ struct TaskManager {
   std::vector<std::thread> threads;
   TaskManagerState status;
   std::atomic<bool> paused = false;
+  std::atomic<bool> work = false;
   uint16_t n_threads;
 };
 inline TaskManager tmgr{};

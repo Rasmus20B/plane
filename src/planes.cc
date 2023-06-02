@@ -185,6 +185,8 @@ namespace plane {
         .func = &stage1,
         .state{}
       });
+      tmgr.work.store(true);
+      tmgr.work.notify_one();
     while(!WindowShouldClose() && p.lives) {
 
       if(IsKeyDown(KEY_UP)) {
@@ -201,10 +203,9 @@ namespace plane {
       }
 
       if(IsKeyPressed(KEY_ENTER)) {
-        if(!tmgr.paused.load(std::memory_order_release)) {
+        if(!tmgr.paused.load()) {
           tmgr.paused.store(true);
           tmgr.paused.notify_all();
-          std::cout << "paused = " << tmgr.paused << "\n";
         } else {
           tmgr.paused.store(false);
           tmgr.paused.notify_all();
