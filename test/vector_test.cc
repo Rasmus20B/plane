@@ -44,6 +44,6 @@ TEST(vector, vector_norm) {
 TEST(vector, vector_angle) {
   Vec2 a { 5, 7 };
   Vec2 b { 3, 4 };
-  EXPECT_EQ(0.023f, round(a.angle(b) * 1000) / 1000);
+  EXPECT_EQ(0.023f, (float)round(a.angle(b) * 1000) / 1000);
 
 }
