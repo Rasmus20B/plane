@@ -18,35 +18,46 @@ namespace plane {
     }
   }
 
-  static inline Task Stage1 {
-    .routine = []() {
-      Enemy e(Enemy<1>{
-          .id = 1,
-          .pos = {(config.screen_width/ 2), 0 }, 
-          .mpat{ {
-            {Vector2{10, 400}, 0}, 
-            {Vector2{0, 100}, 0}, 
-            {Vector2{float(config.screen_width) + 20, 100}, 0}, 
-            {Vector2{600, 400}, 0}, 
-            {Vector2{700, 200}, 0}, 
-            {Vector2{800, 40}, 0} }, 0 },
-          .prog = 0,
-          .spline_t = 0.01, 
-          .shoot_t = 0.7f, 
-          .last_shot = 0, 
-          .speed = 5.0f, 
-          .size = 20, 
-          .lt = {0.40f, 11}, 
-          .dead = false,
-          .points{},
+  inline void enemies1(void *) {
+    for(size_t i = 0; i < 3; ++i) {
+      e_mgr.task_queue.push(Task{
+          .routine = [i](void*) {
+            Enemy e(Enemy<1>{
+                .id = i,
+                .pos = {(config.screen_width/ 2), 0 }, 
+                .mpat{ {
+                  {Vector2{10, 400}, 0}, 
+                  {Vector2{0, 100}, 0}, 
+                  {Vector2{float(config.screen_width) + 20, 100}, 0}, 
+                  {Vector2{600, 400}, 0}, 
+                  {Vector2{700, 200}, 0}, 
+                  {Vector2{800, 40}, 0} }, 0 },
+                .prog = 0,
+                .spline_t = 0.01, 
+                .shoot_t = 0.7f, 
+                .last_shot = 0, 
+                .speed = 5.0f, 
+                .size = 20, 
+                .lt = {static_cast<float>(i), static_cast<float>(i)+20}, 
+                .dead = false,
+                .points{},
+                });
+            e_mgr.data->list.emplace_back(e);
+            e_mgr.data->head++;
+            std::cout << i << "\n";
+          },
+          .state = {}
           });
-      e_mgr.data->list.emplace_back(e);
-      e_mgr.data->head++;
-      // tmgr.task_queue.push(Task{
-      //     .routine = enem1,
-      //     .state{},
-      //     });
-      wait_for(1000);
+    }
+  }
+  static inline Task Stage1 {
+    .routine = [](void*) {
+        e_mgr.task_queue.push(Task{
+            .routine = &enemies1,
+            .state = {}
+            }
+        );
+        wait_for(20);
     }
   };
 }

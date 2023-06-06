@@ -39,7 +39,7 @@ namespace plane {
     });
     e_mgr.work.store(true);
     e_mgr.work.notify_one();
-    std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
     std::cout << e_mgr.data->head << "\n";
     for(int j = 0; j < e_mgr.data->head; j++) {
         for(int i = 0; i < e_list.list[j].mpat.pts.size(); i++) {

@@ -26,7 +26,7 @@ enum TaskManagerState {
 };
 
 struct Task {
-  std::function<void(void)> routine;
+  std::function<void(void*)> routine;
   TaskState state;
 };
 
@@ -54,7 +54,7 @@ struct TaskManager {
       Task task;
       if(otask.has_value()) task = otask.value();
       if(task.routine) {
-        task.routine();
+        task.routine({});
       }
       else this->work.wait(true);
     }
