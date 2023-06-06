@@ -30,12 +30,18 @@ struct Enemy {
   float speed = 0.01;
   float size;
   Lifetime lt;
-  bool dead = false;
+  bool dead = true;
   bool marked = false;
   std::array<SplinePt, N> points;
 
   // routine that uses a time to determine what to do, which point to go to, etc
-  Task t{};
   std::function<void(float time)> draw_func;
 };
+
+struct EnemyList {
+  std::vector<Enemy<1>> list;
+  size_t head = 0;
+};
+
+inline TaskManager<EnemyList> e_mgr{};
 }

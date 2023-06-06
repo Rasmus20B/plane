@@ -24,169 +24,29 @@ namespace plane {
     bool ded_flag;
     std::vector<Projectile> p_bullets;
     std::vector<Projectile> e_bullets;
-    std::vector<Enemy<1>> enemies;
+    EnemyList e_list;
+    e_list.list.reserve(100);
+    e_mgr.data = &e_list;
     p_bullets.reserve(40);
     e_bullets.reserve(200);
-    enemies.reserve(100);
+    // e_list.reserve(100);
     float t_lastShot = GetTime();
     float t_lasteShot = GetTime();
     float t_laste = GetTime();
 
-    enemies.push_back(Enemy<1>{
-        .id = 0,
-        .pos = {(config.screen_width/ 2), 0 }, 
-        .mpat{ {{Vector2{1000, 40}, 0}, {Vector2{800, 70}, 0}, {Vector2{300, 100}, 0}, {Vector2{100, 40}, 0}, {Vector2{100, 80}, 0}, {Vector2{0, -100}, 0}}, 0 },
-        .prog = 0,
-        .spline_t = 0.01, 
-        .shoot_t = 0.7f, 
-        .last_shot = 0, 
-        .speed = 8.0f, 
-        .size = 20, 
-        .lt = {0, 11}, 
-        .dead = false,
-        .points{}
-        });
-    enemies.push_back(Enemy<1>{
-        .id = 1,
-        .pos = {(config.screen_width/ 2), 0 }, 
-        .mpat{ {{Vector2{1000, 40}, 0}, {Vector2{800, 70}, 0}, {Vector2{300, 100}, 0}, {Vector2{100, 40}, 0}, {Vector2{100, 80}, 0}, {Vector2{0, -100}, 0}}, 0 },
-        .prog = 0,
-        .spline_t = 0.01, 
-        .shoot_t = 0.7f, 
-        .last_shot = 0, 
-        .speed = 8.0f, 
-        .size = 20, 
-        .lt = {0.20f, 11}, 
-        .dead = false,
-        .points{}
-        });
-    enemies.push_back(Enemy<1>{
-        .id = 2,
-        .pos = {(config.screen_width/ 2), 0 }, 
-        .mpat{ {{Vector2{1000, 40}, 0}, {Vector2{800, 70}, 0}, {Vector2{300, 100}, 0}, {Vector2{100, 40}, 0}, {Vector2{100, 80}, 0}, {Vector2{0, -100}, 0}}, 0 },
-        .prog = 0,
-        .spline_t = 0.01, 
-        .shoot_t = 0.7f, 
-        .last_shot = 0, 
-        .speed = 8.0f, 
-        .size = 20, 
-        .lt = {0.60, 11}, 
-        .dead = false,
-        .points{}
-        });
-    enemies.push_back(Enemy<1>{
-        .id = 3,
-        .pos = {(config.screen_width/ 2), 0 }, 
-        .mpat{ {{Vector2{1000, 40}, 0}, {Vector2{800, 70}, 0}, {Vector2{300, 100}, 0}, {Vector2{100, 40}, 0}, {Vector2{100, 80}, 0}, {Vector2{0, -100}, 0}}, 0 },
-        .prog = 0,
-        .spline_t = 0.01, 
-        .shoot_t = 0.2f, 
-        .last_shot = 0, 
-        .speed = 8.0f, 
-        .size = 20, 
-        .lt = {0.80, 11}, 
-        .dead = false,
-        .points{}
-        });
-
-    enemies.push_back(Enemy<1>{
-        .id = 4,
-        .pos = {(config.screen_width/ 2), 0 }, 
-        .mpat{ {{Vector2{1000, 40}, 0}, {Vector2{800, 70}, 0}, {Vector2{300, 100}, 0}, {Vector2{100, 40}, 0}, {Vector2{100, 80}, 0}, {Vector2{0, -100}, 0}}, 0 },
-        .prog = 0,
-        .spline_t = 0.01, 
-        .shoot_t = 0.7f, 
-        .last_shot = 0, 
-        .speed = 12.0f, 
-        .size = 20, 
-        .lt = {13, 20}, 
-        .dead = false,
-        .points{}
-        });
-
-    enemies.push_back(Enemy<1>{
-        .id = 5,
-        .pos = {(config.screen_width/ 2), 0 }, 
-        .mpat{ {{Vector2{10, 400}, 0}, {Vector2{0, 100}, 0}, {Vector2{float(config.screen_width) + 20, 100}, 0}, {Vector2{600, 400}, 0}, {Vector2{800, 40}, 0}, {Vector2{1000, -200}, 0}, {Vector2{2000, -400}, 0} }, 0 },
-        .prog = 0,
-        .spline_t = 0.01, 
-        .shoot_t = 0.7f, 
-        .last_shot = 0, 
-        .speed = 6.0f, 
-        .size = 20, 
-        .lt = {14, 20}, 
-        .dead = false,
-        .points{}
-        });
-    enemies.push_back(Enemy<1>{
-        .id = 6,
-        .pos = {(config.screen_width/ 2), 0 }, 
-        .mpat{ {{Vector2{10, 400}, 0}, {Vector2{0, 100}, 0}, {Vector2{float(config.screen_width) + 20, 100}, 0}, {Vector2{600, 400}, 0}, {Vector2{800, 40}, 0}, {Vector2{1000, -100}, 0}, {Vector2{2000, -200}, 0} }, 0 },
-        .prog = 0,
-        .spline_t = 0.01, 
-        .shoot_t = 0.7f, 
-        .last_shot = 0, 
-        .speed = 5.0f, 
-        .size = 20, 
-        .lt = {0.1, 11}, 
-        .dead = false});
-    enemies.push_back(Enemy<1>{
-        .id = 7,
-        .pos = {(config.screen_width/ 2), 0 }, 
-        .mpat{ {{Vector2{10, 400}, 0}, {Vector2{0, 100}, 0}, {Vector2{float(config.screen_width) + 20, 100}, 0}, {Vector2{600, 400}, 0}, {Vector2{800, 40}, 0}, {Vector2{1000, -100}, 0}, {Vector2{2000, -200}, 0} }, 0 },
-        .prog = 0,
-        .spline_t = 0.01, 
-        .shoot_t = 0.7f, 
-        .last_shot = 0, 
-        .speed = 5.0f, 
-        .size = 20, 
-        .lt = {0.20f, 11}, 
-        .dead = false,
-        .points{}
-        });
-
-    enemies.push_back(Enemy<1>{
-        .id = 8,
-        .pos = {(config.screen_width/ 2), 0 }, 
-        .mpat{ {{Vector2{10, 400}, 0}, {Vector2{0, 100}, 0}, {Vector2{float(config.screen_width) + 20, 100}, 0}, {Vector2{600, 400}, 0}, {Vector2{800, 40}, 0}, {Vector2{1000, -100}, 0}, {Vector2{2000, -200}, 0} }, 0 },
-        .prog = 0,
-        .spline_t = 0.01, 
-        .shoot_t = 0.7f, 
-        .last_shot = 0, 
-        .speed = 9.0f, 
-        .size = 20, 
-        .lt = {0.20f, 11}, 
-        .dead = false,
-        .points{}
-        });
-
-    enemies.push_back(Enemy<1>{
-        .id = 9,
-        .pos = {(config.screen_width/ 2), 0 }, 
-        .mpat{ {{Vector2{10, 400}, 0}, {Vector2{0, 100}, 0}, {Vector2{float(config.screen_width) + 20, 100}, 0}, {Vector2{600, 400}, 0}, {Vector2{800, 40}, 0}, {Vector2{1000, -100}, 0}, {Vector2{2000, -200}, 0} }, 0 },
-        .prog = 0,
-        .spline_t = 0.01, 
-        .shoot_t = 0.7f, 
-        .last_shot = 0, 
-        .speed = 5.0f, 
-        .size = 20, 
-        .lt = {0.40f, 11}, 
-        .dead = false,
-        .points{},
-        });
-
-    for(int j = 0; j < enemies.size(); j++) {
-        for(int i = 0; i < enemies[j].mpat.pts.size(); i++) {
-          enemies[j].mpat.len += (enemies[j].mpat.pts[i].len = enemies[j].mpat.SegmentLength(i, true));
+    e_mgr.task_queue.push({
+        Stage1
+    });
+    e_mgr.work.store(true);
+    e_mgr.work.notify_one();
+    std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    std::cout << e_mgr.data->head << "\n";
+    for(int j = 0; j < e_mgr.data->head; j++) {
+        for(int i = 0; i < e_list.list[j].mpat.pts.size(); i++) {
+          e_list.list[j].mpat.len += (e_list.list[j].mpat.pts[i].len = e_list.list[j].mpat.SegmentLength(i, true));
         }
     }
 
-      tmgr.task_queue.push({
-        .func = &stage1,
-        .state{}
-      });
-      tmgr.work.store(true);
-      tmgr.work.notify_one();
 
     while(!WindowShouldClose() && p.lives) {
       if(!p.d_time) {
@@ -204,12 +64,12 @@ namespace plane {
       }
 
       if(IsKeyPressed(KEY_ENTER)) {
-        if(!tmgr.paused.load()) {
-          tmgr.paused.store(true);
-          tmgr.paused.notify_all();
+        if(!e_mgr.paused.load()) {
+          e_mgr.paused.store(true);
+          e_mgr.paused.notify_all();
         } else {
-          tmgr.paused.store(false);
-          tmgr.paused.notify_all();
+          e_mgr.paused.store(false);
+          e_mgr.paused.notify_all();
         }
       }
       p.pos.x += GetFrameTime() * 100 * GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_X);
@@ -257,8 +117,8 @@ namespace plane {
           DrawCircleV(p.pos, p.b_size, Color{255, 0, 0, 40});
         }
 
-        for(auto &e : enemies) {
-          if(!e.dead && e.lt.contains(GetTime()) ) {
+        for(auto &e : e_mgr.data->list) {
+          if(!e.dead && e.lt.contains(GetTime())) {
             if(e.prog + e.speed >= e.mpat.len) e.prog = 0;
             e.spline_t = e.mpat.getNormalisedOffset(e.prog += e.speed);
             e.pos = e.mpat.getPoint(e.spline_t, true);
@@ -281,7 +141,7 @@ namespace plane {
         }
         if(p.b_fire && p.b_size) {
           for(auto &i : p.marked ) {
-            enemies[i].marked = false;
+            e_list.list[i].marked = false;
             p_bullets.push_back(
                 {p.pos, 20, 14, 0, true, true, i}
                 );
@@ -296,18 +156,18 @@ namespace plane {
             if(i.home) {
 
               // Make sure homing bullet is gone once target it dead
-              if(enemies[i.target].dead) {
+              if(e_list.list[i.target].dead) {
                 i.live = false;
                 continue;
               }
-              auto dir = Vec2Norm(Vec2Sub(enemies[i.target].pos.pos, i.pos));
+              auto dir = Vec2Norm(Vec2Sub(e_list.list[i.target].pos.pos, i.pos));
               i.pos.x = i.pos.x + dir.x * i.speed;
               i.pos.y = i.pos.y + dir.y * i.speed;
             } else {
               i.pos.y -= i.speed;
             }
             DrawCircleV(i.pos, i.size, BLUE);
-            for(auto &e : enemies) {
+            for(auto &e : e_list.list) {
               if(!e.dead  && CheckCollisionCircles(i.pos, i.size, e.pos.pos, e.size)) {
                 e.dead = true;
                 i.live = false;
@@ -332,7 +192,7 @@ namespace plane {
         DrawText(std::to_string(score).data(), (config.screen_width / 6) * 5, 40, 20, RED);
         DrawText(std::to_string(p.lives).data(), (config.screen_width / 6) * 5, 60, 20, RED);
 
-        if(tmgr.paused.load()) {
+        if(e_mgr.paused.load()) {
           DrawText("Paused", (config.screen_width/2), 200, 20, RED);
         }
       EndDrawing();

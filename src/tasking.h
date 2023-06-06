@@ -6,6 +6,8 @@
 #include <mutex>
 #include <functional> 
 
+#include <memory> 
+
 #include "queue.h"
 
 #include <thread>
@@ -24,10 +26,11 @@ enum TaskManagerState {
 };
 
 struct Task {
-  std::function<void(void)> func;
+  std::function<void(void)> routine;
   TaskState state;
 };
 
+template<typename T>
 struct TaskManager {
   TaskManager() {
     n_threads = std::thread::hardware_concurrency();
@@ -50,8 +53,8 @@ struct TaskManager {
       auto otask = task_queue.pop_and_get();
       Task task;
       if(otask.has_value()) task = otask.value();
-      if(task.func) {
-        task.func();
+      if(task.routine) {
+        task.routine();
       }
       else this->work.wait(true);
     }
@@ -63,7 +66,7 @@ struct TaskManager {
   TaskManagerState status;
   std::atomic<bool> paused = false;
   std::atomic<bool> work = false;
+  T* data;
   uint16_t n_threads;
 };
-inline TaskManager tmgr{};
 }
