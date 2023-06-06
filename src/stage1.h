@@ -20,8 +20,8 @@ namespace plane {
   }
 
   inline void enemies1(void *) {
-    for(size_t i = 0; i < 1; ++i) {
-      e_mgr.task_queue.push(std::move(Task{
+    for(size_t i = 0; i < 3; ++i) {
+      e_mgr.task_queue.push((Task{
           .routine = [i](void*) {
             e_mgr.data->list.emplace_back(Enemy<1>{
                 .id = static_cast<size_t>(i),
@@ -43,7 +43,7 @@ namespace plane {
                 .size = 20, 
                 .lt = {static_cast<float>(i), static_cast<float>(i)+20}, 
                 .dead = false,
-                .draw = std::shared_ptr<std::atomic<bool>>(new std::atomic<bool>(false))
+                .draw = (std::make_shared<std::atomic<bool>>(false))
                 });
 
             e_mgr.data->head++;
