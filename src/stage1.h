@@ -5,7 +5,7 @@
 #include <iostream> 
 
 #include "tasking.h"
-
+#include "enemy.h"
 namespace plane {
-  void *stage1();
+  void stage1();
 }

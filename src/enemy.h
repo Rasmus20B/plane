@@ -1,4 +1,4 @@
-
+#pragma once
 
 #include <raylib.h>
 
@@ -6,9 +6,9 @@
 
 #include "patterns.h"
 #include "spline.h"
+#include "tasking.h"
 
 namespace plane {
-using MPattern = std::function<Vector2(Vector2, Vector2&)>;
 
 struct Lifetime {
   constexpr bool contains(float t) {
@@ -35,6 +35,7 @@ struct Enemy {
   std::array<SplinePt, N> points;
 
   // routine that uses a time to determine what to do, which point to go to, etc
-  static std::function<void(float time)> routine;
+  Task t{};
+  std::function<void(float time)> draw_func;
 };
 }

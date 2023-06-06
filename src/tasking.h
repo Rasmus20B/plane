@@ -24,7 +24,7 @@ enum TaskManagerState {
 };
 
 struct Task {
-  std::function<void*(void)> func;
+  std::function<void(void)> func;
   TaskState state;
 };
 

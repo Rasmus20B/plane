@@ -16,6 +16,7 @@ struct Player {
   float b_max_size = 300;
   bool b_fire = false;
   bool b_charging = false;
+  uint32_t d_time = 0;
   std::vector<size_t> marked;
 };
 }

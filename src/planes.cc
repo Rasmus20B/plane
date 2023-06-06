@@ -99,7 +99,7 @@ namespace plane {
         .last_shot = 0, 
         .speed = 12.0f, 
         .size = 20, 
-        .lt = {1, 11}, 
+        .lt = {13, 20}, 
         .dead = false,
         .points{}
         });
@@ -114,7 +114,7 @@ namespace plane {
         .last_shot = 0, 
         .speed = 6.0f, 
         .size = 20, 
-        .lt = {0, 11}, 
+        .lt = {14, 20}, 
         .dead = false,
         .points{}
         });
@@ -187,8 +187,9 @@ namespace plane {
       });
       tmgr.work.store(true);
       tmgr.work.notify_one();
-    while(!WindowShouldClose() && p.lives) {
 
+    while(!WindowShouldClose() && p.lives) {
+      if(!p.d_time) {
       if(IsKeyDown(KEY_UP)) {
         p.pos.y -= p.speed;
       }
@@ -216,8 +217,13 @@ namespace plane {
 
       if(IsKeyDown(KEY_SPACE)) {
         if(GetTime() - t_lastShot > 0.10) {
-          Projectile tmp{ Vector2(p.pos), 10, 10.0f};
-          p_bullets.push_back(tmp);
+          p_bullets.emplace_back( 
+            Projectile {
+              .pos = Vector2(p.pos),
+              .speed = 20,
+              .size = 10.0f
+            } 
+          );
           t_lastShot = GetTime();
         }
       }
@@ -232,15 +238,24 @@ namespace plane {
         p.speed = 8;
         p.b_fire = true;
       }
+      } else {
+        if(GetTime() - p.d_time > 2) {
+          p.d_time = 0;
+          p.pos.x = config.screen_width / 2;
+          p.pos.y = (config.screen_height / 6) * 5;
+        }
+      }
       if(GetTime() - t_lasteShot > 1) {
         t_lasteShot = GetTime();
       }
 
       BeginDrawing();
         ClearBackground(RAYWHITE);
-        DrawCircleV(p.pos, p.size, RED);
-        DrawCircleV(p.pos, p.in_size, WHITE);
-        DrawCircleV(p.pos, p.b_size, Color{255, 0, 0, 40});
+        if(!p.d_time) {
+          DrawCircleV(p.pos, p.size, RED);
+          DrawCircleV(p.pos, p.in_size, WHITE);
+          DrawCircleV(p.pos, p.b_size, Color{255, 0, 0, 40});
+        }
 
         for(auto &e : enemies) {
           if(!e.dead && e.lt.contains(GetTime()) ) {
@@ -306,8 +321,9 @@ namespace plane {
             i.pos.y += i.speed + i.angle;
             i.pos.x += i.angle;
             DrawCircleV(i.pos, i.size, GREEN);
-            if(CheckCollisionCircles(i.pos, i.size, p.pos, p.in_size)) {
+            if(!p.d_time && CheckCollisionCircles(i.pos, i.size, p.pos, p.in_size)) {
               p.lives--;
+              p.d_time = GetTime();
               i.live = false;
             }
           }

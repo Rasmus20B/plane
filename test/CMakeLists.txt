@@ -11,7 +11,9 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 
 add_executable(queue_test queue_test.cc)
+add_executable(vector_test vector_test.cc)
 
 target_link_libraries(queue_test GTest::gtest_main)
+target_link_libraries(vector_test GTest::gtest_main raylib)
 
 include(GoogleTest)
