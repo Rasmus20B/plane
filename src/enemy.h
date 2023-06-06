@@ -3,8 +3,8 @@
 #include <raylib.h>
 
 #include <functional>
+#include <condition_variable> 
 
-#include "patterns.h"
 #include "spline.h"
 #include "tasking.h"
 
@@ -22,7 +22,8 @@ template<int N>
 struct Enemy {
   size_t id;
   SplinePt pos;
-  Spline mpat;
+  // Spline mpat;
+  std::vector<SplinePt> pts;
   float prog = 0;
   float spline_t = 0.01;
   float shoot_t;
@@ -32,9 +33,9 @@ struct Enemy {
   Lifetime lt;
   bool dead = true;
   bool marked = false;
-  std::array<SplinePt, N> points;
 
   // routine that uses a time to determine what to do, which point to go to, etc
+  std::shared_ptr<std::atomic<bool>> draw;
   std::function<void(float time)> draw_func;
 };
 

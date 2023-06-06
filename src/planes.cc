@@ -39,13 +39,6 @@ namespace plane {
     });
     e_mgr.work.store(true);
     e_mgr.work.notify_one();
-    std::this_thread::sleep_for(std::chrono::milliseconds(300));
-    std::cout << e_mgr.data->head << "\n";
-    for(int j = 0; j < e_mgr.data->head; j++) {
-        for(int i = 0; i < e_list.list[j].mpat.pts.size(); i++) {
-          e_list.list[j].mpat.len += (e_list.list[j].mpat.pts[i].len = e_list.list[j].mpat.SegmentLength(i, true));
-        }
-    }
 
 
     while(!WindowShouldClose() && p.lives) {
@@ -119,19 +112,20 @@ namespace plane {
 
         for(auto &e : e_mgr.data->list) {
           if(!e.dead && e.lt.contains(GetTime())) {
-            if(e.prog + e.speed >= e.mpat.len) e.prog = 0;
-            e.spline_t = e.mpat.getNormalisedOffset(e.prog += e.speed);
-            e.pos = e.mpat.getPoint(e.spline_t, true);
-            SplinePt tmp = e.mpat.getGradient(e.spline_t, true);
-            auto angle = Vec2Angle(e.pos.pos, tmp.pos);
+            // if(e.prog + e.speed >= e.mpat.len) e.prog = 0;
+            // e.spline_t = e.mpat.getNormalisedOffset(e.prog += e.speed);
+            // e.pos = e.mpat.getPoint(e.spline_t, true);
+            // SplinePt tmp = e.mpat.getGradient(e.spline_t, true);
+            // auto angle = Vec2Angle(e.pos.pos, tmp.pos);
 
             // Shooting at player
             if(GetTime() - e.last_shot > e.shoot_t) {
-              e_bullets.push_back(Projectile{Vector2{e.pos.pos.x, e.pos.pos.y}, 10, 14, angle}); 
+              e_bullets.push_back(Projectile{Vector2{e.pos.pos.x, e.pos.pos.y}, 10, 14, /* angle */}); 
               e.last_shot = GetTime();
             }
             DrawCircleV(e.pos.pos, e.size, ORANGE);
-
+            e.draw->store(false);
+            e.draw->notify_all();
             // Do the multishot stuff from player
             if(p.b_charging && !e.marked && CheckCollisionCircles(p.pos, p.b_size, e.pos.pos, e.size)) {
               p.marked.push_back(e.id);  

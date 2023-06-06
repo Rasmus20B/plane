@@ -6,6 +6,7 @@
 
 #include "tasking.h"
 #include "enemy.h"
+#include "config.h"
 
 namespace plane {
 
@@ -19,19 +20,21 @@ namespace plane {
   }
 
   inline void enemies1(void *) {
-    for(size_t i = 0; i < 3; ++i) {
-      e_mgr.task_queue.push(Task{
+    for(size_t i = 0; i < 1; ++i) {
+      e_mgr.task_queue.push(std::move(Task{
           .routine = [i](void*) {
-            Enemy e(Enemy<1>{
-                .id = i,
+            e_mgr.data->list.emplace_back(Enemy<1>{
+                .id = static_cast<size_t>(i),
                 .pos = {(config.screen_width/ 2), 0 }, 
-                .mpat{ {
-                  {Vector2{10, 400}, 0}, 
-                  {Vector2{0, 100}, 0}, 
-                  {Vector2{float(config.screen_width) + 20, 100}, 0}, 
-                  {Vector2{600, 400}, 0}, 
-                  {Vector2{700, 200}, 0}, 
-                  {Vector2{800, 40}, 0} }, 0 },
+                .pts{ Spline(
+                    std::vector<SplinePt>{
+                      {Vector2{10, 400}, 0}, 
+                      {Vector2{0, 100}, 0}, 
+                      {Vector2{float(config.screen_width) + 20, 100}, 0}, 
+                      {Vector2{600, 400}, 0}, 
+                      {Vector2{700, 200}, 0}, 
+                      {Vector2{800, 40}, 0} }, 5).calc_points(0.01f, 5.0f)
+                    },
                 .prog = 0,
                 .spline_t = 0.01, 
                 .shoot_t = 0.7f, 
@@ -40,14 +43,23 @@ namespace plane {
                 .size = 20, 
                 .lt = {static_cast<float>(i), static_cast<float>(i)+20}, 
                 .dead = false,
-                .points{},
+                .draw = std::shared_ptr<std::atomic<bool>>(new std::atomic<bool>(false))
                 });
-            e_mgr.data->list.emplace_back(e);
+
             e_mgr.data->head++;
-            std::cout << i << "\n";
+            size_t c = 0;
+            while(!e_mgr.data->list[i].dead) {
+              e_mgr.data->list[i].draw->wait(true);
+              if(c >= e_mgr.data->list[i].pts.size()) c = 0;
+              e_mgr.data->list[i].pos = e_mgr.data->list[i].pts[c];
+              c++;
+              e_mgr.data->list[i].draw->store(true);
+            }
+
+
           },
           .state = {}
-          });
+          }));
     }
   }
   static inline Task Stage1 {

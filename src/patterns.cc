@@ -15,7 +15,6 @@ Vector2 ltr_pattern(Vector2 cur, Vector2& prev) {
 }
 
 Vector2 spline_test(Vector2 cur, Vector2& prev) {
-  Spline s;
   // s.points[0] = {20, 20};
   // s.points[1] = {40, 40};
   // s.points[2] = {60, 60};
