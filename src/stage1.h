@@ -24,17 +24,17 @@ namespace plane {
       e_mgr.task_queue.push((Task{
           .routine = [i](void*) {
             std::unique_lock<std::mutex> lock(e_mgr.data->m);
-            e_mgr.data->list.emplace_back(Enemy<1>{
+            e_mgr.data->list.push_back(Enemy<1>{
                 .id = static_cast<size_t>(i),
                 .pos = {(config.screen_width/ 2), 0 }, 
                 .pts{ Spline(
                     std::vector<SplinePt>{
-                      {Vector2{10, 400}, 0}, 
-                      {Vector2{0, 100}, 0}, 
-                      {Vector2{float(config.screen_width) + 20, 100}, 0}, 
-                      {Vector2{600, 400}, 0}, 
-                      {Vector2{700, 200}, 0}, 
-                      {Vector2{800, 40}, 0} }, 5).calc_points(0.01f, 5.0f)
+                      {{10, 400}, 0}, 
+                      {{0, 100}, 0}, 
+                      {{float(config.screen_width) + 20, 100}, 0}, 
+                      {{600, 400}, 0}, 
+                      {{700, 200}, 0}, 
+                      {{800, 40}, 0} }, 5).calc_points(0.01f, 5.0f)
                     },
                 .prog = 0,
                 .spline_t = 0.01, 
@@ -46,10 +46,10 @@ namespace plane {
                 .dead = false,
                 .draw = std::make_unique<std::atomic<bool>>(false)
                 });
-            e_mgr.data->head++;
             lock.unlock();
+            e_mgr.data->head++;
             size_t c = 0;
-            std::cout << std::this_thread::get_id() << "\n";
+            std::cout << i << "\n";
             while(!e_mgr.data->list[i].dead) {
               e_mgr.data->list[i].draw->wait(true);
               if(c >= e_mgr.data->list[i].pts.size()) c = 0;
@@ -59,7 +59,9 @@ namespace plane {
             }
           },
           .state = {}
-      }));
+      }
+      ));
+      wait_for(20);
     }
   }
   static inline Task Stage1 {

@@ -22,7 +22,6 @@ template<int N>
 struct Enemy {
   size_t id;
   SplinePt pos;
-  // Spline mpat;
   std::vector<SplinePt> pts;
   float prog = 0;
   float spline_t = 0.01;
