@@ -15,12 +15,13 @@ namespace plane {
   inline void wait_for(size_t ms) {
     for(int i = 0; i < ms; i+=MAX_WAIT) {
       e_mgr.paused.wait(1);
+      std::this_thread::yield();
       std::this_thread::sleep_for(std::chrono::milliseconds(MAX_WAIT));
     }
   }
 
   inline void enemies1(void *) {
-    for(size_t i = 0; i < 3; ++i) {
+    for(size_t i = 0; i < 16; ++i) {
       e_mgr.task_queue.push((Task{
           .routine = [i](void*) {
             std::unique_lock<std::mutex> lock(e_mgr.data->m);
@@ -34,17 +35,17 @@ namespace plane {
                       {{float(config.screen_width) + 20, 100}, 0}, 
                       {{600, 400}, 0}, 
                       {{700, 200}, 0}, 
-                      {{800, 40}, 0} }, 5).calc_points(0.01f, 5.0f)
+                      {{800, 40}, 0} }, 5).calc_points(0.01f, 10.0f)
                     },
                 .prog = 0,
                 .spline_t = 0.01, 
                 .shoot_t = 0.7f, 
                 .last_shot = 0, 
-                .speed = 5.0f, 
+                .speed = 7.0f, 
                 .size = 20, 
                 .lt = {static_cast<float>(i), static_cast<float>(i)+20}, 
                 .dead = false,
-                .draw = std::make_unique<std::atomic<bool>>(false)
+                .draw = std::make_unique<std::atomic_flag>(false)
                 });
             lock.unlock();
             e_mgr.data->head++;
@@ -55,7 +56,8 @@ namespace plane {
               if(c >= e_mgr.data->list[i].pts.size()) c = 0;
               e_mgr.data->list[i].pos = e_mgr.data->list[i].pts[c];
               c++;
-              e_mgr.data->list[i].draw->store(true);
+              e_mgr.data->list[i].draw->test_and_set();
+              wait_for(20);
             }
           },
           .state = {}

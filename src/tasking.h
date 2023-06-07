@@ -33,7 +33,7 @@ struct Task {
 template<typename T>
 struct TaskManager {
   TaskManager() {
-    n_threads = std::thread::hardware_concurrency();
+    n_threads = 20;
     for(int i = 0; i < n_threads; i++) {
       threads.push_back(std::thread(&TaskManager::taskmgr_thread, this));
     }

@@ -122,7 +122,7 @@ namespace plane {
               e.last_shot = GetTime();
             }
             DrawCircleV(e.pos.pos, e.size, ORANGE);
-            e.draw->store(false);
+            e.draw->clear();
             e.draw->notify_all();
             // Do the multishot stuff from player
             if(p.b_charging && !e.marked && CheckCollisionCircles(p.pos, p.b_size, e.pos.pos, e.size)) {
