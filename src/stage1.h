@@ -23,6 +23,7 @@ namespace plane {
     for(size_t i = 0; i < 3; ++i) {
       e_mgr.task_queue.push((Task{
           .routine = [i](void*) {
+            std::unique_lock<std::mutex> lock(e_mgr.data->m);
             e_mgr.data->list.emplace_back(Enemy<1>{
                 .id = static_cast<size_t>(i),
                 .pos = {(config.screen_width/ 2), 0 }, 
@@ -43,11 +44,12 @@ namespace plane {
                 .size = 20, 
                 .lt = {static_cast<float>(i), static_cast<float>(i)+20}, 
                 .dead = false,
-                .draw = (std::make_shared<std::atomic<bool>>(false))
+                .draw = std::make_unique<std::atomic<bool>>(false)
                 });
-
             e_mgr.data->head++;
+            lock.unlock();
             size_t c = 0;
+            std::cout << std::this_thread::get_id() << "\n";
             while(!e_mgr.data->list[i].dead) {
               e_mgr.data->list[i].draw->wait(true);
               if(c >= e_mgr.data->list[i].pts.size()) c = 0;
@@ -55,11 +57,9 @@ namespace plane {
               c++;
               e_mgr.data->list[i].draw->store(true);
             }
-
-
           },
           .state = {}
-          }));
+      }));
     }
   }
   static inline Task Stage1 {

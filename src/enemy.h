@@ -35,12 +35,13 @@ struct Enemy {
   bool marked = false;
 
   // routine that uses a time to determine what to do, which point to go to, etc
-  std::shared_ptr<std::atomic<bool>> draw;
+  std::unique_ptr<std::atomic<bool>> draw;
   std::function<void(float time)> draw_func;
 };
 
 struct EnemyList {
   std::vector<Enemy<1>> list;
+  std::mutex m;
   size_t head = 0;
 };
 

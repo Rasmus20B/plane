@@ -37,8 +37,6 @@ namespace plane {
     e_mgr.task_queue.push({
         Stage1
     });
-    e_mgr.work.store(true);
-    e_mgr.work.notify_one();
 
 
     while(!WindowShouldClose() && p.lives) {
