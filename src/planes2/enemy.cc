@@ -11,6 +11,7 @@ namespace plane {
     ep.colours.reserve(sz);
     ep.sizes.reserve(sz);
     ep.looped.reserve(sz);
+    ep.spawntime.reserve(sz);
   }
 
   void addEnemy(EnemyPool& ep, Enemy& e) {
@@ -25,5 +26,6 @@ namespace plane {
     ep.speeds.push_back(e.speed);
     ep.sizes.push_back(e.size);
     ep.looped.push_back(e.looped);
+    ep.spawntime.push_back(e.spawntime);
   }
 }

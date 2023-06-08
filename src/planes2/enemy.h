@@ -25,6 +25,7 @@ namespace plane {
     float speed;
     Color col;
     bool looped; 
+    float spawntime;
   };
 
   struct EnemyPool {
@@ -36,6 +37,7 @@ namespace plane {
     std::vector<uint32_t> health;
     std::vector<float> speeds;
     std::vector<bool> looped;
+    std::vector<float> spawntime;
 #ifdef MULTI_T
     std::mutex m;
 #endif

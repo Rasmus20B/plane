@@ -111,8 +111,8 @@ struct Spline {
       this->len += (this->pts[j].len = this->SegmentLength(j, loop));
     }
     std::vector<SplinePt> res;
-    auto off = this->getNormalisedOffset(t += speed);
     if(!loop) {
+      auto off = this->getNormalisedOffset(t += speed);
       while(off <= pts.size() - 3) {
         res.emplace_back(this->getPoint(off, loop));
         off = this->getNormalisedOffset(t += speed);

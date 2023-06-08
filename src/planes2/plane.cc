@@ -39,7 +39,8 @@ namespace plane {
         .health = 1,
         .speed = 5.0f,
         .col = RED,
-        .looped = false
+        .looped = false,
+        .spawntime = 1.0f
       };
       addEnemy(enemies, e);
     }
@@ -48,17 +49,19 @@ namespace plane {
       
       BeginDrawing();
       for(int i = 0; i < enemies.movement_points.size() - 1; ++i) {
-        DrawCircleV(enemies.positions[i].pos, enemies.sizes[i], enemies.colours[i]);
-        if(enemies.current_points[i] + 1 >= enemies.movement_points[i].size() ) {
-          if(enemies.looped[i]) {
-            enemies.current_points[i] = 0;
-          } else {
-            continue;
-          }
-        } 
-        auto pos = enemies.movement_points[i][enemies.current_points[i]++];
-        enemies.positions[i].pos.x = pos.pos.x;
-        enemies.positions[i].pos.y = pos.pos.y;
+        if(enemies.spawntime[i] <= GetTime()) {
+          DrawCircleV(enemies.positions[i].pos, enemies.sizes[i], enemies.colours[i]);
+          if(enemies.current_points[i] >= enemies.movement_points[i].size() ) {
+            if(enemies.looped[i]) {
+              enemies.current_points[i] = 0;
+            } else {
+              continue;
+            }
+          } 
+          auto pos = enemies.movement_points[i][enemies.current_points[i]++];
+          enemies.positions[i].pos.x = pos.pos.x;
+          enemies.positions[i].pos.y = pos.pos.y;
+        }
       }
 
         ClearBackground(RAYWHITE);
