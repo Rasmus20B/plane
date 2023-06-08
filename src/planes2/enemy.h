@@ -24,16 +24,18 @@ namespace plane {
     uint32_t health;
     float speed;
     Color col;
+    bool looped; 
   };
 
   struct EnemyPool {
+    std::vector<std::vector<SplinePt>> movement_points;
     std::vector<size_t> current_points;
+    std::vector<Color> colours;
     std::vector<SplinePt> positions;
     std::vector<uint32_t> sizes;
-    std::vector<Color> colours;
     std::vector<uint32_t> health;
     std::vector<float> speeds;
-    std::vector<std::vector<SplinePt>> movement_points;
+    std::vector<bool> looped;
 #ifdef MULTI_T
     std::mutex m;
 #endif

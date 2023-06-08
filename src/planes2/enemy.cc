@@ -10,6 +10,7 @@ namespace plane {
     ep.health.reserve(sz);
     ep.colours.reserve(sz);
     ep.sizes.reserve(sz);
+    ep.looped.reserve(sz);
   }
 
   void addEnemy(EnemyPool& ep, Enemy& e) {
@@ -23,6 +24,6 @@ namespace plane {
     ep.current_points.push_back(0);
     ep.speeds.push_back(e.speed);
     ep.sizes.push_back(e.size);
-
+    ep.looped.push_back(e.looped);
   }
 }
