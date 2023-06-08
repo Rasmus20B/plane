@@ -2,6 +2,7 @@
 
 #include <cstdint>
 
+
 namespace plane {
 struct Config {
   float screen_width;

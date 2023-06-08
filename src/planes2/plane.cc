@@ -22,9 +22,9 @@ namespace plane {
     projectilePoolInit(p_ps, 250);
 
     EnemyPool enemies;
-    enemyPoolInit(enemies, 30);
+    enemyPoolInit(enemies, 7000);
 
-    for(int i = 0; i < 3; ++i) {
+    for(int i = 0; i < 1; ++i) {
       Enemy e {
         .points {
           Spline(
@@ -48,7 +48,7 @@ namespace plane {
     while(!WindowShouldClose()) {
       
       BeginDrawing();
-      for(int i = 0; i < enemies.movement_points.size() - 1; ++i) {
+      for(int i = 0; i < enemies.movement_points.size() ; ++i) {
         if(enemies.spawntime[i] <= GetTime()) {
           DrawCircleV(enemies.positions[i].pos, enemies.sizes[i], enemies.colours[i]);
           if(enemies.current_points[i] >= enemies.movement_points[i].size() ) {
@@ -64,6 +64,7 @@ namespace plane {
         }
       }
 
+        DrawFPS(config.screen_width / 6, config.screen_height / 6);
         ClearBackground(RAYWHITE);
       EndDrawing();
     }
