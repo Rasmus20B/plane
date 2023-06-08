@@ -22,7 +22,7 @@ namespace plane {
     projectilePoolInit(p_ps, 250);
 
     EnemyPool enemies;
-    enemyPoolInit(enemies, 7000);
+    enemyPoolInit(enemies, 40);
 
     for(int i = 0; i < 1; ++i) {
       Enemy e {
@@ -50,7 +50,7 @@ namespace plane {
       BeginDrawing();
       for(int i = 0; i < enemies.movement_points.size() ; ++i) {
         if(enemies.spawntime[i] <= GetTime()) {
-          DrawCircleV(enemies.positions[i].pos, enemies.sizes[i], enemies.colours[i]);
+          DrawCircleV(enemies.positions[i].vec, enemies.sizes[i], enemies.colours[i]);
           if(enemies.current_points[i] >= enemies.movement_points[i].size() ) {
             if(enemies.looped[i]) {
               enemies.current_points[i] = 0;
@@ -59,12 +59,11 @@ namespace plane {
             }
           } 
           auto pos = enemies.movement_points[i][enemies.current_points[i]++];
-          enemies.positions[i].pos.x = pos.pos.x;
-          enemies.positions[i].pos.y = pos.pos.y;
+          enemies.positions[i].vec = pos.vec;
         }
       }
 
-        DrawFPS(config.screen_width / 6, config.screen_height / 6);
+        DrawFPS(config.screen_width / 10, config.screen_height / 20);
         ClearBackground(RAYWHITE);
       EndDrawing();
     }

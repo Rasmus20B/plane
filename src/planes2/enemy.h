@@ -21,7 +21,7 @@ namespace plane {
     ENEMY_ATTR_NORM
   };
   struct Enemy {
-    std::vector<SplinePt> points;
+    std::vector<Vec2> points;
     uint32_t size;
     uint32_t health;
     float speed;
@@ -31,10 +31,10 @@ namespace plane {
   };
 
   struct EnemyPool {
-    std::vector<std::vector<SplinePt>> movement_points;
+    std::vector<std::vector<Vec2>> movement_points;
     std::vector<size_t> current_points;
     std::vector<Color> colours;
-    std::vector<SplinePt> positions;
+    std::vector<Vec2> positions;
     std::vector<uint32_t> sizes;
     std::vector<uint32_t> health;
     std::vector<float> speeds;

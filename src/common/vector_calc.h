@@ -13,6 +13,7 @@ struct VecBase {
 
 struct Vec2 : public VecBase<Vec2> {
   Vec2(const float c_x, const float c_y) : vec{c_x, c_y} {};
+  Vec2(const Vector2 v) : vec{v.x, v.y} {};
 
   bool const operator==(const Vec2& rhs) const {
     return (this->vec.x == rhs.vec.x && this->vec.y == rhs.vec.y);
