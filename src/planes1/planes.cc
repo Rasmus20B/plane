@@ -110,14 +110,11 @@ namespace plane {
 
         for(auto &e : e_mgr.data->list) {
           if(!e.dead && e.lt.contains(GetTime())) {
-#ifndef multi
             // if(e.prog + e.speed >= e.pts.size()) e.prog = 0;
             // e.spline_t = e.pts.getNormalisedOffset(e.prog += e.speed);
             // e.pos = e.mpat.getPoint(e.spline_t, true);
             // SplinePt tmp = e.mpat.getGradient(e.spline_t, true);
             // auto angle = Vec2Angle(e.pos.pos, tmp.pos);
-#endif
-
             // Shooting at player
             if(GetTime() - e.last_shot > e.shoot_t) {
               e_bullets.push_back(Projectile{Vector2{e.pos.pos.x, e.pos.pos.y}, 10, 14, /* angle */}); 

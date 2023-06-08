@@ -1,5 +1,5 @@
 #pragma once
-#include "config.h"
+#include "../common/config.h"
 
 #include "player.h"
 #include "projectile.h"

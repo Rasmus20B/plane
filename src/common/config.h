@@ -8,5 +8,5 @@ struct Config {
   float screen_height;
 };
 
-static Config config = { 1080, 720 };
+static Config config = { 720, 1080 };
 }

@@ -15,7 +15,7 @@ struct SplinePt {
 };
 struct Spline {
 
-  constexpr Spline(const std::vector<SplinePt>& p, float speed) {
+  constexpr Spline(const std::vector<SplinePt> p, float speed) {
     this->pts = p;
   };
   
@@ -71,8 +71,16 @@ struct Spline {
     float q3 = -3.0f * ttt + 4.0f * tt + t;
     float q4 = ttt - tt;
 
-    float tx = 0.5f * (pts[p0].pos.x * q1 + pts[p1].pos.x * q2 + pts[p2].pos.x * q3 + pts[p3].pos.x * q4);
-    float ty = 0.5f * (pts[p0].pos.y * q1 + pts[p1].pos.y * q2 + pts[p2].pos.y * q3 + pts[p3].pos.y * q4);
+
+    float tx;
+    float ty;
+    if(p3 >= pts.size()) {
+      tx = 0.5f * (pts[p0].pos.x * q1 + pts[p1].pos.x * q2 + pts[p2].pos.x * q3 );
+      ty = 0.5f * (pts[p0].pos.y * q1 + pts[p1].pos.y * q2 + pts[p2].pos.y * q3 );
+    } else {
+      tx = 0.5f * (pts[p0].pos.x * q1 + pts[p1].pos.x * q2 + pts[p2].pos.x * q3 + pts[p3].pos.x * q4);
+      ty = 0.5f * (pts[p0].pos.y * q1 + pts[p1].pos.y * q2 + pts[p2].pos.y * q3 + pts[p3].pos.y * q4);
+    }
 
     return { tx, ty };
   }
@@ -103,14 +111,14 @@ struct Spline {
     return (float)i + (p / pts[i].len);
   }
 
-  constexpr std::vector<SplinePt> calc_points(float t, const float speed) {
+  constexpr std::vector<SplinePt> calc_points(float t, const float speed, bool loop) {
     for(int j = 0; j < pts.size(); j++) {
-      this->len += (this->pts[j].len = this->SegmentLength(j, true));
+      this->len += (this->pts[j].len = this->SegmentLength(j, loop));
     }
     std::vector<SplinePt> res;
     while(t + speed < this->len) {
       auto off = this->getNormalisedOffset(t += speed);
-      res.emplace_back(this->getPoint(off, true));
+      res.emplace_back(this->getPoint(off, loop));
     }
     return res;
   }

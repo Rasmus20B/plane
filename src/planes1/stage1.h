@@ -6,7 +6,7 @@
 
 #include "tasking.h"
 #include "enemy.h"
-#include "config.h"
+#include "../common/config.h"
 
 namespace plane {
 

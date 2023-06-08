@@ -1,7 +1,7 @@
 
 #include <raylib.h>
 
-#include "config.h"
+#include "../common/config.h"
 #include <cmath>
 #include <vector> 
 
