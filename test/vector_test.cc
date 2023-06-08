@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "../src/vector_calc.h"
+#include "../src/common/vector_calc.h"
 
 TEST(vector, vector_addition) {
   Vec2 a {5, 6};

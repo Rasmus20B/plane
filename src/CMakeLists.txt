@@ -1,19 +1,19 @@
 add_executable(${PROJECT_NAME} 
-  main.cc
-  enemy.h
-  patterns.cc
-  patterns.h
-  planes.cc
-  planes.h
-  player.h
-  projectile.h
-  queue.h
-  spline.cc
-  spline.h
-  stage1.cc
-  stage1.h
-  tasking.cc
-  tasking.h
-  vector_calc.h
-  vector_calc.cc
+  common/queue.h
+  common/vector_calc.h
+  common/vector_calc.cc
+  planes1/main.cc
+  planes1/enemy.h
+  planes1/patterns.cc
+  planes1/patterns.h
+  planes1/planes.cc
+  planes1/planes.h
+  planes1/player.h
+  planes1/projectile.h
+  planes1/spline.cc
+  planes1/spline.h
+  planes1/stage1.cc
+  planes1/stage1.h
+  planes1/tasking.cc
+  planes1/tasking.h
   )

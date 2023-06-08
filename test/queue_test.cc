@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "../src/queue.h"
+#include "../src/common/queue.h"
 
 TEST(queue, queue_push_norm) {
   Queue<size_t, 32> q{};
@@ -12,7 +12,6 @@ TEST(queue, queue_push_norm) {
 }
 
 TEST(queue, queue_wrap) {
-
   Queue<size_t, 8> q{};
   for(int i = 0; i < 8; i++) {
     q.push(i);

@@ -18,7 +18,6 @@ struct Lifetime {
   float end;
 };
 
-template<int N>
 struct Enemy {
   size_t id;
   SplinePt pos;
@@ -39,7 +38,7 @@ struct Enemy {
 };
 
 struct EnemyList {
-  std::vector<Enemy<1>> list;
+  std::vector<Enemy> list;
   std::mutex m;
   size_t head = 0;
 };

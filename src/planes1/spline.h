@@ -5,7 +5,7 @@
 
 #include <iostream> 
 
-#include "vector_calc.h"
+#include "../common/vector_calc.h"
 
 namespace plane {
 
