@@ -7,6 +7,7 @@ namespace plane {
     std::scoped_lock<std::mutex> lock(pp.m);
 #endif
     pp.positions.push_back(p.position);
+    pp.old_positions.push_back(p.position);
     pp.radii.push_back(p.radius);
     pp.colours.push_back(p.colour);
     pp.speeds.push_back(p.speed);
