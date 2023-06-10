@@ -16,7 +16,7 @@ namespace plane {
     Vec2 old_position;
     float speed;
     float radius;
-    Vector4 colour;
+    Color colour;
     ProjectileAttributes attr;
   };
 
@@ -26,7 +26,7 @@ namespace plane {
     std::vector<Vec2> old_positions;
     std::vector<float> speeds;
     std::vector<float> radii;
-    std::vector<Vector4> colours;
+    std::vector<Color> colours;
     std::vector<ProjectileAttributes> attrs;
 #ifdef MULTI_T
     std::mutex m;
@@ -34,5 +34,5 @@ namespace plane {
   };
 
   void projectilePoolInit(ProjectilePool& pp, size_t sz);
-  void addProjectile(ProjectilePool& pp, Projectile& p);
+  void addProjectile(ProjectilePool& pp, Projectile&& p);
 }

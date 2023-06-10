@@ -16,13 +16,17 @@ namespace plane {
     SetTargetFPS(60);
 
     ProjectilePool e_ps;
-    projectilePoolInit(e_ps, 10000);
+    projectilePoolInit(e_ps, 5000);
 
     ProjectilePool p_ps;
     projectilePoolInit(p_ps, 250);
 
     EnemyPool enemies;
     enemyPoolInit(enemies, 40);
+
+    std::unordered_map<int, Enemy> dead_enemies;
+    
+    Player p;
 
     for(int i = 0; i < 1; ++i) {
       Enemy e {
@@ -46,22 +50,78 @@ namespace plane {
     }
 
     while(!WindowShouldClose()) {
-      
-      BeginDrawing();
-      for(int i = 0; i < enemies.movement_points.size() ; ++i) {
-        if(enemies.spawntime[i] <= GetTime()) {
-          DrawCircleV(enemies.positions[i].vec, enemies.sizes[i], enemies.colours[i]);
-          if(enemies.current_points[i] >= enemies.movement_points[i].size() ) {
-            if(enemies.looped[i]) {
-              enemies.current_points[i] = 0;
-            } else {
-              continue;
-            }
-          } 
-          auto pos = enemies.movement_points[i][enemies.current_points[i]++];
-          enemies.positions[i].vec = pos.vec;
+
+      float time = GetTime();
+      // Controls
+      if(IsKeyDown(KEY_UP)) {
+        p.pos.y -= p.speed;
+      }
+      if(IsKeyDown(KEY_DOWN)) {
+        p.pos.y += p.speed;
+      }
+      if(IsKeyDown(KEY_RIGHT)) {
+        p.pos.x += p.speed;
+      }
+      if(IsKeyDown(KEY_LEFT)) {
+        p.pos.x -= p.speed;
+      }
+
+      if(IsKeyDown(KEY_SPACE)) {
+        if(time - p.last_shot > 0.10) {
+          Projectile tmp = {
+              .position = p.pos,
+              .old_position = p.pos,
+              .speed = 20,
+              .radius = 10.0f,
+              .colour = BLUE,
+              .attr = {}
+          };
+          addProjectile(p_ps, std::move(tmp));
+          p.last_shot = time;
         }
       }
+      BeginDrawing();
+
+        // Handle enemies
+        for(int i = 0; i < enemies.movement_points.size() ; ++i) {
+          if(enemies.spawntime[i] <= time && enemies.health[i] > 0) {
+            DrawCircleV(enemies.positions[i].vec, enemies.sizes[i], enemies.colours[i]);
+            if(enemies.current_points[i] >= enemies.movement_points[i].size() ) {
+              if(enemies.looped[i]) {
+                enemies.current_points[i] = 0;
+              } else {
+                continue;
+              }
+            } 
+            auto pos = enemies.movement_points[i][enemies.current_points[i]++];
+            enemies.positions[i].vec = pos.vec;
+          }
+        }
+
+
+        for(int i = 0; i < e_ps.positions.size(); ++i) {
+          // For now just draw them increasing until they fall off the screen
+          auto p = e_ps.old_positions[i] = e_ps.positions[i];
+          e_ps.positions[i].vec = { p.vec.x, p.vec.y + e_ps.speeds[i]};
+          DrawCircleV(e_ps.positions[i].vec, e_ps.radii[i], e_ps.colours[i]);
+        }
+
+        for(int i = 0; i < p_ps.positions.size(); ++i) {
+          // For now just draw them decreasing until they fall off the screen
+          auto p = p_ps.old_positions[i] = p_ps.positions[i];
+          for(int j = 0; j < enemies.positions.size(); ++j) {
+            if(CheckCollisionCircles(p_ps.positions[i].vec, p_ps.radii[i], enemies.positions[j].vec, enemies.sizes[j])) {
+              enemies.health[j] = 0;
+            }
+          }
+          p_ps.positions[i].vec = { p.vec.x, p.vec.y - p_ps.speeds[i]};
+          DrawCircleV(p_ps.positions[i].vec, p_ps.radii[i], p_ps.colours[i]);
+        }
+        // Handle player
+        DrawCircleV(p.pos, p.size, RED);
+        DrawCircleV(p.pos, p.in_size, WHITE);
+        DrawCircleV(p.pos, p.b_size, Color{255, 0, 0, 40});
+
 
         DrawFPS(config.screen_width / 10, config.screen_height / 20);
         ClearBackground(RAYWHITE);

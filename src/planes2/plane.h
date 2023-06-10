@@ -18,6 +18,7 @@
 #include "../common/config.h"
 
 #include "projectile.h"
+#include "player.h"
 #include "enemy.h"
 
 namespace plane {

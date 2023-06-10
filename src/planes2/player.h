@@ -14,10 +14,10 @@ struct Player {
   short lives = 3;
   float b_size = 0;
   float b_max_size = 300;
+  float last_shot = 0;
   bool b_fire = false;
   bool b_charging = false;
   uint32_t d_time = 0;
-  float last_shot = 0;
   std::vector<size_t> marked;
 };
 }

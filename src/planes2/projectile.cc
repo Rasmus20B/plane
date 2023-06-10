@@ -2,7 +2,7 @@
 
 namespace plane {
 
-  void addProjectile(ProjectilePool& pp, Projectile& p) {
+  void addProjectile(ProjectilePool& pp, Projectile&& p) {
 #ifdef MULTI_T
     std::scoped_lock<std::mutex> lock(pp.m);
 #endif
