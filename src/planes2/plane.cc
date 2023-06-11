@@ -1,4 +1,5 @@
 #include "plane.h"
+#include "projectile.h"
 
 #include <random>
 
@@ -25,34 +26,19 @@ namespace plane {
     enemyPoolInit(enemies, 40);
 
     std::unordered_map<int, Enemy> dead_enemies;
+    // Texture2D background = LoadTexture("../assets/city.png");
+    float scroll = 0.0f;
     
     Player p;
 
-    for(int i = 0; i < 1; ++i) {
-      Enemy e {
-        .points {
-          Spline(
-            std::vector<SplinePt>{
-          {{config.screen_width - 50.0f, 0}, 0},
-          {{config.screen_width - 300.0f, 200}, 0},
-          {{config.screen_width - 300.0f , 600}, 0},
-          {{config.screen_width - 400.0f, 500}, 0},
-          {{config.screen_width - 200.0f, 0}, 0},
-          }, 0).calc_points(0.01f, 5.0f, false)},
-        .size = 30,
-        .health = 1,
-        .speed = 5.0f,
-        .col = RED,
-        .looped = false,
-        .spawntime = 1.0f
-      };
-      addEnemy(enemies, e);
-    }
+    stage1(enemies);
 
     while(!WindowShouldClose()) {
 
       float time = GetTime();
       // Controls
+      //
+      if(!p.d_time) {
       if(IsKeyDown(KEY_UP)) {
         p.pos.y -= p.speed;
       }
@@ -66,6 +52,12 @@ namespace plane {
         p.pos.x -= p.speed;
       }
 
+      if(IsKeyDown(KEY_LEFT_SHIFT)) {
+        p.speed = 5.0f;
+      } else if(IsKeyReleased(KEY_LEFT_SHIFT)) {
+        p.speed = 8.0f;
+      }
+
       if(IsKeyDown(KEY_SPACE)) {
         if(time - p.last_shot > 0.10) {
           Projectile tmp = {
@@ -74,14 +66,19 @@ namespace plane {
               .speed = 20,
               .radius = 10.0f,
               .colour = BLUE,
-              .attr = {}
+              .attr = {},
+              .live = true
           };
           addProjectile(p_ps, std::move(tmp));
           p.last_shot = time;
         }
       }
+      }
+      scroll += 1.0f;
+      // if(scroll >= background.height*2) scroll = background.height;
       BeginDrawing();
-
+        // DrawTextureEx(background, {0, scroll}, 0.0f, 2.0f, WHITE);
+        // DrawTextureEx(background, { 0, background.height * 2 + scroll}, 0.0f, 2.0f, WHITE);
         // Handle enemies
         for(int i = 0; i < enemies.movement_points.size() ; ++i) {
           if(enemies.spawntime[i] <= time && enemies.health[i] > 0) {
@@ -90,41 +87,65 @@ namespace plane {
               if(enemies.looped[i]) {
                 enemies.current_points[i] = 0;
               } else {
-                continue;
+                goto e_shooting;
               }
             } 
-            auto pos = enemies.movement_points[i][enemies.current_points[i]++];
-            enemies.positions[i].vec = pos.vec;
+            enemies.positions[i] = enemies.movement_points[i][enemies.current_points[i]++];
+e_shooting:
+            if(!enemies.last_shots[i]) {
+              addProjectile(e_ps, std::move(Projectile{
+                .position = enemies.positions[i].vec,
+                .old_position = enemies.positions[i].vec,
+                .speed = 7.0f,
+                .radius = 10.0f,
+                .colour = RAYWHITE,
+                .live = true,
+              }));
+              enemies.last_shots[i] = 20;
+            } else {
+              enemies.last_shots[i]--;
+            }
           }
         }
 
 
         for(int i = 0; i < e_ps.positions.size(); ++i) {
           // For now just draw them increasing until they fall off the screen
-          auto p = e_ps.old_positions[i] = e_ps.positions[i];
-          e_ps.positions[i].vec = { p.vec.x, p.vec.y + e_ps.speeds[i]};
+          auto tmp = e_ps.old_positions[i] = e_ps.positions[i];
+          e_ps.positions[i].vec = { tmp.vec.x, tmp.vec.y + e_ps.speeds[i]};
+          if(!p.d_time && CheckCollisionCircles(p.pos, p.in_size, e_ps.positions[i].vec, e_ps.radii[i])) {
+            p.lives--;
+            p.d_time = 50;
+          }
           DrawCircleV(e_ps.positions[i].vec, e_ps.radii[i], e_ps.colours[i]);
         }
 
         for(int i = 0; i < p_ps.positions.size(); ++i) {
           // For now just draw them decreasing until they fall off the screen
-          auto p = p_ps.old_positions[i] = p_ps.positions[i];
-          for(int j = 0; j < enemies.positions.size(); ++j) {
-            if(CheckCollisionCircles(p_ps.positions[i].vec, p_ps.radii[i], enemies.positions[j].vec, enemies.sizes[j])) {
-              enemies.health[j] = 0;
+          if(p_ps.live[i]) {
+            auto p = p_ps.old_positions[i] = p_ps.positions[i];
+            for(int j = 0; j < enemies.positions.size(); ++j) {
+              if(enemies.health[j] && CheckCollisionCircles(p_ps.positions[i].vec, p_ps.radii[i], enemies.positions[j].vec, enemies.sizes[j])) {
+                enemies.health[j]--;
+                p_ps.live[i] = false;
+              }
             }
+            p_ps.positions[i].vec = { p.vec.x, p.vec.y - p_ps.speeds[i]};
+            DrawCircleV(p_ps.positions[i].vec, p_ps.radii[i], p_ps.colours[i]);
           }
-          p_ps.positions[i].vec = { p.vec.x, p.vec.y - p_ps.speeds[i]};
-          DrawCircleV(p_ps.positions[i].vec, p_ps.radii[i], p_ps.colours[i]);
         }
         // Handle player
-        DrawCircleV(p.pos, p.size, RED);
-        DrawCircleV(p.pos, p.in_size, WHITE);
-        DrawCircleV(p.pos, p.b_size, Color{255, 0, 0, 40});
-
+        if(!p.d_time) {
+          DrawCircleV(p.pos, p.size, RED);
+          DrawCircleV(p.pos, p.in_size, WHITE);
+          DrawCircleV(p.pos, p.b_size, Color{255, 0, 0, 40});
+        } else {
+          if(!p.lives) return;
+          p.d_time--;
+        }
 
         DrawFPS(config.screen_width / 10, config.screen_height / 20);
-        ClearBackground(RAYWHITE);
+        ClearBackground(GetColor(0x052c46ff));
       EndDrawing();
     }
   }

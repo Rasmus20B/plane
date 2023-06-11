@@ -78,6 +78,7 @@ namespace plane {
           t_lastShot = GetTime();
         }
       }
+
       if(IsKeyDown(KEY_LEFT_SHIFT)) {
         p.speed = 4;
         p.b_charging = true;

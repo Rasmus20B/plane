@@ -18,6 +18,8 @@ namespace plane {
     float radius;
     Color colour;
     ProjectileAttributes attr;
+    float spawntime;
+    bool live;
   };
 
   struct ProjectilePool {
@@ -26,8 +28,10 @@ namespace plane {
     std::vector<Vec2> old_positions;
     std::vector<float> speeds;
     std::vector<float> radii;
+    std::vector<float> spawntime;
     std::vector<Color> colours;
     std::vector<ProjectileAttributes> attrs;
+    std::vector<bool> live;
 #ifdef MULTI_T
     std::mutex m;
 #endif
@@ -35,4 +39,5 @@ namespace plane {
 
   void projectilePoolInit(ProjectilePool& pp, size_t sz);
   void addProjectile(ProjectilePool& pp, Projectile&& p);
+  void addProjectile(ProjectilePool& pp, Projectile& p);
 }

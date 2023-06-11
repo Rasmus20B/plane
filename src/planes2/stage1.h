@@ -1,6 +1,7 @@
 #pragma once
 
 #include "enemy.h"
+#include "../common/config.h"
 
 #include "../common/spline.h"
 
