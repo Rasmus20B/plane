@@ -4,6 +4,7 @@
 
 #include <raylib.h> 
 #include <vector>
+#include <functional>
 
 namespace plane {
   enum class ProjectileAttributes {
@@ -14,7 +15,8 @@ namespace plane {
   struct Projectile {
     Vec2 position; 
     Vec2 old_position;
-    float speed;
+    Vec2 velocity;
+    float angle;
     float radius;
     Color colour;
     ProjectileAttributes attr;
@@ -22,16 +24,23 @@ namespace plane {
     bool live;
   };
 
+  struct ProjectileSpace {
+    Vec2 position;
+    Vec2 velocity;
+    Vec2 old_position;
+    float radius;
+    float angle;
+    float delta;
+  };
+
   struct ProjectilePool {
     size_t size;
-    std::vector<Vec2> positions;
-    std::vector<Vec2> old_positions;
-    std::vector<float> speeds;
-    std::vector<float> radii;
+    std::vector<ProjectileSpace> spaces;
     std::vector<float> spawntime;
     std::vector<Color> colours;
     std::vector<ProjectileAttributes> attrs;
     std::vector<bool> live;
+    std::vector<std::function<void()>> onUpdate;
 #ifdef MULTI_T
     std::mutex m;
 #endif

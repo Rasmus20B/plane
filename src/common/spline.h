@@ -11,7 +11,7 @@ namespace plane {
 
 struct SplinePt {
 
-  bool const operator==(const SplinePt& rhs) {
+  bool const operator==(const SplinePt& rhs) const {
     return (this->pos.x == rhs.pos.x && this->pos.y == rhs.pos.y);
   }
   Vector2 pos;

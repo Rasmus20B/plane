@@ -6,7 +6,6 @@
 
 #include <raylib.h> 
 
-#define MULTI_T
 
 #ifdef MULTI_T
 #include <thread> 

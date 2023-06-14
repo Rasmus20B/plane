@@ -13,6 +13,7 @@
 
 #include <chrono> 
 #include <iostream>
+#include <cmath>
 
 #include "../common/vector_calc.h"
 #include "../common/config.h"

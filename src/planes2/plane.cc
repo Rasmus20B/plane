@@ -9,22 +9,24 @@ namespace plane {
     return static_cast<float>(rand() / static_cast<float>(static_cast<float>(RAND_MAX)/max));
   }
 
+#define RAD(x) (x * PI) / 180
+  void update_test_patterns(ProjectileSpace& transform) {
+    auto vec = transform.position.norm();
+    transform.position.vec.x += cos(RAD(transform.angle)) * transform.velocity.vec.x;
+    transform.position.vec.y +=  sin(RAD(transform.angle)) * transform.velocity.vec.y;
+    transform.angle+=1.5;
+  }
+
   void main_loop() {
-
     srand(time(0));
-
     InitWindow(config.screen_width, config.screen_height, "Plane");
     SetTargetFPS(60);
-
     ProjectilePool e_ps;
     projectilePoolInit(e_ps, 5000);
-
     ProjectilePool p_ps;
     projectilePoolInit(p_ps, 250);
-
     EnemyPool enemies;
     enemyPoolInit(enemies, 40);
-
     std::unordered_map<int, Enemy> live_enemies;
     // Texture2D background = LoadTexture("../assets/city.png");
     float scroll = 0.0f;
@@ -33,6 +35,25 @@ namespace plane {
 
     load_stage1enemies(enemies);
 
+    ProjectilePool test_patterns;
+    projectilePoolInit(test_patterns, 200);
+
+    Vec2 centre = Vec2(config.screen_width/2, config.screen_height/2);
+    int n = 6;
+    for(int j = 0; j < 3; ++j) {
+    for(int i = 0; i < n; ++i) {
+      addProjectile(test_patterns, ( std::move(Projectile{
+        .angle = (360.f / n) * i,
+        .position = {centre.vec.x + (15 * cos((360.0f/n) * i))  , centre.vec.y + (15 * sin((360.0f/n) * i)) },
+        .old_position = Vec2(config.screen_width/2, config.screen_height/2),
+        .colour = WHITE,
+        .radius = 10,
+        .live = true,
+        .spawntime = static_cast<float>(j),
+        .velocity = { 4, 4 },
+        })));
+    }
+    }
     while(!WindowShouldClose()) {
 
       float time = GetTime();
@@ -63,7 +84,7 @@ namespace plane {
           Projectile tmp = {
               .position = p.pos,
               .old_position = p.pos,
-              .speed = 20,
+              .velocity = {0, 20},
               .radius = 10.0f,
               .colour = BLUE,
               .attr = {},
@@ -76,6 +97,9 @@ namespace plane {
       }
       scroll += 1.0f;
       // if(scroll >= background.height*2) scroll = background.height;
+
+
+
       BeginDrawing();
         // DrawTextureEx(background, {0, scroll}, 0.0f, 2.0f, WHITE);
         // DrawTextureEx(background, { 0, background.height * 2 + scroll}, 0.0f, 2.0f, WHITE);
@@ -90,14 +114,13 @@ namespace plane {
                 goto e_shooting;
               }
             }
-            enemies.space[i].current_t++;
-            enemies.space[i].position = enemies.space[i].points[enemies.space[i].current_t];
+            enemies.space[i].position = enemies.space[i].points[enemies.space[i].current_t++];
 e_shooting:
             if(!enemies.last_shots[i]) {
               addProjectile(e_ps, std::move(Projectile{
                 .position = enemies.space[i].position,
                 .old_position = enemies.space[i].position,
-                .speed = 7.0f,
+                .velocity = {0, 7.0f},
                 .radius = 10.0f,
                 .colour = RAYWHITE,
                 .live = true,
@@ -110,30 +133,36 @@ e_shooting:
         }
 
 
-        for(int i = 0; i < e_ps.positions.size(); ++i) {
+        for(int i = 0; i < e_ps.spaces.size(); ++i) {
           // For now just draw them increasing until they fall off the screen
-          auto tmp = e_ps.old_positions[i] = e_ps.positions[i];
-          e_ps.positions[i].vec = { tmp.vec.x, tmp.vec.y + e_ps.speeds[i]};
-          if(!p.d_time && CheckCollisionCircles(p.pos, p.in_size, e_ps.positions[i].vec, e_ps.radii[i])) {
+          auto tmp = e_ps.spaces[i].old_position = e_ps.spaces[i].position;
+          e_ps.spaces[i].position.vec = { tmp.vec.x, tmp.vec.y + e_ps.spaces[i].velocity.vec.y};
+          if(!p.d_time && CheckCollisionCircles(p.pos, p.in_size, e_ps.spaces[i].position.vec, e_ps.spaces[i].radius)) {
             p.lives--;
             p.d_time = 50;
           }
-          DrawCircleV(e_ps.positions[i].vec, e_ps.radii[i], e_ps.colours[i]);
+          DrawCircleV(e_ps.spaces[i].position.vec, e_ps.spaces[i].radius, e_ps.colours[i]);
         }
 
-        for(int i = 0; i < p_ps.positions.size(); ++i) {
+        for(int i = 0; i < p_ps.spaces.size(); ++i) {
           // For now just draw them decreasing until they fall off the screen
           if(p_ps.live[i]) {
-            auto p = p_ps.old_positions[i] = p_ps.positions[i];
+            auto p = p_ps.spaces[i].old_position = p_ps.spaces[i].position;
             for(int j = 0; j < enemies.space.size(); ++j) {
-              if(enemies.health[j] && CheckCollisionCircles(p_ps.positions[i].vec, p_ps.radii[i], enemies.space[j].position.vec, enemies.space[j].size)) {
+              if(enemies.health[j] && CheckCollisionCircles(p_ps.spaces[i].position.vec, p_ps.spaces[i].radius, enemies.space[j].position.vec, enemies.space[j].size)) {
                 enemies.health[j]--;
                 p_ps.live[i] = false;
               }
             }
-            p_ps.positions[i].vec = { p.vec.x, p.vec.y - p_ps.speeds[i]};
-            DrawCircleV(p_ps.positions[i].vec, p_ps.radii[i], p_ps.colours[i]);
+            p_ps.spaces[i].position.vec = { p.vec.x, p.vec.y - p_ps.spaces[i].velocity.vec.y};
+            DrawCircleV(p_ps.spaces[i].position.vec, p_ps.spaces[i].radius, p_ps.colours[i]);
           }
+        }
+
+        for(int i = 0; i < test_patterns.spaces.size(); ++i) {
+          if(test_patterns.spawntime[i] > time) continue;
+          update_test_patterns(test_patterns.spaces[i]);
+          DrawCircleV(test_patterns.spaces[i].position.vec, test_patterns.spaces[i].radius, WHITE);
         }
         // Handle player
         if(!p.d_time) {
