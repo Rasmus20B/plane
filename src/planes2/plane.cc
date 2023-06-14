@@ -20,6 +20,11 @@ namespace plane {
     srand(time(0));
     InitWindow(config.screen_width, config.screen_height, "Plane");
     SetTargetFPS(60);
+
+    TextureManager tm;
+    tm.textures.reserve(10);
+    initTextureManager(tm);
+
     ProjectilePool e_ps;
     projectilePoolInit(e_ps, 5000);
     ProjectilePool p_ps;
@@ -41,17 +46,18 @@ namespace plane {
     Vec2 centre = Vec2(config.screen_width/2, config.screen_height/2);
     int n = 6;
     for(int j = 0; j < 3; ++j) {
-    for(int i = 0; i < n; ++i) {
-      addProjectile(test_patterns, ( std::move(Projectile{
-        .position = Vec2(centre.vec.x + (15 * cos((360.0f/n) * i)), centre.vec.y + (15 * sin((360.0f/n) * i)) ),
-        .old_position = Vec2(config.screen_width/2, config.screen_height/2),
-        .velocity = { 4, 4 },
-        .angle = (360.f / n) * i,
-        .radius = 10,
-        .spawntime = static_cast<float>(j),
-        .live = true,
-        })));
-    }
+      for(int i = 0; i < n; ++i) {
+        addProjectile(test_patterns, ( std::move(Projectile{
+          .position = Vec2(centre.vec.x + (15 * cos((360.0f/n) * i)), centre.vec.y + (15 * sin((360.0f/n) * i)) ),
+          .old_position = Vec2(config.screen_width/2, config.screen_height/2),
+          .velocity = { 4, 4 },
+          .angle = (360.f / n) * i,
+          .radius = 10,
+          .sprite = tm.textures[4],
+          .spawntime = static_cast<float>(j),
+          .live = true,
+          })));
+      }
     }
     while(!WindowShouldClose()) {
 
@@ -88,6 +94,7 @@ namespace plane {
               .velocity = {0, 20},
               .radius = 10.0f,
               .attr = {},
+              .sprite = tm.textures[1],
               .live = true
           };
           addProjectile(p_ps, std::move(tmp));
@@ -122,7 +129,7 @@ e_shooting:
                 .old_position = enemies.space[i].position,
                 .velocity = {0, 7.0f},
                 .radius = 10.0f,
-                .sprite = LoadTexture("../assets/orb2.png"),
+                .sprite = tm.textures[5],
                 .live = true,
               }));
               enemies.last_shots[i] = 20;
@@ -149,7 +156,7 @@ e_shooting:
             micro = false;
             p.pos = {config.screen_width/2,(config.screen_height/8) * 6};
           }
-          DrawTextureEx(e_ps.sprite[i], e_ps.spaces[i].position.vec, 0.0f, 1.0f, WHITE);
+          DrawTextureEx(e_ps.sprite[i], e_ps.spaces[i].position.vec, e_ps.spaces[i].angle, 1.0f, WHITE);
         }
 
         for(int i = 0; i < p_ps.spaces.size(); ++i) {
@@ -170,7 +177,7 @@ e_shooting:
         for(int i = 0; i < test_patterns.spaces.size(); ++i) {
           if(test_patterns.spawntime[i] > time) continue;
           update_test_patterns(test_patterns.spaces[i]);
-          DrawCircleV(test_patterns.spaces[i].position.vec, test_patterns.spaces[i].radius, WHITE);
+          DrawTextureEx(test_patterns.sprite[i], test_patterns.spaces[i].position.vec, test_patterns.spaces[i].angle, 1.0f, WHITE);
         }
         // Handle player
         if(!p.d_time) {
