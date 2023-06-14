@@ -20,11 +20,11 @@ namespace plane {
 #endif
 
     ep.space.push_back(EnemySpatial {
-        .points = e.points,
-        .size = e.size,
         .position = e.points.front(),
+        .points = e.points,
+        .current_t = 0,
+        .size = e.size,
         .speed = e.speed,
-        .current_t = 0
         });
     ep.colours.push_back(e.col);
     ep.health.push_back(e.health);
@@ -38,11 +38,11 @@ namespace plane {
     std::scoped_lock<std::mutex> lock(ep.m);
 #endif
     ep.space.push_back( std::move(EnemySpatial {
-        .points = e.points,
-        .size = e.size,
         .position = e.points.front(),
+        .points = e.points,
+        .current_t = 0,
+        .size = e.size,
         .speed = e.speed,
-        .current_t = 0
         }));
     ep.colours.push_back(e.col);
     ep.health.push_back(e.health);

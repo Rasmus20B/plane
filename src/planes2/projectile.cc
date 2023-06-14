@@ -7,10 +7,10 @@ namespace plane {
     std::scoped_lock<std::mutex> lock(pp.m);
 #endif
     pp.spaces.push_back( ProjectileSpace {
-      .radius = p.radius,
       .position = p.position,
-      .old_position = p.position,
       .velocity = p.velocity,
+      .old_position = p.position,
+      .radius = p.radius,
       .angle = p.angle,
       .delta = 1
     });
@@ -26,10 +26,10 @@ namespace plane {
     std::scoped_lock<std::mutex> lock(pp.m);
 #endif
     pp.spaces.push_back( ProjectileSpace {
-      .radius = p.radius,
       .position = p.position,
-      .old_position = p.position,
       .velocity = p.velocity,
+      .old_position = p.position,
+      .radius = p.radius,
       .angle = p.angle,
       .delta = 1
     });

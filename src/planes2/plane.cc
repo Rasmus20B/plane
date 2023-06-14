@@ -43,14 +43,14 @@ namespace plane {
     for(int j = 0; j < 3; ++j) {
     for(int i = 0; i < n; ++i) {
       addProjectile(test_patterns, ( std::move(Projectile{
-        .angle = (360.f / n) * i,
-        .position = {centre.vec.x + (15 * cos((360.0f/n) * i))  , centre.vec.y + (15 * sin((360.0f/n) * i)) },
+        .position = Vec2(centre.vec.x + (15 * cos((360.0f/n) * i)), centre.vec.y + (15 * sin((360.0f/n) * i)) ),
         .old_position = Vec2(config.screen_width/2, config.screen_height/2),
-        .colour = WHITE,
-        .radius = 10,
-        .live = true,
-        .spawntime = static_cast<float>(j),
         .velocity = { 4, 4 },
+        .angle = (360.f / n) * i,
+        .radius = 10,
+        .colour = WHITE,
+        .spawntime = static_cast<float>(j),
+        .live = true,
         })));
     }
     }
