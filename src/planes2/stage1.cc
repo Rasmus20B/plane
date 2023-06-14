@@ -1,7 +1,7 @@
 #include "stage1.h" 
 
 namespace plane {
-  void stage1(EnemyPool& ep) {
+  void load_stage1enemies(EnemyPool& ep) {
 
     for(int i = 0; i < 2; ++i) {
       auto tmp =  Spline( {
@@ -37,4 +37,5 @@ namespace plane {
         }));
     }
   }
+  void load_stage1projectiles(ProjectilePool& pp);
 }

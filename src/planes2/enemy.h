@@ -32,14 +32,18 @@ namespace plane {
     bool looped; 
   };
 
+  struct EnemySpatial {
+    Vec2 position;
+    std::vector<Vec2> points;
+    uint32_t current_t;
+    uint32_t size;
+    float speed;
+  };
+
   struct EnemyPool {
-    std::vector<std::vector<Vec2>> movement_points;
-    std::vector<size_t> current_points;
+    std::vector<EnemySpatial> space;
     std::vector<Color> colours;
-    std::vector<Vec2> positions;
-    std::vector<uint32_t> sizes;
     std::vector<float> health;
-    std::vector<float> speeds;
     std::vector<bool> looped;
     std::vector<float> spawntime;
     std::vector<float> last_shots;
@@ -51,5 +55,6 @@ namespace plane {
   void enemyPoolInit(EnemyPool& ep, size_t sz);
   void addEnemy(EnemyPool& ep, Enemy&& e);
   void addEnemy(EnemyPool& ep, Enemy& e);
+  void updateEnemies(EnemyPool& ep);
 
 }

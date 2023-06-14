@@ -10,6 +10,10 @@
 namespace plane {
 
 struct SplinePt {
+
+  bool const operator==(const SplinePt& rhs) {
+    return (this->pos.x == rhs.pos.x && this->pos.y == rhs.pos.y);
+  }
   Vector2 pos;
   float len;
 };

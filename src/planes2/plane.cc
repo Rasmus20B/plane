@@ -25,13 +25,13 @@ namespace plane {
     EnemyPool enemies;
     enemyPoolInit(enemies, 40);
 
-    std::unordered_map<int, Enemy> dead_enemies;
+    std::unordered_map<int, Enemy> live_enemies;
     // Texture2D background = LoadTexture("../assets/city.png");
     float scroll = 0.0f;
     
     Player p;
 
-    stage1(enemies);
+    load_stage1enemies(enemies);
 
     while(!WindowShouldClose()) {
 
@@ -80,22 +80,23 @@ namespace plane {
         // DrawTextureEx(background, {0, scroll}, 0.0f, 2.0f, WHITE);
         // DrawTextureEx(background, { 0, background.height * 2 + scroll}, 0.0f, 2.0f, WHITE);
         // Handle enemies
-        for(int i = 0; i < enemies.movement_points.size() ; ++i) {
+        for(int i = 0; i < enemies.space.size() ; ++i) {
           if(enemies.spawntime[i] <= time && enemies.health[i] > 0) {
-            DrawCircleV(enemies.positions[i].vec, enemies.sizes[i], enemies.colours[i]);
-            if(enemies.current_points[i] >= enemies.movement_points[i].size() ) {
+            DrawCircleV(enemies.space[i].position.vec, enemies.space[i].size, enemies.colours[i]);
+            if(enemies.space[i].current_t >= enemies.space[i].points.size() - 1 ) {
               if(enemies.looped[i]) {
-                enemies.current_points[i] = 0;
+                enemies.space[i].current_t = 0;
               } else {
                 goto e_shooting;
               }
-            } 
-            enemies.positions[i] = enemies.movement_points[i][enemies.current_points[i]++];
+            }
+            enemies.space[i].current_t++;
+            enemies.space[i].position = enemies.space[i].points[enemies.space[i].current_t];
 e_shooting:
             if(!enemies.last_shots[i]) {
               addProjectile(e_ps, std::move(Projectile{
-                .position = enemies.positions[i].vec,
-                .old_position = enemies.positions[i].vec,
+                .position = enemies.space[i].position,
+                .old_position = enemies.space[i].position,
                 .speed = 7.0f,
                 .radius = 10.0f,
                 .colour = RAYWHITE,
@@ -124,8 +125,8 @@ e_shooting:
           // For now just draw them decreasing until they fall off the screen
           if(p_ps.live[i]) {
             auto p = p_ps.old_positions[i] = p_ps.positions[i];
-            for(int j = 0; j < enemies.positions.size(); ++j) {
-              if(enemies.health[j] && CheckCollisionCircles(p_ps.positions[i].vec, p_ps.radii[i], enemies.positions[j].vec, enemies.sizes[j])) {
+            for(int j = 0; j < enemies.space.size(); ++j) {
+              if(enemies.health[j] && CheckCollisionCircles(p_ps.positions[i].vec, p_ps.radii[i], enemies.space[j].position.vec, enemies.space[j].size)) {
                 enemies.health[j]--;
                 p_ps.live[i] = false;
               }
