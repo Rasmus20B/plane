@@ -23,6 +23,7 @@
 #include "projectile.h"
 #include "stage1.h"
 #include "texture.h"
+#include "move.h"
 
 namespace plane {
   void main_loop();

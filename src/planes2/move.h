@@ -1,8 +1,11 @@
 #include "enemy.h"
+#include "projectile.h"
 
 namespace plane { 
 
-  void move(Enemy& e);
-  void onMove(Enemy& e);
+  void eMove(Enemy& e);
+  void eOnMove(Enemy& e);
 
+  void pMove(ProjectileSpace& p);
+  void pOnMove(ProjectileSpace& p);
 }

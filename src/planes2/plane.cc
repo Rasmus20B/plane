@@ -13,7 +13,7 @@ namespace plane {
     auto vec = transform.position.norm();
     transform.position.vec.x += cos(RAD(transform.angle)) * transform.velocity.vec.x;
     transform.position.vec.y +=  sin(RAD(transform.angle)) * transform.velocity.vec.y;
-    transform.angle+=1.5;
+    transform.angle+=0.8;
   }
 
   void main_loop() {
@@ -44,10 +44,10 @@ namespace plane {
     projectilePoolInit(test_patterns, 200);
 
     Vec2 centre = Vec2(config.screen_width/2, config.screen_height/2);
-    int n = 6;
-    for(int j = 0; j < 3; ++j) {
+    int n = 20;
+    for(int j = 0; j < 10; ++j) {
       for(int i = 0; i < n; ++i) {
-        addProjectile(test_patterns, ( std::move(Projectile{
+        addProjectile(e_ps, ( std::move(Projectile{
           .position = Vec2(centre.vec.x + (15 * cos((360.0f/n) * i)), centre.vec.y + (15 * sin((360.0f/n) * i)) ),
           .old_position = Vec2(config.screen_width/2, config.screen_height/2),
           .velocity = { 4, 4 },
@@ -55,6 +55,7 @@ namespace plane {
           .radius = 10,
           .sprite = tm.textures[4],
           .spawntime = static_cast<float>(j),
+          .mt = MoveType::MOVE_CIRCLE,
           .live = true,
           })));
       }
@@ -130,6 +131,7 @@ e_shooting:
                 .velocity = {0, 7.0f},
                 .radius = 10.0f,
                 .sprite = tm.textures[5],
+                .mt = MoveType::MOVE_NORM,
                 .live = true,
               }));
               enemies.last_shots[i] = 20;
@@ -140,9 +142,10 @@ e_shooting:
         }
 
         for(int i = 0; i < e_ps.spaces.size(); ++i) {
+          if(e_ps.spawntime[i] > time) continue;
           // For now just draw them increasing until they fall off the screen
-          auto tmp = e_ps.spaces[i].old_position = e_ps.spaces[i].position;
-          e_ps.spaces[i].position.vec = { tmp.vec.x, tmp.vec.y + e_ps.spaces[i].velocity.vec.y};
+          pMove(e_ps.spaces[i]);
+          DrawTextureEx(e_ps.sprite[i], e_ps.spaces[i].position.vec, e_ps.spaces[i].angle, 1.0f, WHITE);
           if(!p.d_time && CheckCollisionRecs(Rectangle {
                 p.pos.x, p.pos.y, 
                 static_cast<float>(p.in_sprite.width), 
@@ -156,7 +159,6 @@ e_shooting:
             micro = false;
             p.pos = {config.screen_width/2,(config.screen_height/8) * 6};
           }
-          DrawTextureEx(e_ps.sprite[i], e_ps.spaces[i].position.vec, e_ps.spaces[i].angle, 1.0f, WHITE);
         }
 
         for(int i = 0; i < p_ps.spaces.size(); ++i) {

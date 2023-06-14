@@ -12,7 +12,8 @@ namespace plane {
       .old_position = p.position,
       .radius = p.radius,
       .angle = p.angle,
-      .delta = 1
+      .delta = 1,
+      .mt = p.mt,
     });
     pp.sprite.push_back(p.sprite);
     pp.spawntime.push_back(p.spawntime);
@@ -31,7 +32,8 @@ namespace plane {
       .old_position = p.position,
       .radius = p.radius,
       .angle = p.angle,
-      .delta = 1
+      .delta = 1,
+      .mt = p.mt,
     });
     pp.sprite.push_back(p.sprite);
     pp.spawntime.push_back(p.spawntime);

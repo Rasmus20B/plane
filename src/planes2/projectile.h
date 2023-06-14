@@ -12,6 +12,11 @@ namespace plane {
     PROJECTILE_ATTRIBUTES_HOMING = 1,
     PROJECTILE_ATTRIBUTES_SIZE = 2
   };
+
+  enum class MoveType {
+    MOVE_NORM = 0,
+    MOVE_CIRCLE = 1,
+  };
   struct Projectile {
     Vec2 position; 
     Vec2 old_position;
@@ -21,6 +26,7 @@ namespace plane {
     ProjectileAttributes attr;
     Texture2D sprite;
     float spawntime;
+    MoveType mt;
     bool live;
   };
 
@@ -31,6 +37,7 @@ namespace plane {
     float radius;
     float angle;
     float delta;
+    MoveType mt;
   };
 
   struct ProjectilePool {
