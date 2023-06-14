@@ -18,7 +18,8 @@ struct Player {
   bool b_fire = false;
   bool b_charging = false;
   uint32_t d_time = 0;
-  Texture2D sprite = LoadTexture("../assets/sprite-0001.png");
+  Texture2D sprite = LoadTexture("../assets/Sprite-0001.png");
+  Texture2D in_sprite = LoadTexture("../assets/soul.png");
   std::vector<size_t> marked;
 };
 }

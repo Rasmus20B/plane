@@ -1,0 +1,3 @@
+TODO: Implement sprite caching so we avoid syscalls.
+
+

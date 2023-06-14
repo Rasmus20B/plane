@@ -14,7 +14,7 @@ namespace plane {
       .angle = p.angle,
       .delta = 1
     });
-    pp.colours.push_back(p.colour);
+    pp.sprite.push_back(p.sprite);
     pp.spawntime.push_back(p.spawntime);
     pp.attrs.push_back(p.attr);
     pp.live.push_back(true);
@@ -33,7 +33,7 @@ namespace plane {
       .angle = p.angle,
       .delta = 1
     });
-    pp.colours.push_back(p.colour);
+    pp.sprite.push_back(p.sprite);
     pp.spawntime.push_back(p.spawntime);
     pp.attrs.push_back(p.attr);
     pp.live.push_back(true);
@@ -44,7 +44,7 @@ namespace plane {
     std::scoped_lock<std::mutex> lock(pp.m);
 #endif
     pp.spaces.reserve(sz);
-    pp.colours.reserve(sz);
+    pp.sprite.reserve(sz);
     pp.attrs.reserve(sz);
     pp.live.reserve(sz);
     pp.size = 0;

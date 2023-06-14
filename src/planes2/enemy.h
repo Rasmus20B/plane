@@ -28,6 +28,7 @@ namespace plane {
     float speed;
     float spawntime;
     float last_shot = 0;
+    Texture2D sprite;
     bool looped; 
   };
 
@@ -42,6 +43,7 @@ namespace plane {
   struct EnemyPool {
     std::vector<EnemySpatial> space;
     std::vector<Color> colours;
+    std::vector<Texture2D> sprite;
     std::vector<float> health;
     std::vector<bool> looped;
     std::vector<float> spawntime;

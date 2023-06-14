@@ -9,7 +9,6 @@ namespace plane {
     return static_cast<float>(rand() / static_cast<float>(static_cast<float>(RAND_MAX)/max));
   }
 
-#define RAD(x) (x * PI) / 180
   void update_test_patterns(ProjectileSpace& transform) {
     auto vec = transform.position.norm();
     transform.position.vec.x += cos(RAD(transform.angle)) * transform.velocity.vec.x;
@@ -31,6 +30,7 @@ namespace plane {
     // Texture2D background = LoadTexture("../assets/city.png");
     float scroll = 0.0f;
     
+    bool micro = false;
     Player p;
 
     load_stage1enemies(enemies);
@@ -48,7 +48,6 @@ namespace plane {
         .velocity = { 4, 4 },
         .angle = (360.f / n) * i,
         .radius = 10,
-        .colour = WHITE,
         .spawntime = static_cast<float>(j),
         .live = true,
         })));
@@ -74,8 +73,10 @@ namespace plane {
       }
 
       if(IsKeyDown(KEY_LEFT_SHIFT)) {
+        micro = true;
         p.speed = 5.0f;
       } else if(IsKeyReleased(KEY_LEFT_SHIFT)) {
+        micro = false;
         p.speed = 8.0f;
       }
 
@@ -86,7 +87,6 @@ namespace plane {
               .old_position = p.pos,
               .velocity = {0, 20},
               .radius = 10.0f,
-              .colour = BLUE,
               .attr = {},
               .live = true
           };
@@ -122,7 +122,7 @@ e_shooting:
                 .old_position = enemies.space[i].position,
                 .velocity = {0, 7.0f},
                 .radius = 10.0f,
-                .colour = RAYWHITE,
+                .sprite = LoadTexture("../assets/orb2.png"),
                 .live = true,
               }));
               enemies.last_shots[i] = 20;
@@ -132,17 +132,24 @@ e_shooting:
           }
         }
 
-
         for(int i = 0; i < e_ps.spaces.size(); ++i) {
           // For now just draw them increasing until they fall off the screen
           auto tmp = e_ps.spaces[i].old_position = e_ps.spaces[i].position;
           e_ps.spaces[i].position.vec = { tmp.vec.x, tmp.vec.y + e_ps.spaces[i].velocity.vec.y};
-          if(!p.d_time && CheckCollisionCircles(p.pos, p.in_size, e_ps.spaces[i].position.vec, e_ps.spaces[i].radius)) {
+          if(!p.d_time && CheckCollisionRecs(Rectangle {
+                p.pos.x, p.pos.y, 
+                static_cast<float>(p.in_sprite.width), 
+                static_cast<float>(p.in_sprite.height) }, 
+                Rectangle{e_ps.spaces[i].position.vec.x, e_ps.spaces[i].position.vec.y, 
+                static_cast<float>(e_ps.sprite[i].width), 
+                static_cast<float>(e_ps.sprite[i].height)}
+                )) {
             p.lives--;
             p.d_time = 50;
+            micro = false;
             p.pos = {config.screen_width/2,(config.screen_height/8) * 6};
           }
-          DrawCircleV(e_ps.spaces[i].position.vec, e_ps.spaces[i].radius, e_ps.colours[i]);
+          DrawTextureEx(e_ps.sprite[i], e_ps.spaces[i].position.vec, 0.0f, 1.0f, WHITE);
         }
 
         for(int i = 0; i < p_ps.spaces.size(); ++i) {
@@ -156,7 +163,7 @@ e_shooting:
               }
             }
             p_ps.spaces[i].position.vec = { p.vec.x, p.vec.y - p_ps.spaces[i].velocity.vec.y};
-            DrawCircleV(p_ps.spaces[i].position.vec, p_ps.spaces[i].radius, p_ps.colours[i]);
+            DrawTextureEx(p_ps.sprite[i], p_ps.spaces[i].position.vec, 0.0f, 1.0f, WHITE);
           }
         }
 
@@ -167,8 +174,8 @@ e_shooting:
         }
         // Handle player
         if(!p.d_time) {
-          DrawTextureV(p.sprite, {p.pos.x - 16, p.pos.y - 16}, WHITE);
-          DrawCircleV(p.pos, p.in_size, WHITE);
+          DrawTextureEx(p.sprite, {p.pos.x - 16 * 3, p.pos.y - 16 *  3}, 0, 3.0f, WHITE);
+          if(micro) DrawTextureEx(p.in_sprite, {p.pos.x - 2, p.pos.y - 2}, 0, 1, WHITE);
           // DrawCircleV(p.pos, p.size, RED);
           // DrawCircleV(p.pos, p.b_size, Color{255, 0, 0, 40});
         } else {

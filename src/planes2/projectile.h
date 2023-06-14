@@ -18,8 +18,8 @@ namespace plane {
     Vec2 velocity;
     float angle;
     float radius;
-    Color colour;
     ProjectileAttributes attr;
+    Texture2D sprite;
     float spawntime;
     bool live;
   };
@@ -37,7 +37,7 @@ namespace plane {
     size_t size;
     std::vector<ProjectileSpace> spaces;
     std::vector<float> spawntime;
-    std::vector<Color> colours;
+    std::vector<Texture2D> sprite;
     std::vector<ProjectileAttributes> attrs;
     std::vector<bool> live;
     std::vector<std::function<void()>> onUpdate;

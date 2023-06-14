@@ -4,6 +4,8 @@
 
 #include <cmath>
 
+#define RAD(x) (x * PI) / 180
+
 template<typename T>
 struct VecBase {
   static constexpr size_t size() {

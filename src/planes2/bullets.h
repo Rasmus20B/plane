@@ -1,4 +1,6 @@
 
 enum BulletType {
-
+  BULLET_DUMB,
+  BULLET_ANGLED,
+  BULLET_CIRCLE,
 };
