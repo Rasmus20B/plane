@@ -140,6 +140,7 @@ e_shooting:
           if(!p.d_time && CheckCollisionCircles(p.pos, p.in_size, e_ps.spaces[i].position.vec, e_ps.spaces[i].radius)) {
             p.lives--;
             p.d_time = 50;
+            p.pos = {config.screen_width/2,(config.screen_height/8) * 6};
           }
           DrawCircleV(e_ps.spaces[i].position.vec, e_ps.spaces[i].radius, e_ps.colours[i]);
         }
@@ -166,9 +167,10 @@ e_shooting:
         }
         // Handle player
         if(!p.d_time) {
-          DrawCircleV(p.pos, p.size, RED);
+          DrawTextureV(p.sprite, {p.pos.x - 16, p.pos.y - 16}, WHITE);
           DrawCircleV(p.pos, p.in_size, WHITE);
-          DrawCircleV(p.pos, p.b_size, Color{255, 0, 0, 40});
+          // DrawCircleV(p.pos, p.size, RED);
+          // DrawCircleV(p.pos, p.b_size, Color{255, 0, 0, 40});
         } else {
           if(!p.lives) return;
           p.d_time--;

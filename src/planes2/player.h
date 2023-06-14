@@ -7,7 +7,7 @@
 
 namespace plane {
 struct Player {
-  Vector2 pos{config.screen_width/2,config.screen_height/2};
+  Vector2 pos{config.screen_width/2,(config.screen_height/8) * 6};
   float speed = 8.0f;
   float size = 20.0f;
   float in_size = 2.5f;
@@ -18,6 +18,7 @@ struct Player {
   bool b_fire = false;
   bool b_charging = false;
   uint32_t d_time = 0;
+  Texture2D sprite = LoadTexture("../assets/sprite-0001.png");
   std::vector<size_t> marked;
 };
 }
