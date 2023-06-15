@@ -2,18 +2,12 @@
 #include "projectile.h"
 
 #include <random>
+#include <raylib.h>
 
 namespace plane {
 
   float rand_f(float max) {
     return static_cast<float>(rand() / static_cast<float>(static_cast<float>(RAND_MAX)/max));
-  }
-
-  void update_test_patterns(ProjectileSpace& transform) {
-    auto vec = transform.position.norm();
-    transform.position.vec.x += cos(RAD(transform.angle)) * transform.velocity.vec.x;
-    transform.position.vec.y +=  sin(RAD(transform.angle)) * transform.velocity.vec.y;
-    transform.angle+=0.8;
   }
 
   void main_loop() {
@@ -38,14 +32,17 @@ namespace plane {
     bool micro = false;
     Player p;
 
+    std::cout << p.sprite.width << "\n";
+    std::cout << p.sprite.height << "\n";
+    std::cout << p.sprite.mipmaps << "\n";
+    std::cout << p.sprite.format << "\n";
+
+
     load_stage1enemies(enemies);
 
-    ProjectilePool test_patterns;
-    projectilePoolInit(test_patterns, 200);
-
     Vec2 centre = Vec2(config.screen_width/2, config.screen_height/2);
-    int n = 20;
-    for(int j = 0; j < 10; ++j) {
+    int n = 5;
+    for(int j = 0; j < 3; ++j) {
       for(int i = 0; i < n; ++i) {
         addProjectile(e_ps, ( std::move(Projectile{
           .position = Vec2(centre.vec.x + (15 * cos((360.0f/n) * i)), centre.vec.y + (15 * sin((360.0f/n) * i)) ),
@@ -148,11 +145,11 @@ e_shooting:
           DrawTextureEx(e_ps.sprite[i], e_ps.spaces[i].position.vec, e_ps.spaces[i].angle, 1.0f, WHITE);
           if(!p.d_time && CheckCollisionRecs(Rectangle {
                 p.pos.x, p.pos.y, 
-                static_cast<float>(p.in_sprite.width), 
-                static_cast<float>(p.in_sprite.height) }, 
+                static_cast<float>(p.in_sprite.width / 2.f), 
+                static_cast<float>(p.in_sprite.height / 2.f) }, 
                 Rectangle{e_ps.spaces[i].position.vec.x, e_ps.spaces[i].position.vec.y, 
-                static_cast<float>(e_ps.sprite[i].width), 
-                static_cast<float>(e_ps.sprite[i].height)}
+                static_cast<float>(e_ps.sprite[i].width ), 
+                static_cast<float>(e_ps.sprite[i].height )}
                 )) {
             p.lives--;
             p.d_time = 50;
@@ -171,22 +168,15 @@ e_shooting:
                 p_ps.live[i] = false;
               }
             }
+            DrawTextureV(p_ps.sprite[i], p_ps.spaces[i].position.vec, WHITE);
             p_ps.spaces[i].position.vec = { p.vec.x, p.vec.y - p_ps.spaces[i].velocity.vec.y};
-            DrawTextureEx(p_ps.sprite[i], p_ps.spaces[i].position.vec, 0.0f, 1.0f, WHITE);
           }
         }
 
-        for(int i = 0; i < test_patterns.spaces.size(); ++i) {
-          if(test_patterns.spawntime[i] > time) continue;
-          update_test_patterns(test_patterns.spaces[i]);
-          DrawTextureEx(test_patterns.sprite[i], test_patterns.spaces[i].position.vec, test_patterns.spaces[i].angle, 1.0f, WHITE);
-        }
         // Handle player
         if(!p.d_time) {
-          DrawTextureEx(p.sprite, {p.pos.x - 16 * 3, p.pos.y - 16 *  3}, 0, 3.0f, WHITE);
-          if(micro) DrawTextureEx(p.in_sprite, {p.pos.x - 2, p.pos.y - 2}, 0, 1, WHITE);
-          // DrawCircleV(p.pos, p.size, RED);
-          // DrawCircleV(p.pos, p.b_size, Color{255, 0, 0, 40});
+          DrawTextureV(p.sprite, {p.pos.x - (p.sprite.width / 2.0f), p.pos.y - (p.sprite.height / 2.0f) }, WHITE);
+          if(micro) DrawTextureV(p.in_sprite, {p.pos.x - (p.in_sprite.width / 2.0f)  , p.pos.y - (p.in_sprite.height / 2.0f) }, WHITE);
         } else {
           if(!p.lives) return;
           p.d_time--;
