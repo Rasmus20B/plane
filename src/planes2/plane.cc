@@ -166,6 +166,7 @@ e_shooting:
 #endif
         }
 
+
         for(int i = 0; i < p_ps.spaces.size(); ++i) {
           // For now just draw them decreasing until they fall off the screen
           if(p_ps.live[i]) {

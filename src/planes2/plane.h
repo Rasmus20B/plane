@@ -24,6 +24,7 @@
 #include "stage1.h"
 #include "texture.h"
 #include "move.h"
+#include "collision.h"
 
 namespace plane {
   void main_loop();

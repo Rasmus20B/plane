@@ -4,6 +4,8 @@ add_executable(${PROJECT_NAME}
   common/vector_calc.cc
   common/spline.h
   common/spline.cc
+  planes2/collision.cc
+  planes2/collision.h
   planes2/enemy.cc
   planes2/enemy.h
   planes2/main.cc
