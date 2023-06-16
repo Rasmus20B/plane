@@ -2,6 +2,7 @@
 
 #include <cstdint>
 
+#define DRAW_HITBOX
 
 namespace plane {
 struct Config {

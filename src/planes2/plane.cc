@@ -100,8 +100,6 @@ namespace plane {
 
 
       BeginDrawing();
-        // DrawTextureEx(background, {0, scroll}, 0.0f, 2.0f, WHITE);
-        // DrawTextureEx(background, { 0, background.height * 2 + scroll}, 0.0f, 2.0f, WHITE);
         // Handle enemies
         for(int i = 0; i < enemies.space.size() ; ++i) {
           if(enemies.spawntime[i] <= time && enemies.health[i] > 0) {
@@ -143,10 +141,11 @@ e_shooting:
               },
               e_ps.spaces[i].angle, 1.0f, WHITE);
           if(!p.d_time && CheckCollisionRecs(Rectangle {
-                p.pos.x, p.pos.y, 
-                static_cast<float>(p.in_sprite.width / 2.f), 
-                static_cast<float>(p.in_sprite.height / 2.f) }, 
-                Rectangle{e_ps.spaces[i].position.vec.x, e_ps.spaces[i].position.vec.y, 
+                p.pos.x - (p.sprite.width / 2.0f), p.pos.y - (p.sprite.height / 2.0f), 
+                static_cast<float>(p.in_sprite.width), 
+                static_cast<float>(p.in_sprite.height) }, 
+                Rectangle{e_ps.spaces[i].position.vec.x - (e_ps.sprite[i].width / 2.0f), 
+                e_ps.spaces[i].position.vec.y - (e_ps.sprite[i].height / 2.0f),
                 static_cast<float>(e_ps.sprite[i].width ), 
                 static_cast<float>(e_ps.sprite[i].height )}
                 )) {
@@ -155,6 +154,16 @@ e_shooting:
             micro = false;
             p.pos = {config.screen_width/2,(config.screen_height/8) * 6};
           }
+
+
+#ifdef DRAW_HITBOX
+        DrawRectanglePro(Rectangle {
+                e_ps.spaces[i].position.vec.x - (e_ps.sprite[i].width / 2.0f), e_ps.spaces[i].position.vec.y - (e_ps.sprite[i].height / 2.0f), 
+                static_cast<float>(e_ps.sprite[i].width), 
+                static_cast<float>(e_ps.sprite[i].height) }, 
+                Vector2 { 0, 0 },
+                (e_ps.spaces[i].angle), GetColor(0x00ff0073));
+#endif
         }
 
         for(int i = 0; i < p_ps.spaces.size(); ++i) {
@@ -183,6 +192,13 @@ e_shooting:
           if(!p.lives) return;
           p.d_time--;
         }
+
+#ifdef DRAW_HITBOX
+        DrawRectangleRec(Rectangle {
+                p.pos.x - (p.sprite.width / 2.0f), p.pos.y - (p.sprite.height / 2.0f), 
+                static_cast<float>(p.sprite.width), 
+                static_cast<float>(p.sprite.height) }, GetColor(0xff000073));
+#endif
 
         DrawFPS(config.screen_width / 10, config.screen_height / 20);
         ClearBackground(GetColor(0x052c46ff));
