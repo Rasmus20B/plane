@@ -32,12 +32,6 @@ namespace plane {
     bool micro = false;
     Player p;
 
-    std::cout << p.sprite.width << "\n";
-    std::cout << p.sprite.height << "\n";
-    std::cout << p.sprite.mipmaps << "\n";
-    std::cout << p.sprite.format << "\n";
-
-
     load_stage1enemies(enemies);
 
     Vec2 centre = Vec2(config.screen_width/2, config.screen_height/2);
@@ -142,7 +136,12 @@ e_shooting:
           if(e_ps.spawntime[i] > time) continue;
           // For now just draw them increasing until they fall off the screen
           pMove(e_ps.spaces[i]);
-          DrawTextureEx(e_ps.sprite[i], e_ps.spaces[i].position.vec, e_ps.spaces[i].angle, 1.0f, WHITE);
+          DrawTextureEx(e_ps.sprite[i], 
+              { 
+                e_ps.spaces[i].position.vec.x - (e_ps.sprite[i].width / 2.0f),
+                e_ps.spaces[i].position.vec.y - (e_ps.sprite[i].height / 2.0f)
+              },
+              e_ps.spaces[i].angle, 1.0f, WHITE);
           if(!p.d_time && CheckCollisionRecs(Rectangle {
                 p.pos.x, p.pos.y, 
                 static_cast<float>(p.in_sprite.width / 2.f), 
@@ -168,7 +167,10 @@ e_shooting:
                 p_ps.live[i] = false;
               }
             }
-            DrawTextureV(p_ps.sprite[i], p_ps.spaces[i].position.vec, WHITE);
+            DrawTextureV(p_ps.sprite[i], {
+                p_ps.spaces[i].position.vec.x - (p_ps.sprite[i].width / 2.0f),
+                p_ps.spaces[i].position.vec.y - (p_ps.sprite[i].height / 2.0f)
+                }, WHITE);
             p_ps.spaces[i].position.vec = { p.vec.x, p.vec.y - p_ps.spaces[i].velocity.vec.y};
           }
         }

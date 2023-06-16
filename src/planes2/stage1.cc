@@ -3,7 +3,7 @@
 namespace plane {
   void load_stage1enemies(EnemyPool& ep) {
 
-    for(int i = 0; i < 2; ++i) {
+    for(int i = 0; i < 1; ++i) {
       auto tmp =  Spline( {
         {{config.screen_width / 3, -200}, 0},
         {{(config.screen_width / 2) , 0}, 0},
