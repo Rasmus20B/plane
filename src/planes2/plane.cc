@@ -136,12 +136,12 @@ e_shooting:
           pMove(e_ps.spaces[i]);
           DrawTextureEx(e_ps.sprite[i], 
               { 
-                e_ps.spaces[i].position.vec.x - (e_ps.sprite[i].width / 2.0f),
-                e_ps.spaces[i].position.vec.y - (e_ps.sprite[i].height / 2.0f)
+                e_ps.spaces[i].position.vec.x ,
+                e_ps.spaces[i].position.vec.y ,
               },
               e_ps.spaces[i].angle, 1.0f, WHITE);
           if(!p.d_time && CheckCollisionRecs(Rectangle {
-                p.pos.x - (p.sprite.width / 2.0f), p.pos.y - (p.sprite.height / 2.0f), 
+                p.pos.x - (p.sprite.width / 2.5f), p.pos.y - (p.sprite.height / 2.5f), 
                 static_cast<float>(p.in_sprite.width), 
                 static_cast<float>(p.in_sprite.height) }, 
                 Rectangle{e_ps.spaces[i].position.vec.x - (e_ps.sprite[i].width / 2.0f), 
@@ -158,11 +158,29 @@ e_shooting:
 
 #ifdef DRAW_HITBOX
         DrawRectanglePro(Rectangle {
-                e_ps.spaces[i].position.vec.x - (e_ps.sprite[i].width / 2.0f), e_ps.spaces[i].position.vec.y - (e_ps.sprite[i].height / 2.0f), 
+                e_ps.spaces[i].position.vec.x ,
+                e_ps.spaces[i].position.vec.y ,
                 static_cast<float>(e_ps.sprite[i].width), 
-                static_cast<float>(e_ps.sprite[i].height) }, 
+                static_cast<float>(e_ps.sprite[i].height) 
+                }, 
                 Vector2 { 0, 0 },
-                (e_ps.spaces[i].angle), GetColor(0x00ff0073));
+                RAD(e_ps.spaces[i].angle), GetColor(0x00ff0055));
+
+        auto cs = getCorners(Rectangle {
+                e_ps.spaces[i].position.vec.x,
+                e_ps.spaces[i].position.vec.y,
+                static_cast<float>(e_ps.sprite[i].width), 
+                static_cast<float>(e_ps.sprite[i].height) }, RAD(e_ps.spaces[i].angle));
+
+        // DrawCircleV(cs[0].vec, 1.0f, BLUE);
+        // DrawCircleV(cs[1].vec, 1.0f, BLUE);
+        // DrawCircleV(cs[2].vec, 1.0f, BLUE);
+        // DrawCircleV(cs[3].vec, 1.0f, BLUE);
+
+        DrawRectanglePro(Rectangle{cs[0].vec.x, cs[0].vec.y, 2, 2}, {0, 0}, RAD(e_ps.spaces[i].angle), BLUE);
+        DrawRectanglePro(Rectangle{cs[1].vec.x, cs[1].vec.y, 2, 2}, {0, 0}, RAD(e_ps.spaces[i].angle), BLUE);
+        DrawRectanglePro(Rectangle{cs[2].vec.x, cs[2].vec.y, 2, 2}, {0, 0}, RAD(e_ps.spaces[i].angle), BLUE);
+        DrawRectanglePro(Rectangle{cs[3].vec.x, cs[3].vec.y, 2, 2}, {0, 0}, RAD(e_ps.spaces[i].angle), BLUE);
 #endif
         }
 
@@ -178,8 +196,8 @@ e_shooting:
               }
             }
             DrawTextureV(p_ps.sprite[i], {
-                p_ps.spaces[i].position.vec.x - (p_ps.sprite[i].width / 2.0f),
-                p_ps.spaces[i].position.vec.y - (p_ps.sprite[i].height / 2.0f)
+                p_ps.spaces[i].position.vec.x ,
+                p_ps.spaces[i].position.vec.y ,
                 }, WHITE);
             p_ps.spaces[i].position.vec = { p.vec.x, p.vec.y - p_ps.spaces[i].velocity.vec.y};
           }

@@ -32,6 +32,9 @@ struct Vec2 : public VecBase<Vec2> {
   Vec2 operator*(const float multiplier) {
     return {this->vec.x * multiplier, this->vec.y * multiplier};
   }
+  Vec2 operator*(const Vec2 rhs) {
+    return {this->vec.x * rhs.vec.x, this->vec.y * rhs.vec.y};
+  }
   float magnitude() {
     return sqrtf(pow(this->vec.x, 2) + pow(this->vec.y, 2));
   }
@@ -40,6 +43,11 @@ struct Vec2 : public VecBase<Vec2> {
   }
   Vec2 norm() {
     return { this->vec.x / this->magnitude(), this->vec.y / this->magnitude() };
+  }
+
+  Vec2 rotate(const float angle) const {
+    return { this->vec.x * (float)cos(angle) - this->vec.y * (float)sin(angle),
+             this->vec.x * (float)sin(angle) + this->vec.y * (float)cos(angle)};
   }
 
   float angle(Vec2& rhs) {
