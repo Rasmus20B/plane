@@ -35,6 +35,22 @@ namespace plane {
         .spawntime = static_cast<float>(i),
         .looped = false,
         }));
+
+      tmp =  Spline( {
+        {{config.screen_width / 2, 0}, 0},
+        {{config.screen_width / 2, 100}, 0},
+        {{config.screen_width / 2, 100}, 0},
+        {{config.screen_width / 2, 200}, 0},
+        }, 0).calc_points(0.01f, 5.0f, false);
+      addEnemy(ep, std::move(Enemy{
+        .points = tmp,
+        .col = GREEN,
+        .size = 20,
+        .health = 1,
+        .speed = 5.0f,
+        .spawntime = static_cast<float>(i),
+        .looped = false,
+        }));
     }
   }
   void load_stage1projectiles(ProjectilePool& pp);

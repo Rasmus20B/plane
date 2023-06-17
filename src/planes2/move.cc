@@ -13,7 +13,7 @@ namespace plane {
         p.angle+=0.8;
         break;
       case MoveType::MOVE_NORM:
-        p.position.vec = { p.position.vec.x, p.position.vec.y + p.velocity.vec.y};
+        p.position.vec = { p.position.vec.x + p.velocity.vec.x, p.position.vec.y + p.velocity.vec.y};
         break;
     }
   }

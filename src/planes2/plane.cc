@@ -30,32 +30,35 @@ namespace plane {
     float scroll = 0.0f;
     
     bool micro = false;
+    bool pause = false;
     Player p;
 
     load_stage1enemies(enemies);
 
-    Vec2 centre = Vec2(config.screen_width/2, config.screen_height/2);
-    int n = 5;
-    for(int j = 0; j < 3; ++j) {
-      for(int i = 0; i < n; ++i) {
-        addProjectile(e_ps, ( std::move(Projectile{
-          .position = Vec2(centre.vec.x + (15 * cos((360.0f/n) * i)), centre.vec.y + (15 * sin((360.0f/n) * i)) ),
-          .old_position = Vec2(config.screen_width/2, config.screen_height/2),
-          .velocity = { 4, 4 },
-          .angle = (360.f / n) * i,
-          .radius = 10,
-          .sprite = tm.textures[4],
-          .spawntime = static_cast<float>(j),
-          .mt = MoveType::MOVE_CIRCLE,
-          .live = true,
-          })));
-      }
-    }
+    // Vec2 centre = Vec2(config.screen_width/2, config.screen_height/2);
+    // int n = 5;
+    // for(int j = 0; j < 3; ++j) {
+    //   for(int i = 0; i < n; ++i) {
+    //     addProjectile(e_ps, ( std::move(Projectile{
+    //       .position = Vec2(centre.vec.x + (15 * cos((360.0f/n) * i)), centre.vec.y + (15 * sin((360.0f/n) * i)) ),
+    //       .old_position = Vec2(config.screen_width/2, config.screen_height/2),
+    //       .velocity = { 4, 4 },
+    //       .angle = (360.f / n) * i,
+    //       .radius = 10,
+    //       .sprite = tm.textures[4],
+    //       .spawntime = static_cast<float>(j),
+    //       .mt = MoveType::MOVE_CIRCLE,
+    //       .live = true,
+    //       })));
+    //   }
+    // }
     while(!WindowShouldClose()) {
 
       float time = GetTime();
       // Controls
-      //
+
+
+      if(!pause) {
       if(!p.d_time) {
       if(IsKeyDown(KEY_UP)) {
         p.pos.y -= p.speed;
@@ -117,7 +120,25 @@ e_shooting:
               addProjectile(e_ps, std::move(Projectile{
                 .position = enemies.space[i].position,
                 .old_position = enemies.space[i].position,
+                .velocity = {-3, 7.0f},
+                .radius = 10.0f,
+                .sprite = tm.textures[5],
+                .mt = MoveType::MOVE_NORM,
+                .live = true,
+              }));
+              addProjectile(e_ps, std::move(Projectile{
+                .position = enemies.space[i].position,
+                .old_position = enemies.space[i].position,
                 .velocity = {0, 7.0f},
+                .radius = 10.0f,
+                .sprite = tm.textures[5],
+                .mt = MoveType::MOVE_NORM,
+                .live = true,
+              }));
+              addProjectile(e_ps, std::move(Projectile{
+                .position = enemies.space[i].position,
+                .old_position = enemies.space[i].position,
+                .velocity = {3, 7.0f},
                 .radius = 10.0f,
                 .sprite = tm.textures[5],
                 .mt = MoveType::MOVE_NORM,
@@ -223,5 +244,6 @@ e_shooting:
         ClearBackground(GetColor(0x052c46ff));
       EndDrawing();
     }
+      }
   }
 }
