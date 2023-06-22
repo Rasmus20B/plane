@@ -33,7 +33,7 @@ namespace plane {
     bool pause = false;
     Player p;
 
-    load_stage1enemies(enemies);
+    // load_stage1enemies(enemies);
 
     // Vec2 centre = Vec2(config.screen_width/2, config.screen_height/2);
     // int n = 5;
@@ -53,6 +53,9 @@ namespace plane {
     //   }
     // }
     while(!WindowShouldClose()) {
+
+      static float rotation = 0;
+      rotation += 0.5;
 
       float time = GetTime();
       // Controls
@@ -122,6 +125,7 @@ e_shooting:
                 .old_position = enemies.space[i].position,
                 .velocity = {-3, 7.0f},
                 .radius = 10.0f,
+                .angle = 215,
                 .sprite = tm.textures[5],
                 .mt = MoveType::MOVE_NORM,
                 .live = true,
@@ -133,6 +137,7 @@ e_shooting:
                 .radius = 10.0f,
                 .sprite = tm.textures[5],
                 .mt = MoveType::MOVE_NORM,
+                .angle = 180,
                 .live = true,
               }));
               addProjectile(e_ps, std::move(Projectile{
@@ -140,6 +145,7 @@ e_shooting:
                 .old_position = enemies.space[i].position,
                 .velocity = {3, 7.0f},
                 .radius = 10.0f,
+                .angle = 135,
                 .sprite = tm.textures[5],
                 .mt = MoveType::MOVE_NORM,
                 .live = true,
@@ -162,7 +168,7 @@ e_shooting:
               },
               e_ps.spaces[i].angle, 1.0f, WHITE);
           if(!p.d_time && CheckCollisionRecs(Rectangle {
-                p.pos.x - (p.sprite.width / 2.5f), p.pos.y - (p.sprite.height / 2.5f), 
+                p.pos.x - (p.sprite.width / 2.0f), p.pos.y - (p.sprite.height / 2.0f), 
                 static_cast<float>(p.in_sprite.width), 
                 static_cast<float>(p.in_sprite.height) }, 
                 Rectangle{e_ps.spaces[i].position.vec.x - (e_ps.sprite[i].width / 2.0f), 
@@ -205,7 +211,6 @@ e_shooting:
 #endif
         }
 
-
         for(int i = 0; i < p_ps.spaces.size(); ++i) {
           // For now just draw them decreasing until they fall off the screen
           if(p_ps.live[i]) {
@@ -217,14 +222,15 @@ e_shooting:
               }
             }
             DrawTextureV(p_ps.sprite[i], {
-                p_ps.spaces[i].position.vec.x ,
-                p_ps.spaces[i].position.vec.y ,
+                p_ps.spaces[i].position.vec.x - (p_ps.sprite[i].width / 2.0f),
+                p_ps.spaces[i].position.vec.y - (p_ps.sprite[i].width / 2.0f),
                 }, WHITE);
             p_ps.spaces[i].position.vec = { p.vec.x, p.vec.y - p_ps.spaces[i].velocity.vec.y};
           }
         }
 
         // Handle player
+        //
         if(!p.d_time) {
           DrawTextureV(p.sprite, {p.pos.x - (p.sprite.width / 2.0f), p.pos.y - (p.sprite.height / 2.0f) }, WHITE);
           if(micro) DrawTextureV(p.in_sprite, {p.pos.x - (p.in_sprite.width / 2.0f)  , p.pos.y - (p.in_sprite.height / 2.0f) }, WHITE);
@@ -233,6 +239,30 @@ e_shooting:
           p.d_time--;
         }
 
+        Rectangle test = {400, 400, 100, 100};
+        DrawRectanglePro({test.x + (test.width / 2), test.y + (test.width / 2), test.width, test.height}, {test.width / 2, test.height / 2 }, rotation, RED);
+        auto corners = getCorners(test, RAD(rotation));
+        DrawCircleV(corners[0].vec, 2, GREEN);
+        DrawCircleV(corners[1].vec, 2, BLUE);
+        DrawCircleV(corners[2].vec, 2, PURPLE);
+        DrawCircleV(corners[3].vec, 2, BLACK);
+        Rectangle p_hitbox = Rectangle {
+                p.pos.x - (p.in_sprite.width / 2.0f), p.pos.y - (p.in_sprite.height / 2.0f), 
+                static_cast<float>(p.in_sprite.width), 
+                static_cast<float>(p.in_sprite.height)};
+
+        auto axes1 = getAxis(p_hitbox, 0);
+        auto axes2 = getAxis(test, rotation);
+
+        for(int i = 0; i < axes1.size(); ++i) {
+          DrawLineV(axes1[i].first.vec, axes1[i].second.vec, GREEN); 
+        }
+        for(int i = 0; i < axes2.size(); ++i) {
+          DrawLineV(axes2[i].first.vec, axes2[i].second.vec, GREEN); 
+        }
+        if(CheckCollisionRecsAngle(p_hitbox, 0, test, rotation)) {
+          std::cout << "Found a collision" << std::chrono::system_clock::now().time_since_epoch().count() << rotation << "\n";
+        }
 #ifdef DRAW_HITBOX
         DrawRectangleRec(Rectangle {
                 p.pos.x - (p.sprite.width / 2.0f), p.pos.y - (p.sprite.height / 2.0f), 

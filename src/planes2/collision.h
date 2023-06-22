@@ -7,8 +7,10 @@
 #include <raylib.h>  
 
 namespace plane {
-  std::vector<std::pair<Vec2, Vec2>> getAxis(const Rectangle& r, const float radian);
+
+  using line = std::pair<Vec2, Vec2>;
+  std::vector<line> getAxis(const Rectangle& r, const float radian);
   std::array<Vec2, 4> getCorners(const Rectangle& r, const float radian);
-  bool CheckCollisionRecsAngle(Rectangle r1, float a1, Rectangle r2, float a2);
-  Vec2 project(std::pair<Vec2, Vec2>);
+  bool CheckCollisionRecsAngle(const Rectangle& r1, const float a1, const Rectangle& r2, const float a2);
+  Vec2 project(line);
 }

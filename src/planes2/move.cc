@@ -19,6 +19,5 @@ namespace plane {
   }
   void pOnMove(ProjectileSpace& p) {
 
-
   }
 }
