@@ -33,25 +33,8 @@ namespace plane {
     bool pause = false;
     Player p;
 
-    // load_stage1enemies(enemies);
+    load_stage1enemies(enemies);
 
-    // Vec2 centre = Vec2(config.screen_width/2, config.screen_height/2);
-    // int n = 5;
-    // for(int j = 0; j < 3; ++j) {
-    //   for(int i = 0; i < n; ++i) {
-    //     addProjectile(e_ps, ( std::move(Projectile{
-    //       .position = Vec2(centre.vec.x + (15 * cos((360.0f/n) * i)), centre.vec.y + (15 * sin((360.0f/n) * i)) ),
-    //       .old_position = Vec2(config.screen_width/2, config.screen_height/2),
-    //       .velocity = { 4, 4 },
-    //       .angle = (360.f / n) * i,
-    //       .radius = 10,
-    //       .sprite = tm.textures[4],
-    //       .spawntime = static_cast<float>(j),
-    //       .mt = MoveType::MOVE_CIRCLE,
-    //       .live = true,
-    //       })));
-    //   }
-    // }
     while(!WindowShouldClose()) {
 
       static float rotation = 0;
@@ -60,8 +43,6 @@ namespace plane {
       float time = GetTime();
       // Controls
 
-
-      if(!pause) {
       if(!p.d_time) {
       if(IsKeyDown(KEY_UP)) {
         p.pos.y -= p.speed;
@@ -102,8 +83,6 @@ namespace plane {
       }
       scroll += 1.0f;
       // if(scroll >= background.height*2) scroll = background.height;
-
-
 
       BeginDrawing();
         // Handle enemies
@@ -167,50 +146,23 @@ e_shooting:
                 e_ps.spaces[i].position.vec.y ,
               },
               e_ps.spaces[i].angle, 1.0f, WHITE);
-          if(!p.d_time && CheckCollisionRecs(Rectangle {
+          if(!p.d_time && CheckCollisionRecsAngle(Rectangle {
                 p.pos.x - (p.sprite.width / 2.0f), p.pos.y - (p.sprite.height / 2.0f), 
                 static_cast<float>(p.in_sprite.width), 
                 static_cast<float>(p.in_sprite.height) }, 
+                0.0f,
                 Rectangle{e_ps.spaces[i].position.vec.x - (e_ps.sprite[i].width / 2.0f), 
                 e_ps.spaces[i].position.vec.y - (e_ps.sprite[i].height / 2.0f),
                 static_cast<float>(e_ps.sprite[i].width ), 
-                static_cast<float>(e_ps.sprite[i].height )}
+                static_cast<float>(e_ps.sprite[i].height )},
+                e_ps.spaces[i].angle
                 )) {
             p.lives--;
             p.d_time = 50;
             micro = false;
             p.pos = {config.screen_width/2,(config.screen_height/8) * 6};
           }
-
-
-#ifdef DRAW_HITBOX
-        DrawRectanglePro(Rectangle {
-                e_ps.spaces[i].position.vec.x ,
-                e_ps.spaces[i].position.vec.y ,
-                static_cast<float>(e_ps.sprite[i].width), 
-                static_cast<float>(e_ps.sprite[i].height) 
-                }, 
-                Vector2 { 0, 0 },
-                RAD(e_ps.spaces[i].angle), GetColor(0x00ff0055));
-
-        auto cs = getCorners(Rectangle {
-                e_ps.spaces[i].position.vec.x,
-                e_ps.spaces[i].position.vec.y,
-                static_cast<float>(e_ps.sprite[i].width), 
-                static_cast<float>(e_ps.sprite[i].height) }, RAD(e_ps.spaces[i].angle));
-
-        // DrawCircleV(cs[0].vec, 1.0f, BLUE);
-        // DrawCircleV(cs[1].vec, 1.0f, BLUE);
-        // DrawCircleV(cs[2].vec, 1.0f, BLUE);
-        // DrawCircleV(cs[3].vec, 1.0f, BLUE);
-
-        DrawRectanglePro(Rectangle{cs[0].vec.x, cs[0].vec.y, 2, 2}, {0, 0}, RAD(e_ps.spaces[i].angle), BLUE);
-        DrawRectanglePro(Rectangle{cs[1].vec.x, cs[1].vec.y, 2, 2}, {0, 0}, RAD(e_ps.spaces[i].angle), BLUE);
-        DrawRectanglePro(Rectangle{cs[2].vec.x, cs[2].vec.y, 2, 2}, {0, 0}, RAD(e_ps.spaces[i].angle), BLUE);
-        DrawRectanglePro(Rectangle{cs[3].vec.x, cs[3].vec.y, 2, 2}, {0, 0}, RAD(e_ps.spaces[i].angle), BLUE);
-#endif
         }
-
         for(int i = 0; i < p_ps.spaces.size(); ++i) {
           // For now just draw them decreasing until they fall off the screen
           if(p_ps.live[i]) {
@@ -238,42 +190,9 @@ e_shooting:
           if(!p.lives) return;
           p.d_time--;
         }
-
-        Rectangle test = {400, 400, 100, 100};
-        DrawRectanglePro({test.x + (test.width / 2), test.y + (test.width / 2), test.width, test.height}, {test.width / 2, test.height / 2 }, rotation, RED);
-        auto corners = getCorners(test, RAD(rotation));
-        DrawCircleV(corners[0].vec, 2, GREEN);
-        DrawCircleV(corners[1].vec, 2, BLUE);
-        DrawCircleV(corners[2].vec, 2, PURPLE);
-        DrawCircleV(corners[3].vec, 2, BLACK);
-        Rectangle p_hitbox = Rectangle {
-                p.pos.x - (p.in_sprite.width / 2.0f), p.pos.y - (p.in_sprite.height / 2.0f), 
-                static_cast<float>(p.in_sprite.width), 
-                static_cast<float>(p.in_sprite.height)};
-
-        auto axes1 = getAxis(p_hitbox, 0);
-        auto axes2 = getAxis(test, rotation);
-
-        for(int i = 0; i < axes1.size(); ++i) {
-          DrawLineV(axes1[i].first.vec, axes1[i].second.vec, GREEN); 
-        }
-        for(int i = 0; i < axes2.size(); ++i) {
-          DrawLineV(axes2[i].first.vec, axes2[i].second.vec, GREEN); 
-        }
-        if(CheckCollisionRecsAngle(p_hitbox, 0, test, rotation)) {
-          std::cout << "Found a collision" << std::chrono::system_clock::now().time_since_epoch().count() << rotation << "\n";
-        }
-#ifdef DRAW_HITBOX
-        DrawRectangleRec(Rectangle {
-                p.pos.x - (p.sprite.width / 2.0f), p.pos.y - (p.sprite.height / 2.0f), 
-                static_cast<float>(p.sprite.width), 
-                static_cast<float>(p.sprite.height) }, GetColor(0xff000073));
-#endif
-
         DrawFPS(config.screen_width / 10, config.screen_height / 20);
         ClearBackground(GetColor(0x052c46ff));
       EndDrawing();
     }
-      }
   }
 }

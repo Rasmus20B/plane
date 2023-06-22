@@ -1,18 +1,10 @@
 #include "collision.h"
+
+#include <iostream> 
+#include <chrono>
 #include <algorithm>
-
+#include <limits>
 namespace plane {
-
-  Vec2 project(const Rectangle& r, const line line) {
-    auto dot = line.second.vec.x * (r.x - line.first.vec.x) +
-      line.second.vec.y * (r.y - line.first.vec.y);
-
-    return {
-      line.first.vec.x + line.second.vec.x * dot,
-      line.first.vec.x + line.second.vec.x * dot,
-    };
-  }
-
   std::vector<line> getAxis(const Rectangle& r, const float radian) {
     const Vec2 ox = { 1, 0 };
     const Vec2 oy = { 0, 1 };
@@ -20,12 +12,10 @@ namespace plane {
     const Vec2 rx = ox.rotate(radian);
     const Vec2 ry = oy.rotate(radian);
 
-    return { {
-      { {r.x, r.y}, {rx.vec.x, rx.vec.y } },
-      { {r.x, r.y}, {ry.vec.x, ry.vec.y } },
-    }
-    };
-
+    return {{
+      { {r.x, r.y}, {rx.vec.x, rx.vec.y} },
+      { {r.x, r.y}, {ry.vec.x, ry.vec.y} },
+      }};
   }
 
   std::array<Vec2, 4> getCorners(const Rectangle& r, const float radian) {
@@ -47,67 +37,53 @@ namespace plane {
     auto cs1 = getCorners(r1, a1);
     auto cs2 = getCorners(r2, a2);
 
+    for(int i = 0; i < 4; ++i) {
+      float dx = cs1[(i+1) % 4].vec.x - cs1[i].vec.x;
+      float dy = cs1[(i+1) % 4].vec.y - cs1[i].vec.y;
+      Vec2 edge = cs1[(i+1) % 4] - cs1[i];
+      Vector2 axis = {-edge.vec.y, edge.vec.x};
 
-    float minx1 = INFINITY;
-    float maxx1 = -INFINITY;
-    float miny1 = INFINITY;
-    float maxy1 = -INFINITY;
-    for(int i = 0; i < cs1.size(); ++i) {
-      if(minx1 > cs1[i].vec.x) minx1 = cs1[i].vec.x;
-      if(maxx1 < cs1[i].vec.x) maxx1 = cs1[i].vec.x;
-      if(miny1 > cs1[i].vec.x) miny1 = cs1[i].vec.y;
-      if(maxy1 < cs1[i].vec.x) maxy1 = cs1[i].vec.y;
+      float min1 = std::numeric_limits<float>().max();
+      float max1 = std::numeric_limits<float>().min();
+      float min2 = std::numeric_limits<float>().max();
+      float max2 = std::numeric_limits<float>().min();
+      for(int j = 0; j < 4; ++j) {
+        float proj1 = cs1[j].dot(Vec2{axis});
+        float proj2 = cs2[j].dot(Vec2{axis});
+
+        if(proj1 < min1) min1 = proj1;
+        if(proj1 > max1) max1 = proj1;
+        if(proj2 < min2) min2 = proj2;
+        if(proj2 > max2) max2 = proj2;
+      }
+      if(min1 >= max2 || min2 >= max1) {
+        return false;
+      }
     }
 
-    float minx2 = INFINITY;
-    float maxx2 = -INFINITY;
-    float miny2 = INFINITY;
-    float maxy2 = -INFINITY;
-    for(int i = 0; i < cs2.size(); ++i) {
-      if(minx2 > cs2[i].vec.x) minx2 = cs2[i].vec.x;
-      if(maxx2 < cs2[i].vec.x) maxx2 = cs2[i].vec.x;
-      if(miny2 > cs2[i].vec.x) miny2 = cs2[i].vec.y;
-      if(maxy2 < cs2[i].vec.x) maxy2 = cs2[i].vec.y;
-    }
+    for(int i = 0; i < 4; ++i) {
+      float dx = cs2[(i+1) % 4].vec.x - cs2[i].vec.x;
+      float dy = cs2[(i+1) % 4].vec.y - cs2[i].vec.y;
+      Vec2 edge = cs2[(i+1) % 4] - cs2[i];
+      Vector2 axis = {-edge.vec.y, edge.vec.x};
 
-    bool hit = false;
-    if(!(minx1 >= minx2 && minx1 <= maxx2 || maxx1 >= minx2 && maxx1 <= maxx2)) {
-      return false;
-    }
-    if(!(miny1 >= miny2 && miny1 <= maxy2 || maxy1 >= miny2 && maxy1 <= miny2)) {
-      return false;
-    }
-    if(!(minx2 >= minx1 && minx2 <= maxx1 || maxx2 >= minx1 && maxx2 <= maxx1)) {
-      return false;
-    }
-    // if(!(miny2 >= miny1 && miny2 <= maxy1 || maxy2 >= miny1 && maxy2 <= miny1)) {
-    //   return false;
-    // }
+      float min1 = std::numeric_limits<float>().max();
+      float max1 = std::numeric_limits<float>().min();
+      float min2 = std::numeric_limits<float>().max();
+      float max2 = std::numeric_limits<float>().min();
+      for(int j = 0; j < 4; ++j) {
+        float proj1 = cs2[j].dot(Vec2{axis});
+        float proj2 = cs1[j].dot(Vec2{axis});
 
-
+        if(proj1 < min1) min1 = proj1;
+        if(proj1 > max1) max1 = proj1;
+        if(proj2 < min2) min2 = proj2;
+        if(proj2 > max2) max2 = proj2;
+      }
+      if(min1 >= max2 || min2 >= max1) {
+        return false;
+      }
+    }
     return true;
   }
-  // bool CheckCollisionRecsAngle(const Rectangle& r1, const float a1, const Rectangle& r2, const float a2) {
-  // 
-  //   auto const lines = getAxis(r2, a2);
-  //   auto const corners = getCorners(r1, a1);
-  //
-  //   bool test = true;
-  //
-  //   for(auto &l : lines) {
-  //     Vec2 furthers = {0, 0};
-  //     auto halfsize = Vec2{r2.width, r2.height} / 2;
-  //     for(auto &c : corners) {
-  //       Vec2 projected = project(r2, l);
-  //       Vec2 centre = projected - Vec2(r2.x, r2.y);
-  //
-  //       bool sign = (centre.vec.x * l.second.vec.x) + (centre.vec.y  * l.second.vec.y) > 0;
-  //       float distance = centre.magnitude() * (sign ? 1 : -1); 
-  //
-  //
-  //     }
-  //   }
-  //
-  //   return true;
-  // }
 }
