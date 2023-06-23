@@ -15,5 +15,6 @@ namespace plane {
     tm.textures.push_back(LoadTexture("../assets/pellet1.png"));
     tm.textures.push_back(LoadTexture("../assets/background_rocks.png"));
     tm.textures.push_back(LoadTexture("../assets/background_water.png"));
+    tm.textures.push_back(LoadTexture("../assets/enemy1.png"));
   }
 }

@@ -1,7 +1,7 @@
 #include "stage1.h" 
 
 namespace plane {
-  void load_stage1enemies(EnemyPool& ep) {
+  void load_stage1enemies(TextureManager& tm,EnemyPool& ep) {
 
     for(int i = 0; i < 1; ++i) {
       auto tmp =  Spline( {
@@ -17,6 +17,7 @@ namespace plane {
         .health = 1,
         .speed = 5.0f,
         .spawntime = static_cast<float>(i),
+        .sprite = tm.textures[8],
         .looped = false,
         }));
 
@@ -33,6 +34,7 @@ namespace plane {
         .health = 1,
         .speed = 5.0f,
         .spawntime = static_cast<float>(i),
+        .sprite = tm.textures[8],
         .looped = false,
         }));
 
@@ -49,6 +51,7 @@ namespace plane {
         .health = 1,
         .speed = 5.0f,
         .spawntime = static_cast<float>(i),
+        .sprite = tm.textures[8],
         .looped = false,
         }));
     }

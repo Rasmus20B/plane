@@ -28,7 +28,7 @@ namespace plane {
     std::unordered_map<int, Enemy> live_enemies;
 
     Texture2D bg = tm.textures[6];
-    Texture2D bg_water = tm.textures[7];
+    Texture2D bgw = tm.textures[7];
 
     float bg_scroll = 0.0f;
     float bgw_scroll = 0.0f;
@@ -37,11 +37,10 @@ namespace plane {
     bool pause = false;
     Player p;
 
-    load_stage1enemies(enemies);
+    load_stage1enemies(tm, enemies);
+
 
     while(!WindowShouldClose()) {
-
-
 
       static float rotation = 0;
       rotation += 0.5;
@@ -92,22 +91,29 @@ namespace plane {
       BeginDrawing();
 
         bg_scroll += 0.7f;
-        bgw_scroll += 0.3f;
+        bgw_scroll += 1.0f;
 
-        if(bg_scroll <= -bg.height * 2) bg_scroll = 0.0f;
-        if(bgw_scroll <= -bg_water.height * 2) bgw_scroll = 0.0f;
+        if(bg_scroll >= bg.height ){
+          bg_scroll = 0.0f;
+        } 
+        if(bgw_scroll >= bgw.height ) {
+          bgw_scroll = 0.0f;
+        } 
 
         DrawTextureEx(bg, {0, bg_scroll}, 0.0f, 1.0f, WHITE);
         DrawTextureEx(bg, {0, -(bg.height - bg_scroll)}, 0.0f, 1.0f, WHITE);
 
-        DrawTextureEx(bg_water, {0, bgw_scroll}, 0.0f, 1.0f, WHITE);
-        DrawTextureEx(bg_water, {0, -(bg_water.height - bgw_scroll)}, 0.0f, 1.0f, WHITE);
+        DrawTextureEx(bgw, {0, bgw_scroll}, 0.0f, 1.0f, WHITE);
+        DrawTextureEx(bgw, {0, -(bgw.height - bgw_scroll)}, 0.0f, 1.0f, WHITE);
 
 
         // Handle enemies
         for(int i = 0; i < enemies.space.size() ; ++i) {
           if(enemies.spawntime[i] <= time && enemies.health[i] > 0) {
-            DrawCircleV(enemies.space[i].position.vec, enemies.space[i].size, enemies.colours[i]);
+            DrawTextureEx(enemies.sprite[i], {
+                enemies.space[i].position.vec.x - (enemies.sprite[i].width / 2.0f),
+                enemies.space[i].position.vec.y - (enemies.sprite[i].height / 2.0f),
+                }, 0.0f, 1.0f, enemies.colours[i]);
             if(enemies.space[i].current_t >= enemies.space[i].points.size() - 1 ) {
               if(enemies.looped[i]) {
                 enemies.space[i].current_t = 0;
@@ -186,8 +192,20 @@ e_shooting:
           // For now just draw them decreasing until they fall off the screen
           if(p_ps.live[i]) {
             auto p = p_ps.spaces[i].old_position = p_ps.spaces[i].position;
+            Rectangle p_hitbox =  {
+              p_ps.spaces[i].position.vec.x - (p_ps.sprite[i].width / 2.0f),
+              p_ps.spaces[i].position.vec.y - (p_ps.sprite[i].height / 2.0f),
+              static_cast<float>(p_ps.sprite[i].width),
+              static_cast<float>(p_ps.sprite[i].height)
+            };
             for(int j = 0; j < enemies.space.size(); ++j) {
-              if(enemies.health[j] && CheckCollisionCircles(p_ps.spaces[i].position.vec, p_ps.spaces[i].radius, enemies.space[j].position.vec, enemies.space[j].size)) {
+              Rectangle e_hitbox = {
+                enemies.space[j].position.vec.x - (enemies.sprite[j].width / 2.0f),
+                enemies.space[j].position.vec.y - (enemies.sprite[j].height / 2.0f),
+                static_cast<float>(enemies.sprite[j].width),
+                static_cast<float>(enemies.sprite[j].height),
+              };
+              if(enemies.health[j] && CheckCollisionRecsAngle(p_hitbox, 0, e_hitbox, 0)) {
                 enemies.health[j]--;
                 p_ps.live[i] = false;
               }
