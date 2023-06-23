@@ -6,7 +6,6 @@
 
 #include <raylib.h> 
 
-
 #ifdef MULTI_T
 #include <thread> 
 #include <mutex> 
@@ -57,5 +56,4 @@ namespace plane {
   void addEnemy(EnemyPool& ep, Enemy&& e);
   void addEnemy(EnemyPool& ep, Enemy& e);
   void updateEnemies(EnemyPool& ep);
-
 }

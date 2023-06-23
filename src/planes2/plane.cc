@@ -26,8 +26,12 @@ namespace plane {
     EnemyPool enemies;
     enemyPoolInit(enemies, 40);
     std::unordered_map<int, Enemy> live_enemies;
-    // Texture2D background = LoadTexture("../assets/city.png");
-    float scroll = 0.0f;
+
+    Texture2D bg = tm.textures[6];
+    Texture2D bg_water = tm.textures[7];
+
+    float bg_scroll = 0.0f;
+    float bgw_scroll = 0.0f;
     
     bool micro = false;
     bool pause = false;
@@ -36,6 +40,8 @@ namespace plane {
     load_stage1enemies(enemies);
 
     while(!WindowShouldClose()) {
+
+
 
       static float rotation = 0;
       rotation += 0.5;
@@ -81,10 +87,23 @@ namespace plane {
         }
       }
       }
-      scroll += 1.0f;
       // if(scroll >= background.height*2) scroll = background.height;
 
       BeginDrawing();
+
+        bg_scroll += 0.7f;
+        bgw_scroll += 0.3f;
+
+        if(bg_scroll <= -bg.height * 2) bg_scroll = 0.0f;
+        if(bgw_scroll <= -bg_water.height * 2) bgw_scroll = 0.0f;
+
+        DrawTextureEx(bg, {0, bg_scroll}, 0.0f, 1.0f, WHITE);
+        DrawTextureEx(bg, {0, -(bg.height - bg_scroll)}, 0.0f, 1.0f, WHITE);
+
+        DrawTextureEx(bg_water, {0, bgw_scroll}, 0.0f, 1.0f, WHITE);
+        DrawTextureEx(bg_water, {0, -(bg_water.height - bgw_scroll)}, 0.0f, 1.0f, WHITE);
+
+
         // Handle enemies
         for(int i = 0; i < enemies.space.size() ; ++i) {
           if(enemies.spawntime[i] <= time && enemies.health[i] > 0) {
@@ -147,7 +166,7 @@ e_shooting:
               },
               e_ps.spaces[i].angle, 1.0f, WHITE);
           if(!p.d_time && CheckCollisionRecsAngle(Rectangle {
-                p.pos.x - (p.sprite.width / 2.0f), p.pos.y - (p.sprite.height / 2.0f), 
+                p.pos.x - (p.in_sprite.width / 2.0f), p.pos.y - (p.in_sprite.height / 2.0f), 
                 static_cast<float>(p.in_sprite.width), 
                 static_cast<float>(p.in_sprite.height) }, 
                 0.0f,
@@ -190,6 +209,8 @@ e_shooting:
           if(!p.lives) return;
           p.d_time--;
         }
+
+
         DrawFPS(config.screen_width / 10, config.screen_height / 20);
         ClearBackground(GetColor(0x052c46ff));
       EndDrawing();

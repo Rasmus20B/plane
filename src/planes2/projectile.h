@@ -10,7 +10,8 @@ namespace plane {
   enum class ProjectileAttributes {
     PROJECTILE_ATTRIBUTES_NORM = 0,
     PROJECTILE_ATTRIBUTES_HOMING = 1,
-    PROJECTILE_ATTRIBUTES_SIZE = 2
+    PROJECTILE_ATTRIBUTES_AIMED= 2,
+    PROJECTILE_ATTRIBUTES_SIZE 
   };
 
   enum class MoveType {
