@@ -156,12 +156,12 @@ shooting:
           pMove(e_ps.spaces[i]);
           DrawTextureEx(e_ps.sprite[i], 
               { 
-                e_ps.spaces[i].position.vec.x ,
-                e_ps.spaces[i].position.vec.y ,
+                e_ps.spaces[i].position.vec.x - (e_ps.sprite[i].width / 2.0f) ,
+                e_ps.spaces[i].position.vec.y - (e_ps.sprite[i].height / 2.0f),
               },
               e_ps.spaces[i].angle, 1.0f, WHITE);
           if(!p.d_time && CheckCollisionRecsAngle(Rectangle {
-                p.pos.x - (p.in_sprite.width / 2.0f), p.pos.y - (p.in_sprite.height / 2.0f), 
+                p.pos.x + (p.sprite.width / 2.0f), p.pos.y + (p.sprite.height / 2.0f), 
                 static_cast<float>(p.in_sprite.width), 
                 static_cast<float>(p.in_sprite.height) }, 
                 0.0f,
