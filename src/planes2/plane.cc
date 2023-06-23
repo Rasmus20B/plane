@@ -27,6 +27,8 @@ namespace plane {
     enemyPoolInit(enemies, 40);
     std::unordered_map<int, Enemy> live_enemies;
 
+    size_t frame_count = 0;
+
     Texture2D bg = tm.textures[6];
     Texture2D bgw = tm.textures[7];
 
@@ -76,7 +78,6 @@ namespace plane {
               .position = p.pos,
               .old_position = p.pos,
               .velocity = {0, 20},
-              .radius = 10.0f,
               .attr = {},
               .sprite = tm.textures[1],
               .live = true
@@ -106,63 +107,51 @@ namespace plane {
         DrawTextureEx(bgw, {0, bgw_scroll}, 0.0f, 1.0f, WHITE);
         DrawTextureEx(bgw, {0, -(bgw.height - bgw_scroll)}, 0.0f, 1.0f, WHITE);
 
-
         // Handle enemies
         for(int i = 0; i < enemies.space.size() ; ++i) {
-          if(enemies.spawntime[i] <= time && enemies.health[i] > 0) {
+          if(enemies.spawntimes[i] <= time && enemies.health[i] > 0) {
             DrawTextureEx(enemies.sprite[i], {
                 enemies.space[i].position.vec.x - (enemies.sprite[i].width / 2.0f),
                 enemies.space[i].position.vec.y - (enemies.sprite[i].height / 2.0f),
-                }, 0.0f, 1.0f, enemies.colours[i]);
+                }, 0.0f, 1.0f, WHITE);
             if(enemies.space[i].current_t >= enemies.space[i].points.size() - 1 ) {
               if(enemies.looped[i]) {
                 enemies.space[i].current_t = 0;
               } else {
-                goto e_shooting;
+                goto shooting;
               }
             }
             enemies.space[i].position = enemies.space[i].points[enemies.space[i].current_t++];
-e_shooting:
-            if(!enemies.last_shots[i]) {
-              addProjectile(e_ps, std::move(Projectile{
-                .position = enemies.space[i].position,
-                .old_position = enemies.space[i].position,
-                .velocity = {-3, 7.0f},
-                .angle = 215,
-                .radius = 10.0f,
-                .sprite = tm.textures[5],
-                .mt = MoveType::MOVE_NORM,
-                .live = true,
-              }));
-              addProjectile(e_ps, std::move(Projectile{
-                .position = enemies.space[i].position,
-                .old_position = enemies.space[i].position,
-                .velocity = {0, 7.0f},
-                .angle = 180,
-                .radius = 10.0f,
-                .sprite = tm.textures[5],
-                .mt = MoveType::MOVE_NORM,
-                .live = true,
-              }));
-              addProjectile(e_ps, std::move(Projectile{
-                .position = enemies.space[i].position,
-                .old_position = enemies.space[i].position,
-                .velocity = {3, 7.0f},
-                .angle = 135,
-                .radius = 10.0f,
-                .sprite = tm.textures[5],
-                .mt = MoveType::MOVE_NORM,
-                .live = true,
-              }));
-              enemies.last_shots[i] = 20;
-            } else {
-              enemies.last_shots[i]--;
+          } else continue;
+shooting:
+          auto s = enemies.shots[i].find(frame_count);
+          if(s != enemies.shots[i].end()) {
+            for(int j = 0; j < s->second.live.size(); ++j) {
+              Vec2 pos;
+              if(s->second.spaces[j].mt == MoveType::MOVE_CIRCLE) {
+                // Vec2(centre.vec.x + (15 * cos((360.0f/n) * i)), centre.vec.y + (15 * sin((360.0f/n) * i)) );
+                pos = {
+                  enemies.space[i].position.vec.x + (float)(15 * cos((360.0f/s->second.size) * j)),
+                  enemies.space[i].position.vec.y + (float)(15 * sin((360.0f/s->second.size) * j))
+                };
+              } else {
+                pos = enemies.space[i].position;
+              }
+              addProjectile(e_ps, std::move(Projectile {
+                  .position = pos,
+                  .velocity = s->second.spaces[j].velocity,
+                  .angle = s->second.spaces[j].angle,
+                  .sprite = s->second.sprite[j],
+                  .mt = s->second.spaces[j].mt,
+                  .live = true,
+                  }));
             }
+            enemies.shots[i].erase(frame_count);
           }
         }
 
         for(int i = 0; i < e_ps.spaces.size(); ++i) {
-          if(e_ps.spawntime[i] > time) continue;
+          if(e_ps.spawntime[i] > time && !e_ps.live[i]) continue;
           // For now just draw them increasing until they fall off the screen
           pMove(e_ps.spaces[i]);
           DrawTextureEx(e_ps.sprite[i], 
@@ -230,8 +219,10 @@ e_shooting:
 
 
         DrawFPS(config.screen_width / 10, config.screen_height / 20);
+        DrawText(std::to_string(frame_count).c_str(), config.screen_width / 10, config.screen_height / 10, 20, WHITE);
         ClearBackground(GetColor(0x052c46ff));
       EndDrawing();
+      frame_count++;
     }
   }
 }

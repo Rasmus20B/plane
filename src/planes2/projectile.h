@@ -23,7 +23,7 @@ namespace plane {
     Vec2 old_position;
     Vec2 velocity;
     float angle;
-    float radius;
+    float angle_inc;
     ProjectileAttributes attr;
     Texture2D sprite;
     float spawntime;
@@ -37,6 +37,7 @@ namespace plane {
     Vec2 old_position;
     float radius;
     float angle;
+    float angle_inc;
     float delta;
     MoveType mt;
   };

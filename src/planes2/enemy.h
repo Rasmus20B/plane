@@ -14,21 +14,30 @@
 #include "../common/vector_calc.h"
 #include "../common/spline.h"
 
+#include "projectile.h"
+
 namespace plane {
 
   enum class EnemyAttrs {
     ENEMY_ATTR_NORM
   };
+
+  enum class EnemyState {
+    ENEMY_MOVING,
+    ENEMY_STOPPED
+  };
+
   struct Enemy {
     std::vector<Vec2> points;
-    Color col;
+    std::unordered_map<int, ProjectilePool> shots;
+    std::vector<float> stopstarts;
     uint32_t size;
     float health;
     float speed;
     float spawntime;
-    float last_shot = 0;
     Texture2D sprite;
     bool looped; 
+    EnemyState state;
   };
 
   struct EnemySpatial {
@@ -41,12 +50,13 @@ namespace plane {
 
   struct EnemyPool {
     std::vector<EnemySpatial> space;
-    std::vector<Color> colours;
     std::vector<Texture2D> sprite;
+    std::vector<std::unordered_map<int, ProjectilePool>> shots;
+    std::vector<std::vector<float>> stopstarts;
     std::vector<float> health;
     std::vector<bool> looped;
-    std::vector<float> spawntime;
-    std::vector<float> last_shots;
+    std::vector<float> spawntimes;
+    std::vector<EnemyState> states;
 #ifdef MULTI_T
     std::mutex m;
 #endif

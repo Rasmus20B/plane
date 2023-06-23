@@ -8,10 +8,9 @@ namespace plane {
 #endif
     ep.space.reserve(sz);
     ep.health.reserve(sz);
-    ep.colours.reserve(sz);
     ep.looped.reserve(sz);
-    ep.spawntime.reserve(sz);
-    ep.last_shots.reserve(sz);
+    ep.spawntimes.reserve(sz);
+    ep.shots.reserve(sz);
     ep.sprite.reserve(sz);
   }
   
@@ -27,11 +26,10 @@ namespace plane {
         .size = e.size,
         .speed = e.speed,
         });
-    ep.colours.push_back(e.col);
     ep.health.push_back(e.health);
     ep.looped.push_back(e.looped);
-    ep.spawntime.push_back(e.spawntime);
-    ep.last_shots.push_back(0);
+    ep.spawntimes.push_back(e.spawntime);
+    ep.shots.push_back(e.shots);
     ep.sprite.push_back(e.sprite);
   }
 
@@ -46,11 +44,10 @@ namespace plane {
         .size = e.size,
         .speed = e.speed,
         }));
-    ep.colours.push_back(e.col);
     ep.health.push_back(e.health);
     ep.looped.push_back(e.looped);
-    ep.spawntime.push_back(e.spawntime);
-    ep.last_shots.push_back(0);
+    ep.spawntimes.push_back(e.spawntime);
+    ep.shots.push_back(e.shots);
     ep.sprite.push_back(e.sprite);
   }
 

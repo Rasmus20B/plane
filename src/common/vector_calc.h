@@ -6,16 +6,10 @@
 
 #define RAD(x) (x * PI) / 180
 
-template<typename T>
-struct VecBase {
-  static constexpr size_t size() {
-    return T::size;
-  }
-};
-
-struct Vec2 : public VecBase<Vec2> {
+struct Vec2 {
   Vec2(const float c_x, const float c_y) : vec{c_x, c_y} {};
   Vec2(const Vector2 v) : vec{v.x, v.y} {};
+  Vec2() : vec{0, 0}{};
 
   bool const operator==(const Vec2& rhs) const {
     return (this->vec.x == rhs.vec.x && this->vec.y == rhs.vec.y);
@@ -56,9 +50,6 @@ struct Vec2 : public VecBase<Vec2> {
   Vector2 vec;
 };
 
-struct Vec3 : public VecBase<Vec3> {
-
-};
 namespace plane {
 Vector2 Vec2Sub(Vector2 a, Vector2 b);
 Vector2 Vec2Add(Vector2 a,  Vector2 b);
