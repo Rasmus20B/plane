@@ -1,7 +1,7 @@
 #include "move.h"
 
 namespace plane {
-  void eMove(Enemy& e) {
+  void eMove(EnemySpatial& e) {
     return;
   }
   void pMove(ProjectileSpace& p) {
@@ -13,7 +13,7 @@ namespace plane {
         p.angle+=p.angle_inc;
         break;
       case MoveType::MOVE_NORM:
-        p.position.vec = { p.position.vec.x + p.velocity.vec.x, p.position.vec.y + p.velocity.vec.y};
+        p.position.vec = { p.position.vec.x + p.velocity.vec.x, p.position.vec.y + p.velocity.vec.y} ;
         break;
     }
   }

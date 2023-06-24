@@ -46,6 +46,7 @@ namespace plane {
         }));
     ep.health.push_back(e.health);
     ep.looped.push_back(e.looped);
+    ep.stopstarts.push_back(e.stopstarts);
     ep.spawntimes.push_back(e.spawntime);
     ep.shots.push_back(e.shots);
     ep.sprite.push_back(e.sprite);

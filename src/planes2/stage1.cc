@@ -8,8 +8,10 @@ namespace plane {
                 .position = Vec2{0, 0},
                 .old_position = {0, 0},
                 .velocity = Vec2{3, 7.0f},
-                .angle = 135,
-                .sprite = tm.textures[5],
+                .speed = 4.0f,
+                .angle = 0,
+                .attr = ProjectileAttributes::PROJECTILE_ATTRIBUTES_AIMED,
+                .sprite = tm.textures[9],
                 .mt = MoveType::MOVE_NORM,
                 .live = true,
               };
@@ -32,7 +34,7 @@ namespace plane {
         .points = tmp,
         .shots = shots,
         .size = 20,
-        .health = 1,
+        .health = 4,
         .speed = 5.0f,
         .spawntime = static_cast<float>(1),
         .sprite = tm.textures[8],
@@ -50,7 +52,7 @@ namespace plane {
         .points = tmp,
         .shots = shots,
         .size = 20,
-        .health = 1,
+        .health = 4,
         .speed = 5.0f,
         .spawntime = static_cast<float>(2),
         .sprite = tm.textures[8],
@@ -68,7 +70,7 @@ namespace plane {
         .points = tmp,
         .shots = shots,
         .size = 20,
-        .health = 1,
+        .health = 4,
         .speed = 5.0f,
         .spawntime = static_cast<float>(3),
         .sprite = tm.textures[8],
@@ -80,18 +82,26 @@ namespace plane {
           {{config.screen_width / 2, 0}, 0},
           {{config.screen_width / 4, 300}, 0},
           {{config.screen_width / 5, 350}, 0},
-          {{config.screen_width / 4, 400}, 0}
+          {{config.screen_width / 4, 400}, 0},
+          }, 0).calc_points(0.01f, 5.0f, false);
+
+      auto tmp2 = Spline( {
+          {{config.screen_width / 2 * 2, 0}, 0},
+          {{config.screen_width / 4 * 3, 300}, 0},
+          {{config.screen_width / 5 * 4, 350}, 0},
+          {{config.screen_width / 4 * 3, 400}, 0},
           }, 0).calc_points(0.01f, 5.0f, false);
 
 
       std::unordered_map<int, ProjectilePool> big;
 
       ProjectilePool pp2;
-      projectilePoolInit(pp2, 8);
-      for(int i = 0; i < 8; ++i) {
+      projectilePoolInit(pp2, 20);
+      for(int i = 0; i < 20; ++i) {
         Projectile p2 = {
-          .velocity = {4, 4},
-          .angle = (360.0f / 8) * i,
+          .velocity = {1, 1},
+          .speed = 2,
+          .angle = (90.f / 20) * i,
           .angle_inc = 0,
           .sprite = tm.textures[4],
           .mt = MoveType::MOVE_CIRCLE,
@@ -99,21 +109,50 @@ namespace plane {
         };
         addProjectile(pp2, p2);
       }
+
+      ProjectilePool pp3;
+      projectilePoolInit(pp3, 20);
+      for(int i = 0; i < 20; ++i) {
+        Projectile p2 = {
+          .velocity = {1, 1},
+          .speed = 2,
+          .angle = (180.f / 20) * i,
+          .angle_inc = 0,
+          .sprite = tm.textures[4],
+          .mt = MoveType::MOVE_CIRCLE,
+          .live = true,
+        };
+        addProjectile(pp3, p2);
+      }
+
       big[200] = pp2;
       big[220] = pp2;
       big[240] = pp2;
+      big[400] = pp3;
+      big[420] = pp3;
+      big[440] = pp3;
 
       addEnemy(ep, std::move(Enemy{
         .points = tmp,
         .shots = big,
         .size = 20,
-        .health = 1,
+        .health = 10,
         .speed = 5.0f,
         .spawntime = static_cast<float>(3),
         .sprite = tm.textures[8],
         .looped = false,
         }));
 
+      addEnemy(ep, std::move(Enemy{
+        .points = tmp2,
+        .shots = big,
+        .size = 20,
+        .health = 10,
+        .speed = 5.0f,
+        .spawntime = static_cast<float>(3),
+        .sprite = tm.textures[8],
+        .looped = false,
+        }));
 
 
 

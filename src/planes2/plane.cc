@@ -87,7 +87,6 @@ namespace plane {
         }
       }
       }
-      // if(scroll >= background.height*2) scroll = background.height;
 
       BeginDrawing();
 
@@ -137,9 +136,14 @@ shooting:
               } else {
                 pos = enemies.space[i].position;
               }
+
+              Vec2 vel = s->second.spaces[j].velocity; 
+              if(s->second.attrs[j] == ProjectileAttributes::PROJECTILE_ATTRIBUTES_AIMED) {
+                vel = (Vec2(p.pos) - pos).norm() * s->second.spaces[j].speed;
+              }
               addProjectile(e_ps, std::move(Projectile {
                   .position = pos,
-                  .velocity = s->second.spaces[j].velocity,
+                  .velocity = vel,
                   .angle = s->second.spaces[j].angle,
                   .sprite = s->second.sprite[j],
                   .mt = s->second.spaces[j].mt,
@@ -150,26 +154,35 @@ shooting:
           }
         }
 
+        Rectangle p_hitbox = {
+                  p.pos.x - (p.in_sprite.width / 2.f),
+                  p.pos.y - (p.in_sprite.height / 2.f), 
+                  static_cast<float>(p.in_sprite.width), 
+                  static_cast<float>(p.in_sprite.height) 
+        };
+
         for(int i = 0; i < e_ps.spaces.size(); ++i) {
           if(e_ps.spawntime[i] > time && !e_ps.live[i]) continue;
           // For now just draw them increasing until they fall off the screen
           pMove(e_ps.spaces[i]);
           DrawTextureEx(e_ps.sprite[i], 
               { 
-                e_ps.spaces[i].position.vec.x - (e_ps.sprite[i].width / 2.0f) ,
-                e_ps.spaces[i].position.vec.y - (e_ps.sprite[i].height / 2.0f),
+                e_ps.spaces[i].position.vec.x - (e_ps.sprite[i].width ) ,
+                e_ps.spaces[i].position.vec.y - (e_ps.sprite[i].height ),
               },
               e_ps.spaces[i].angle, 1.0f, WHITE);
-          if(!p.d_time && CheckCollisionRecsAngle(Rectangle {
-                p.pos.x + (p.sprite.width / 2.0f), p.pos.y + (p.sprite.height / 2.0f), 
-                static_cast<float>(p.in_sprite.width), 
-                static_cast<float>(p.in_sprite.height) }, 
+
+          Rectangle ps_hitbox = Rectangle{
+                  e_ps.spaces[i].position.vec.x  - (e_ps.sprite[i].width ), 
+                  e_ps.spaces[i].position.vec.y - (e_ps.sprite[i].height ),
+                  static_cast<float>(e_ps.sprite[i].width ), 
+                  static_cast<float>(e_ps.sprite[i].height )
+                };
+          if(!p.d_time && CheckCollisionRecsAngle(
+                p_hitbox,
                 0.0f,
-                Rectangle{e_ps.spaces[i].position.vec.x - (e_ps.sprite[i].width / 2.0f), 
-                e_ps.spaces[i].position.vec.y - (e_ps.sprite[i].height / 2.0f),
-                static_cast<float>(e_ps.sprite[i].width ), 
-                static_cast<float>(e_ps.sprite[i].height )},
-                e_ps.spaces[i].angle
+                ps_hitbox,
+                RAD(e_ps.spaces[i].angle)
                 )) {
             p.lives--;
             p.d_time = 50;

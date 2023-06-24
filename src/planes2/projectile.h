@@ -22,6 +22,7 @@ namespace plane {
     Vec2 position; 
     Vec2 old_position;
     Vec2 velocity;
+    float speed;
     float angle;
     float angle_inc;
     ProjectileAttributes attr;
@@ -35,10 +36,9 @@ namespace plane {
     Vec2 position;
     Vec2 velocity;
     Vec2 old_position;
-    float radius;
     float angle;
     float angle_inc;
-    float delta;
+    float speed;
     MoveType mt;
   };
 
@@ -49,7 +49,6 @@ namespace plane {
     std::vector<Texture2D> sprite;
     std::vector<ProjectileAttributes> attrs;
     std::vector<bool> live;
-    std::vector<std::function<void()>> onUpdate;
 #ifdef MULTI_T
     std::mutex m;
 #endif

@@ -40,8 +40,13 @@ struct Vec2 {
   }
 
   Vec2 rotate(const float angle) const {
-    return { this->vec.x * (float)cos(angle) - this->vec.y * (float)sin(angle),
-             this->vec.x * (float)sin(angle) + this->vec.y * (float)cos(angle)};
+    return { this->vec.x * (float)cos(angle) - (this->vec.y * (float)sin(angle)),
+             this->vec.x * (float)sin(angle) + (this->vec.y * (float)cos(angle))};
+  }
+
+  Vec2 rotate_center(const Vec2 c, const float angle) const {
+    return { c.vec.x + ((this->vec.x - c.vec.x) * (float)cos(angle)) + ((this->vec.y - c.vec.y) * (float)sin(angle)),
+             c.vec.y - ((this->vec.x - c.vec.y) * (float)sin(angle)) + ((this->vec.y - c.vec.y) * (float)cos(angle))};
   }
 
   float angle(Vec2& rhs) {

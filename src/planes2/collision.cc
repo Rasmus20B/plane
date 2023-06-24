@@ -8,6 +8,7 @@ namespace plane {
   std::vector<line> getAxis(const Rectangle& r, const float radian) {
     const Vec2 ox = { 1, 0 };
     const Vec2 oy = { 0, 1 };
+    
 
     const Vec2 rx = ox.rotate(radian);
     const Vec2 ry = oy.rotate(radian);
@@ -19,15 +20,29 @@ namespace plane {
   }
 
   std::array<Vec2, 4> getCorners(const Rectangle& r, const float radian) {
-    auto axis = getAxis(r, radian);
-    auto rx = axis[0].second * (r.width/2.0f);
-    auto ry = axis[1].second * (r.height/2.0f);
+    auto cx = 0.5f * r.width;
+    auto cy = 0.5f * r.height;
+
+
+    Vec2 v1 = {(float)cos(radian), (float)sin(radian)};
+    Vec2 v2 = {-v1.vec.y, v1.vec.x};
+
+    auto cry = r.y + (cx * sin(radian)) + (cy * cos(radian));
+
+    Vec2 cr = {
+      r.x + cx * v1.vec.x - cy * v1.vec.y,
+      r.y + cx * v1.vec.y + cy * v1.vec.x
+    };
+
+    v1 = v1 * (r.width / 2.0f);
+    v2 = v2 * (r.height / 2.0f);
+
     return {
       {
-        {Vec2{r.x, r.y} + rx + ry + Vec2{r.width / 2, r.height / 2}},
-        {Vec2{r.x, r.y} + rx + (ry * (-1)) + Vec2{r.width / 2, r.height / 2}},
-        {Vec2{r.x, r.y} + (rx * (-1)) + (ry * (-1)) + Vec2{r.width / 2, r.height / 2}},
-        {Vec2{r.x, r.y} + (rx * (-1)) + ry + Vec2{r.width / 2, r.height / 2}}
+        {cr - v1 + v2},
+        {cr - v1 - v2},
+        {cr + v1 - v2},
+        {cr + v1 + v2}
       }
     };
   }

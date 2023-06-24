@@ -11,7 +11,7 @@ namespace plane {
       .velocity = p.velocity,
       .old_position = p.position,
       .angle = p.angle,
-      .delta = 1,
+      .speed = p.speed,
       .mt = p.mt,
     });
     pp.sprite.push_back(p.sprite);
@@ -30,7 +30,7 @@ namespace plane {
       .velocity = p.velocity,
       .old_position = p.position,
       .angle = p.angle,
-      .delta = 1,
+      .speed = p.speed,
       .mt = p.mt,
     });
     pp.sprite.push_back(p.sprite);
