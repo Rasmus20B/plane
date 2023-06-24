@@ -121,7 +121,7 @@ namespace plane {
 
         // Handle enemies
         for(int i = 0; i < enemies.space.size() ; ++i) {
-          if(enemies.spawntimes[i] <= time && enemies.health[i] > 0) {
+          if(enemies.spawntimes[i] <= frame_count && enemies.health[i] > 0) {
             DrawTextureEx(enemies.sprite[i], {
                 enemies.space[i].position.vec.x - (enemies.sprite[i].width / 2.0f),
                 enemies.space[i].position.vec.y - (enemies.sprite[i].height / 2.0f),
@@ -174,7 +174,7 @@ shooting:
 
 
         for(int i = 0; i < e_ps.spaces.size(); ++i) {
-          if(e_ps.spawntime[i] > time && !e_ps.live[i]) continue;
+          if(e_ps.spawntime[i] > frame_count && !e_ps.live[i]) continue;
           // For now just draw them increasing until they fall off the screen
           pMove(e_ps.spaces[i]);
           DrawTextureEx(e_ps.sprite[i], 
@@ -219,21 +219,23 @@ shooting:
               static_cast<float>(p_ps.sprite[i].height)
             };
             for(int j = 0; j < enemies.space.size(); ++j) {
-              Rectangle e_hitbox = {
-                enemies.space[j].position.vec.x - (enemies.sprite[j].width / 2.0f),
-                enemies.space[j].position.vec.y - (enemies.sprite[j].height / 2.0f),
-                static_cast<float>(enemies.sprite[j].width),
-                static_cast<float>(enemies.sprite[j].height),
-              };
-              if(enemies.health[j] && CheckCollisionRecsAngle(p_hitbox, 0, e_hitbox, 0)) {
-                enemies.health[j]--;
-                p_ps.live[i] = false;
-                if(!enemies.health[j]) {
-                  addProjectile(d_ps, Projectile {
-                    .position = enemies.space[j].position,
-                    .sprite = tm.textures[10],
-                    .live = true,
-                    });
+              if(enemies.spawntimes[j] < frame_count) {
+                Rectangle e_hitbox = {
+                  enemies.space[j].position.vec.x - (enemies.sprite[j].width / 2.0f),
+                  enemies.space[j].position.vec.y - (enemies.sprite[j].height / 2.0f),
+                  static_cast<float>(enemies.sprite[j].width),
+                  static_cast<float>(enemies.sprite[j].height),
+                };
+                if(enemies.health[j] && CheckCollisionRecsAngle(p_hitbox, 0, e_hitbox, 0)) {
+                  enemies.health[j]--;
+                  p_ps.live[i] = false;
+                  if(!enemies.health[j]) {
+                    addProjectile(d_ps, Projectile {
+                      .position = enemies.space[j].position,
+                      .sprite = tm.textures[10],
+                      .live = true,
+                      });
+                  }
                 }
               }
             }

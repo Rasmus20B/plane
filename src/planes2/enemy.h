@@ -34,7 +34,7 @@ namespace plane {
     uint32_t size;
     float health;
     float speed;
-    float spawntime;
+    size_t spawntime;
     Texture2D sprite;
     bool looped; 
     EnemyState state;

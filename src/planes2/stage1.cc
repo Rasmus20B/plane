@@ -19,9 +19,9 @@ namespace plane {
       projectilePoolInit(pp1, 4);
       addProjectile(pp1, p1);
 
-      shots[120] = pp1;
-      shots[310] = pp1;
-      shots[220] = pp1;
+      shots[420] = pp1;
+      shots[510] = pp1;
+      shots[620] = pp1;
 
       auto tmp =  Spline( {
         {{config.screen_width / 3, -200}, 0},
@@ -35,7 +35,7 @@ namespace plane {
         .size = 20,
         .health = 4,
         .speed = 5.0f,
-        .spawntime = static_cast<float>(1),
+        .spawntime = 100,
         .sprite = tm.textures[8],
         .looped = false,
         }));
@@ -53,7 +53,7 @@ namespace plane {
         .size = 20,
         .health = 4,
         .speed = 5.0f,
-        .spawntime = static_cast<float>(2),
+        .spawntime = 200,
         .sprite = tm.textures[8],
         .looped = false,
         .state = EnemyState::ENEMY_MOVING,
@@ -71,7 +71,7 @@ namespace plane {
         .size = 20,
         .health = 4,
         .speed = 5.0f,
-        .spawntime = static_cast<float>(3),
+        .spawntime = 200,
         .sprite = tm.textures[8],
         .looped = false,
         }));
@@ -124,15 +124,15 @@ namespace plane {
         addProjectile(pp3, p2);
       }
 
-      big[200] = pp2;
-      big[220] = pp2;
-      big[240] = pp2;
-      big[400] = pp3;
-      big[420] = pp3;
-      big[440] = pp3;
-      big[600] = pp3;
-      big[620] = pp3;
-      big[640] = pp3;
+      big[500] = pp2;
+      big[520] = pp2;
+      big[540] = pp2;
+      big[700] = pp3;
+      big[720] = pp3;
+      big[740] = pp3;
+      big[900] = pp3;
+      big[920] = pp3;
+      big[940] = pp3;
 
       addEnemy(ep, std::move(Enemy{
         .points = tmp,
@@ -140,7 +140,7 @@ namespace plane {
         .size = 20,
         .health = 10,
         .speed = 5.0f,
-        .spawntime = static_cast<float>(3),
+        .spawntime = 300,
         .sprite = tm.textures[8],
         .looped = false,
         }));
@@ -151,7 +151,7 @@ namespace plane {
         .size = 20,
         .health = 10,
         .speed = 5.0f,
-        .spawntime = static_cast<float>(3),
+        .spawntime = 300,
         .sprite = tm.textures[8],
         .looped = false,
         }));
