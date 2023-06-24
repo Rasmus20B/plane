@@ -11,13 +11,14 @@ namespace plane {
                 .angle = 0,
                 .attr = ProjectileAttributes::PROJECTILE_ATTRIBUTES_AIMED,
                 .sprite = tm.textures[9],
+                .shape = ProjectileShape::PS_CIRC,
                 .mt = MoveType::MOVE_NORM,
                 .live = true,
               };
 
       ProjectilePool pp1;
       projectilePoolInit(pp1, 4);
-      addProjectile(pp1, p1);
+      addProjectile(pp1, std::move(p1));
 
       shots[220] = pp1;
       shots[310] = pp1;
@@ -103,6 +104,7 @@ namespace plane {
           .angle = (90.f / 20) * i,
           .angle_inc = 0.6f,
           .sprite = tm.textures[4],
+          .shape = ProjectileShape::PS_RECT,
           .mt = MoveType::MOVE_CIRCLE,
           .live = true,
         };
@@ -118,6 +120,7 @@ namespace plane {
           .angle = (180.f / 20) * i,
           .angle_inc = 0.9f,
           .sprite = tm.textures[4],
+          .shape = ProjectileShape::PS_RECT,
           .mt = MoveType::MOVE_CIRCLE,
           .live = true,
         };
@@ -133,6 +136,7 @@ namespace plane {
           .angle = (270.f / 20) * i,
           .angle_inc = 0.3f,
           .sprite = tm.textures[4],
+          .shape = ProjectileShape::PS_RECT,
           .mt = MoveType::MOVE_CIRCLE,
           .live = true,
         };
@@ -141,7 +145,7 @@ namespace plane {
 
       ProjectilePool pp5;
       projectilePoolInit(pp5, 1);
-      addProjectile(pp5, Projectile {
+      addProjectile(pp5, std::move(Projectile {
           .position = Vec2{0, 0},
           .old_position = {0, 0},
           .velocity = Vec2{3, 7.0f},
@@ -149,9 +153,10 @@ namespace plane {
           .angle = 0,
           .attr = ProjectileAttributes::PROJECTILE_ATTRIBUTES_AIMED,
           .sprite = tm.textures[9],
+          .shape = ProjectileShape::PS_CIRC,
           .mt = MoveType::MOVE_NORM,
           .live = true,
-          });
+          }));
       big[300] = pp2;
       big[320] = pp2;
       big[340] = pp2;

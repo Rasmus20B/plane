@@ -14,6 +14,11 @@ namespace plane {
     PROJECTILE_ATTRIBUTES_SIZE 
   };
 
+  enum class ProjectileShape {
+    PS_RECT = 0,
+    PS_CIRC = 1,
+  };
+
   enum class MoveType {
     MOVE_NORM = 0,
     MOVE_CIRCLE = 1,
@@ -27,6 +32,7 @@ namespace plane {
     float angle_inc;
     ProjectileAttributes attr;
     Texture2D sprite;
+    ProjectileShape shape;
     float spawntime;
     float deadtime;
     MoveType mt;
@@ -37,6 +43,7 @@ namespace plane {
     Vec2 position;
     Vec2 velocity;
     Vec2 old_position;
+    ProjectileShape shape;
     float angle;
     float angle_inc;
     float speed;

@@ -3,6 +3,7 @@
 #include <cstdint>
 
 #define DRAW_HITBOX
+// #define MULTI_T
 
 namespace plane {
 struct Config {

@@ -47,17 +47,6 @@ namespace plane {
     bool pause = false;
     Player p;
 
-    // Projectile ep = {
-    //   .position = {config.screen_width / 2, config.screen_height / 2},
-    //   .velocity = {0 ,0},
-    //   .angle = 90,
-    //   .angle_inc = 4,
-    //   .sprite = tm.textures[4],
-    //   .mt = MoveType::MOVE_CIRCLE,
-    //   .live = true,
-    // };
-    //
-    // addProjectile(e_ps, std::move(ep));
     load_stage1enemies(tm, enemies);
     while(!WindowShouldClose()) {
 
@@ -128,8 +117,8 @@ namespace plane {
         DrawTextureEx(bgw, {0, -(bgw.height - bgw_scroll)}, 0.0f, 1.0f, WHITE);
 
         Rectangle p_hitbox = {
-                  p.pos.x - (p.in_sprite.width / 2.f),
-                  p.pos.y - (p.in_sprite.height / 2.f), 
+                  p.pos.x + (0.5f * p.sprite.width) - p.in_sprite.width,
+                  p.pos.y + (0.5f * p.sprite.height) - p.in_sprite.height, 
                   static_cast<float>(p.in_sprite.width), 
                   static_cast<float>(p.in_sprite.height) 
         };
@@ -181,6 +170,7 @@ shooting:
                   .angle = s->second.spaces[j].angle,
                   .angle_inc = s->second.spaces[j].angle_inc,
                   .sprite = s->second.sprite[j],
+                  .shape = s->second.spaces[j].shape,
                   .mt = s->second.spaces[j].mt,
                   .live = true,
                   }));
@@ -188,8 +178,6 @@ shooting:
             enemies.shots[i].erase(frame_count);
           }
         }
-
-
 
         for(int i = 0; i < e_ps.spaces.size(); ++i) {
           if(e_ps.spawntime[i] > frame_count || !e_ps.live[i]) continue;
@@ -213,32 +201,43 @@ shooting:
               {(float)e_ps.sprite[i].width / 2 , (float)e_ps.sprite[i].height / 2 },
               (e_ps.spaces[i].angle), WHITE);
 
-          std::cout << e_ps.spaces[i].angle << "\n";
-
-          auto corn = getCorners(ps_hitbox, RAD(e_ps.spaces[i].angle));
-          for(auto c: corn) {
-            DrawCircleV(c.vec, 2, GetColor(0xffffffff));
-          }
-          if(!p.d_time && CheckCollisionRecsAngle(
-                p_hitbox,
-                (0.0f),
-                ps_hitbox,
-                RAD(e_ps.spaces[i].angle)
-                )) {
-            p.lives--;
-            p.d_time = 50;
-            micro = false;
-
-            addProjectile(d_ps, Projectile {
-              .position = p.pos,
-              .sprite = tm.textures[10],
-              .live = true,
-            });
-
-            for(int i = 0; i < e_ps.live.size(); ++i) {
-              e_ps.live[i] = false;
+          if(!p.d_time) {
+            bool hit;
+            switch(e_ps.spaces[i].shape) {
+              case ProjectileShape::PS_RECT:
+                hit = CheckCollisionRecsAngle(
+                      p_hitbox,
+                      (0.0f),
+                      ps_hitbox,
+                      RAD(e_ps.spaces[i].angle)
+                      );
+                break;
+              case ProjectileShape::PS_CIRC:
+                hit = CheckCollisionCircleRec({
+                    e_ps.spaces[i].position.vec.x ,
+                    e_ps.spaces[i].position.vec.y ,
+                    },
+                    e_ps.sprite[i].width / 2.0f, p_hitbox);
+                break;
+              default:
+                break;
             }
-            p.pos = {config.screen_width/2,(config.screen_height/8) * 6};
+            if(hit) {
+              p.lives--;
+              p.d_time = 50;
+              micro = false;
+
+              addProjectile(d_ps, Projectile {
+                .position = p.pos,
+                .sprite = tm.textures[10],
+                .live = true,
+              });
+
+              for(int i = 0; i < e_ps.live.size(); ++i) {
+                e_ps.live[i] = false;
+              }
+              p.pos = {config.screen_width/2,(config.screen_height/8) * 6};
+            }
           }
         }
         for(int i = 0; i < p_ps.spaces.size(); ++i) {
@@ -246,16 +245,16 @@ shooting:
           if(p_ps.live[i]) {
             auto p = p_ps.spaces[i].old_position = p_ps.spaces[i].position;
             Rectangle ps_hitbox =  {
-              p_ps.spaces[i].position.vec.x - (p_ps.sprite[i].width / 2.0f),
-              p_ps.spaces[i].position.vec.y - (p_ps.sprite[i].height / 2.0f),
+              p_ps.spaces[i].position.vec.x,
+              p_ps.spaces[i].position.vec.y,
               static_cast<float>(p_ps.sprite[i].width),
               static_cast<float>(p_ps.sprite[i].height)
             };
             for(int j = 0; j < enemies.space.size(); ++j) {
               if(enemies.spawntimes[j] < frame_count) {
                 Rectangle e_hitbox = {
-                  enemies.space[j].position.vec.x - (enemies.sprite[j].width / 2.0f),
-                  enemies.space[j].position.vec.y - (enemies.sprite[j].height / 2.0f),
+                  enemies.space[j].position.vec.x, 
+                  enemies.space[j].position.vec.y,
                   static_cast<float>(enemies.sprite[j].width),
                   static_cast<float>(enemies.sprite[j].height),
                 };
