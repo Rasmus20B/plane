@@ -28,6 +28,7 @@ namespace plane {
     ProjectileAttributes attr;
     Texture2D sprite;
     float spawntime;
+    float deadtime;
     MoveType mt;
     bool live;
   };
@@ -46,6 +47,7 @@ namespace plane {
     size_t size;
     std::vector<ProjectileSpace> spaces;
     std::vector<float> spawntime;
+    std::vector<float> deadtime;
     std::vector<Texture2D> sprite;
     std::vector<ProjectileAttributes> attrs;
     std::vector<bool> live;

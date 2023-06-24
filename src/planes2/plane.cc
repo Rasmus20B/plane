@@ -47,14 +47,22 @@ namespace plane {
     bool pause = false;
     Player p;
 
+    // Projectile ep = {
+    //   .position = {config.screen_width / 2, config.screen_height / 2},
+    //   .velocity = {0 ,0},
+    //   .angle = 90,
+    //   .angle_inc = 4,
+    //   .sprite = tm.textures[4],
+    //   .mt = MoveType::MOVE_CIRCLE,
+    //   .live = true,
+    // };
+    //
+    // addProjectile(e_ps, std::move(ep));
     load_stage1enemies(tm, enemies);
-
-    std::cout << "LOADED STAGE 1\n";
-
-
     while(!WindowShouldClose()) {
 
       BeginDrawing();
+        ClearBackground(GetColor(0x052c46ff));
 
         float time = GetTime();
         // Controls
@@ -81,7 +89,7 @@ namespace plane {
 
         if(IsKeyDown(KEY_LEFT_SHIFT)) {
           micro = true;
-          p.speed = 3.0f;
+          p.speed = 2.5f;
         } else if(IsKeyReleased(KEY_LEFT_SHIFT)) {
           micro = false;
           p.speed = 8.0f;
@@ -118,6 +126,21 @@ namespace plane {
 
         DrawTextureEx(bgw, {0, bgw_scroll}, 0.0f, 1.0f, WHITE);
         DrawTextureEx(bgw, {0, -(bgw.height - bgw_scroll)}, 0.0f, 1.0f, WHITE);
+
+        Rectangle p_hitbox = {
+                  p.pos.x - (p.in_sprite.width / 2.f),
+                  p.pos.y - (p.in_sprite.height / 2.f), 
+                  static_cast<float>(p.in_sprite.width), 
+                  static_cast<float>(p.in_sprite.height) 
+        };
+
+        if(!p.d_time) {
+          DrawTextureV(p.sprite, {p.pos.x - (p.sprite.width / 2.0f), p.pos.y - (p.sprite.height / 2.0f) }, WHITE);
+          if(micro) DrawTextureV(p.in_sprite, {p.pos.x - (p.in_sprite.width / 2.0f)  , p.pos.y - (p.in_sprite.height / 2.0f) }, WHITE);
+        } else {
+          if(!p.lives) return;
+          p.d_time--;
+        }
 
         // Handle enemies
         for(int i = 0; i < enemies.space.size() ; ++i) {
@@ -156,6 +179,7 @@ shooting:
                   .position = pos,
                   .velocity = vel,
                   .angle = s->second.spaces[j].angle,
+                  .angle_inc = s->second.spaces[j].angle_inc,
                   .sprite = s->second.sprite[j],
                   .mt = s->second.spaces[j].mt,
                   .live = true,
@@ -165,34 +189,39 @@ shooting:
           }
         }
 
-        Rectangle p_hitbox = {
-                  p.pos.x - (p.in_sprite.width / 2.f),
-                  p.pos.y - (p.in_sprite.height / 2.f), 
-                  static_cast<float>(p.in_sprite.width), 
-                  static_cast<float>(p.in_sprite.height) 
-        };
 
 
         for(int i = 0; i < e_ps.spaces.size(); ++i) {
-          if(e_ps.spawntime[i] > frame_count && !e_ps.live[i]) continue;
+          if(e_ps.spawntime[i] > frame_count || !e_ps.live[i]) continue;
           // For now just draw them increasing until they fall off the screen
           pMove(e_ps.spaces[i]);
-          DrawTextureEx(e_ps.sprite[i], 
-              { 
-                e_ps.spaces[i].position.vec.x - (e_ps.sprite[i].width ) ,
-                e_ps.spaces[i].position.vec.y - (e_ps.sprite[i].height ),
-              },
-              e_ps.spaces[i].angle, 1.0f, WHITE);
-
           Rectangle ps_hitbox = Rectangle{
-                  e_ps.spaces[i].position.vec.x  - (e_ps.sprite[i].width ), 
-                  e_ps.spaces[i].position.vec.y - (e_ps.sprite[i].height ),
+                  e_ps.spaces[i].position.vec.x, 
+                  e_ps.spaces[i].position.vec.y, 
                   static_cast<float>(e_ps.sprite[i].width ), 
                   static_cast<float>(e_ps.sprite[i].height )
                 };
+          DrawTexturePro(
+              e_ps.sprite[i], 
+              { 
+                0,
+                0,
+                (float)e_ps.sprite[i].width,
+                (float)e_ps.sprite[i].height
+              },
+              ps_hitbox,
+              {(float)e_ps.sprite[i].width / 2 , (float)e_ps.sprite[i].height / 2 },
+              (e_ps.spaces[i].angle), WHITE);
+
+          std::cout << e_ps.spaces[i].angle << "\n";
+
+          auto corn = getCorners(ps_hitbox, RAD(e_ps.spaces[i].angle));
+          for(auto c: corn) {
+            DrawCircleV(c.vec, 2, GetColor(0xffffffff));
+          }
           if(!p.d_time && CheckCollisionRecsAngle(
                 p_hitbox,
-                0.0f,
+                (0.0f),
                 ps_hitbox,
                 RAD(e_ps.spaces[i].angle)
                 )) {
@@ -205,6 +234,10 @@ shooting:
               .sprite = tm.textures[10],
               .live = true,
             });
+
+            for(int i = 0; i < e_ps.live.size(); ++i) {
+              e_ps.live[i] = false;
+            }
             p.pos = {config.screen_width/2,(config.screen_height/8) * 6};
           }
         }
@@ -212,7 +245,7 @@ shooting:
           // For now just draw them decreasing until they fall off the screen
           if(p_ps.live[i]) {
             auto p = p_ps.spaces[i].old_position = p_ps.spaces[i].position;
-            Rectangle p_hitbox =  {
+            Rectangle ps_hitbox =  {
               p_ps.spaces[i].position.vec.x - (p_ps.sprite[i].width / 2.0f),
               p_ps.spaces[i].position.vec.y - (p_ps.sprite[i].height / 2.0f),
               static_cast<float>(p_ps.sprite[i].width),
@@ -226,7 +259,7 @@ shooting:
                   static_cast<float>(enemies.sprite[j].width),
                   static_cast<float>(enemies.sprite[j].height),
                 };
-                if(enemies.health[j] && CheckCollisionRecsAngle(p_hitbox, 0, e_hitbox, 0)) {
+                if(enemies.health[j] && CheckCollisionRecsAngle(ps_hitbox, 0, e_hitbox, 0)) {
                   enemies.health[j]--;
                   p_ps.live[i] = false;
                   if(!enemies.health[j]) {
@@ -265,18 +298,10 @@ shooting:
 
         // Handle player
         //
-        if(!p.d_time) {
-          DrawTextureV(p.sprite, {p.pos.x - (p.sprite.width / 2.0f), p.pos.y - (p.sprite.height / 2.0f) }, WHITE);
-          if(micro) DrawTextureV(p.in_sprite, {p.pos.x - (p.in_sprite.width / 2.0f)  , p.pos.y - (p.in_sprite.height / 2.0f) }, WHITE);
-        } else {
-          if(!p.lives) return;
-          p.d_time--;
-        }
 
 
         DrawFPS(config.screen_width / 10, config.screen_height / 20);
         DrawText(std::to_string(frame_count).c_str(), config.screen_width / 10, config.screen_height / 10, 20, WHITE);
-        ClearBackground(GetColor(0x052c46ff));
         exp += 128;
       EndDrawing();
       frame_count++;

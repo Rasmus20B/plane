@@ -7,7 +7,7 @@ namespace plane {
   }
 
   void initTextureManager(TextureManager &tm) {
-    tm.textures.push_back(LoadTexture("../assets/sprite-0001.png"));
+    tm.textures.push_back(LoadTexture("../assets/player.png"));
     tm.textures.push_back(LoadTexture("../assets/shot.png"));
     tm.textures.push_back(LoadTexture("../assets/soul.png"));
     tm.textures.push_back(LoadTexture("../assets/orb1.png"));

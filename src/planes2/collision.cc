@@ -23,26 +23,20 @@ namespace plane {
     auto cx = 0.5f * r.width;
     auto cy = 0.5f * r.height;
 
+    float ca = cos(radian);
+    float sa = sin(radian);
 
-    Vec2 v1 = {(float)cos(radian), (float)sin(radian)};
-    Vec2 v2 = {-v1.vec.y, v1.vec.x};
-
-    auto cry = r.y + (cx * sin(radian)) + (cy * cos(radian));
-
-    Vec2 cr = {
-      r.x + cx * v1.vec.x - cy * v1.vec.y,
-      r.y + cx * v1.vec.y + cy * v1.vec.x
-    };
-
-    v1 = v1 * (r.width / 2.0f);
-    v2 = v2 * (r.height / 2.0f);
+    float r1x = -cx * ca - cy * sa;
+    float r1y = -cx * sa + cy * ca;
+    float r2x = cx * ca - cy * sa;
+    float r2y = cx * sa + cy * ca;
 
     return {
       {
-        {cr - v1 + v2},
-        {cr - v1 - v2},
-        {cr + v1 - v2},
-        {cr + v1 + v2}
+        {r.x + r1x, r.y + r1y},
+        {r.x + r2x, r.y + r2y},
+        {r.x - r1x, r.y - r1y},
+        {r.x - r2x, r.y - r2y},
       }
     };
   }

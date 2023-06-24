@@ -19,9 +19,9 @@ namespace plane {
       projectilePoolInit(pp1, 4);
       addProjectile(pp1, p1);
 
+      shots[220] = pp1;
+      shots[310] = pp1;
       shots[420] = pp1;
-      shots[510] = pp1;
-      shots[620] = pp1;
 
       auto tmp =  Spline( {
         {{config.screen_width / 3, -200}, 0},
@@ -98,10 +98,10 @@ namespace plane {
       projectilePoolInit(pp2, 20);
       for(int i = 0; i < 20; ++i) {
         Projectile p2 = {
-          .velocity = {1, 1},
-          .speed = 2,
+          .velocity = {2, 2},
+          .speed = 10,
           .angle = (90.f / 20) * i,
-          .angle_inc = 0,
+          .angle_inc = 0.6f,
           .sprite = tm.textures[4],
           .mt = MoveType::MOVE_CIRCLE,
           .live = true,
@@ -113,10 +113,10 @@ namespace plane {
       projectilePoolInit(pp3, 20);
       for(int i = 0; i < 20; ++i) {
         Projectile p2 = {
-          .velocity = {1, 1},
-          .speed = 2,
+          .velocity = {2, 2},
+          .speed = 10,
           .angle = (180.f / 20) * i,
-          .angle_inc = 0,
+          .angle_inc = 0.9f,
           .sprite = tm.textures[4],
           .mt = MoveType::MOVE_CIRCLE,
           .live = true,
@@ -124,15 +124,47 @@ namespace plane {
         addProjectile(pp3, p2);
       }
 
-      big[500] = pp2;
-      big[520] = pp2;
-      big[540] = pp2;
-      big[700] = pp3;
-      big[720] = pp3;
-      big[740] = pp3;
-      big[900] = pp3;
-      big[920] = pp3;
-      big[940] = pp3;
+      ProjectilePool pp4;
+      projectilePoolInit(pp4, 20);
+      for(int i = 0; i < 20; ++i) {
+        Projectile p2 = {
+          .velocity = {2, 2},
+          .speed = 10,
+          .angle = (270.f / 20) * i,
+          .angle_inc = 0.3f,
+          .sprite = tm.textures[4],
+          .mt = MoveType::MOVE_CIRCLE,
+          .live = true,
+        };
+        addProjectile(pp4, p2);
+      }
+
+      ProjectilePool pp5;
+      projectilePoolInit(pp5, 1);
+      addProjectile(pp5, Projectile {
+          .position = Vec2{0, 0},
+          .old_position = {0, 0},
+          .velocity = Vec2{3, 7.0f},
+          .speed = 4.0f,
+          .angle = 0,
+          .attr = ProjectileAttributes::PROJECTILE_ATTRIBUTES_AIMED,
+          .sprite = tm.textures[9],
+          .mt = MoveType::MOVE_NORM,
+          .live = true,
+          });
+      big[300] = pp2;
+      big[320] = pp2;
+      big[340] = pp2;
+      big[400] = pp3;
+      big[420] = pp3;
+      big[440] = pp3;
+      big[500] = pp4;
+      big[520] = pp4;
+      big[540] = pp4;
+
+      for(int i = 301; i < 10000; i+=60) {
+        big[i] = pp5;
+      }
 
       addEnemy(ep, std::move(Enemy{
         .points = tmp,
