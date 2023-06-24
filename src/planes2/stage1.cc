@@ -2,7 +2,6 @@
 
 namespace plane {
   void load_stage1enemies(TextureManager& tm,EnemyPool& ep) {
-
       std::unordered_map<int, ProjectilePool> shots;
       Projectile p1 = {
                 .position = Vec2{0, 0},
@@ -131,6 +130,9 @@ namespace plane {
       big[400] = pp3;
       big[420] = pp3;
       big[440] = pp3;
+      big[600] = pp3;
+      big[620] = pp3;
+      big[640] = pp3;
 
       addEnemy(ep, std::move(Enemy{
         .points = tmp,
@@ -153,10 +155,6 @@ namespace plane {
         .sprite = tm.textures[8],
         .looped = false,
         }));
-
-
-
-
   }
   void load_stage1projectiles(ProjectilePool& pp);
 }
