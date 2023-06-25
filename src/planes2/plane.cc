@@ -43,13 +43,13 @@ namespace plane {
     float bg_scroll = 0.0f;
     float bgw_scroll = 0.0f;
     
-    bool micro = false;
     bool pause = false;
     Player p;
 
     load_stage1enemies(tm, enemies);
     while(!WindowShouldClose()) {
 
+      bool micro = false;
       BeginDrawing();
         ClearBackground(GetColor(0x052c46ff));
 
@@ -117,10 +117,10 @@ namespace plane {
         DrawTextureEx(bgw, {0, -(bgw.height - bgw_scroll)}, 0.0f, 1.0f, WHITE);
 
         Rectangle p_hitbox = {
-                  p.pos.x + (0.5f * p.sprite.width) - p.in_sprite.width,
-                  p.pos.y + (0.5f * p.sprite.height) - p.in_sprite.height, 
-                  static_cast<float>(p.in_sprite.width), 
-                  static_cast<float>(p.in_sprite.height) 
+                  p.pos.x + (0.5f * p.sprite.width) ,
+                  p.pos.y + (0.5f * p.sprite.height), 
+                  1.0f, 
+                  1.0f 
         };
 
         if(!p.d_time) {
@@ -161,13 +161,17 @@ shooting:
                 pos = enemies.space[i].position;
               }
               Vec2 vel = s->second.spaces[j].velocity; 
+              float angle = 0;
               if(s->second.attrs[j] == ProjectileAttributes::PROJECTILE_ATTRIBUTES_AIMED) {
                 vel = (Vec2(p.pos) - pos).norm() * s->second.spaces[j].speed;
+                angle = vel.face_velocity();
+              } else {
+                angle = s->second.spaces[j].angle;
               }
               addProjectile(e_ps, std::move(Projectile {
                   .position = pos,
                   .velocity = vel,
-                  .angle = s->second.spaces[j].angle,
+                  .angle = angle,
                   .angle_inc = s->second.spaces[j].angle_inc,
                   .sprite = s->second.sprite[j],
                   .shape = s->second.spaces[j].shape,
@@ -301,7 +305,6 @@ shooting:
 
         DrawFPS(config.screen_width / 10, config.screen_height / 20);
         DrawText(std::to_string(frame_count).c_str(), config.screen_width / 10, config.screen_height / 10, 20, WHITE);
-        exp += 128;
       EndDrawing();
       frame_count++;
     }

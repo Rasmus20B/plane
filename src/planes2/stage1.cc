@@ -152,8 +152,8 @@ namespace plane {
           .speed = 4.0f,
           .angle = 0,
           .attr = ProjectileAttributes::PROJECTILE_ATTRIBUTES_AIMED,
-          .sprite = tm.textures[9],
-          .shape = ProjectileShape::PS_CIRC,
+          .sprite = tm.textures[11],
+          .shape = ProjectileShape::PS_RECT,
           .mt = MoveType::MOVE_NORM,
           .live = true,
           }));

@@ -3,6 +3,7 @@
 #include <raylib.h>
 
 #include <cmath>
+#include <iostream>
 
 #define RAD(x) (x * PI) / 180
 
@@ -49,9 +50,15 @@ struct Vec2 {
              c.vec.y - ((this->vec.x - c.vec.y) * (float)sin(angle)) + ((this->vec.y - c.vec.y) * (float)cos(angle))};
   }
 
-  float angle(Vec2& rhs) {
+  float face_velocity() {
+    return atan2(this->vec.x - Vec2{0, 0}.vec.x, Vec2{0, 0}.vec.y - this->vec.y) * (180 / PI); 
+
+  }
+
+  float angle(Vec2 rhs) {
     return acos(this->dot(rhs) / ((this->magnitude()) * (rhs.magnitude())));
   }
+
   Vector2 vec;
 };
 
