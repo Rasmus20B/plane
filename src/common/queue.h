@@ -1,4 +1,5 @@
 #include <atomic>
+#include <array>
 #include <mutex>
 #include <concepts>
 #include <optional> 
@@ -6,9 +7,21 @@
 
 template<class T, size_t N>
 requires(std::has_single_bit(N), sizeof(T) < 64)
-struct alignas(N) Queue{
+struct alignas(64) Queue{
+
+  [[nodiscard]]
+  bool empty() {
+    return head == tail;
+  }
+
+  [[nodiscard]]
+  bool full() {
+    return tail == head + 1;
+  }
+
   bool push(T val) {
     std::scoped_lock<std::mutex> lock(m);
+    if(this->full()) return false;
     if(head == capacity && !populated[0]) {
       head = 0;
       buf[head] = val;

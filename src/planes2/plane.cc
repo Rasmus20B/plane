@@ -47,7 +47,43 @@ namespace plane {
     Player p;
 
     load_stage1enemies(tm, enemies);
+
+    std::vector<BulletMgr<4, 4>> bs;
+
     while(!WindowShouldClose()) {
+      // ClearBackground(BLACK);
+      //
+      // BeginDrawing();
+      //
+      // for(int i = 0; i < bs.size(); ++i) {
+      //   bs[i].update();
+      //   bs[i].draw();
+      // }
+      //
+      // if(frame_count % 75 == 0) {
+      //   float mx = GetMouseX();
+      //   float my = GetMouseY();
+      //   Vec2 *m = new Vec2{mx, my};
+      //
+      //
+      //   plane::BulletMgr<4, 4> b {
+      //     .origin = {config.screen_width / 2.f, 300},
+      //     .speed1 = 10,
+      //     .speed2 = 2,
+      //     .mode = BulletFlag::AIMED,
+      //   };
+      //   b.setOrigin({config.screen_width / 2, 300});
+      //   b.setAngle(0, 7, m);
+      //   b.setSpeed(4, 2);
+      //   bs.push_back(b);
+      //   delete m;
+      // }
+      // frame_count++;
+      //
+      // EndDrawing();
+      //
+      // continue;
+
 
       bool micro = false;
       BeginDrawing();
@@ -68,6 +104,7 @@ namespace plane {
         if(IsKeyDown(KEY_LEFT)) {
           p.pos.x -= p.speed;
         }
+
 
         if(IsGamepadAvailable(gamepad)) {
           if(IsGamepadButtonDown(gamepad, GAMEPAD_BUTTON_MIDDLE)) {
@@ -194,6 +231,7 @@ shooting:
                   static_cast<float>(e_ps.sprite[i].height )
                 };
 
+#ifdef DRAW_HITBOX
           DrawRectanglePro(ps_hitbox, 
               {(float)e_ps.sprite[i].width / 2 , (float)e_ps.sprite[i].height / 2 },
               e_ps.spaces[i].angle,
@@ -203,7 +241,7 @@ shooting:
               {(float)p.sprite.width / 2, (float)p.sprite.height / 2}, 
               0.0f, 
               GetColor(0x00ff00ff));
-
+#endif
           DrawTexturePro(
               e_ps.sprite[i], 
               { 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bullets.h" 
 #include "enemy.h"
 #include "projectile.h"
 #include "texture.h"

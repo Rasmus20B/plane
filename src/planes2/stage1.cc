@@ -1,5 +1,6 @@
 #include "stage1.h" 
 
+
 namespace plane {
   void load_stage1enemies(TextureManager& tm,EnemyPool& ep) {
       std::unordered_map<int, ProjectilePool> shots;

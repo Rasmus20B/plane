@@ -9,11 +9,13 @@
 namespace plane {
   enum class ProjectileAttributes {
     PROJECTILE_ATTRIBUTES_NORM = 0,
-    PROJECTILE_ATTRIBUTES_HOMING = 1,
-    PROJECTILE_ATTRIBUTES_AIMED= 2,
+    PROJECTILE_ATTRIBUTES_AIMED = 1,
+    PROJECTILE_ATTRIBUTES_RING_AIMED = 2,
+    PROJECTILE_ATTRIBUTES_RING_AROUND = 4,
     PROJECTILE_ATTRIBUTES_SIZE 
   };
 
+  /* Used for determining collision detection system */
   enum class ProjectileShape {
     PS_RECT = 0,
     PS_CIRC = 1,
@@ -51,7 +53,6 @@ namespace plane {
   };
 
   struct ProjectilePool {
-    size_t size;
     std::vector<ProjectileSpace> spaces;
     std::vector<float> spawntime;
     std::vector<float> deadtime;
@@ -61,6 +62,7 @@ namespace plane {
 #ifdef MULTI_T
     std::mutex m;
 #endif
+    size_t size;
   };
 
   void projectilePoolInit(ProjectilePool& pp, size_t sz);

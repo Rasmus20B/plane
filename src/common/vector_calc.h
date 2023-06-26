@@ -7,6 +7,7 @@
 
 #define RAD(x) (x * PI) / 180
 
+
 struct Vec2 {
   Vec2(const float c_x, const float c_y) : vec{c_x, c_y} {};
   Vec2(const Vector2 v) : vec{v.x, v.y} {};
@@ -59,8 +60,14 @@ struct Vec2 {
     return acos(this->dot(rhs) / ((this->magnitude()) * (rhs.magnitude())));
   }
 
+  [[nodiscard]]
+  float &x() { return vec.x; };
+  [[nodiscard]]
+  float &y() { return vec.y; };
+
   Vector2 vec;
 };
+
 
 namespace plane {
 Vector2 Vec2Sub(Vector2 a, Vector2 b);
