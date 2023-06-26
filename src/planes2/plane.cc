@@ -117,10 +117,10 @@ namespace plane {
         DrawTextureEx(bgw, {0, -(bgw.height - bgw_scroll)}, 0.0f, 1.0f, WHITE);
 
         Rectangle p_hitbox = {
-                  p.pos.x + (0.5f * p.sprite.width) ,
-                  p.pos.y + (0.5f * p.sprite.height), 
-                  1.0f, 
-                  1.0f 
+                  p.pos.x + (0.5f * p.sprite.width) - (0.5f * p.in_sprite.width),
+                  p.pos.y + (0.5f * p.sprite.height) - (0.5f * p.in_sprite.height), 
+                  (float)p.in_sprite.width, 
+                  (float)p.in_sprite.height 
         };
 
         if(!p.d_time) {
@@ -193,6 +193,17 @@ shooting:
                   static_cast<float>(e_ps.sprite[i].width ), 
                   static_cast<float>(e_ps.sprite[i].height )
                 };
+
+          DrawRectanglePro(ps_hitbox, 
+              {(float)e_ps.sprite[i].width / 2 , (float)e_ps.sprite[i].height / 2 },
+              e_ps.spaces[i].angle,
+              GetColor(0x00ff00ff));
+
+          DrawRectanglePro(p_hitbox, 
+              {(float)p.sprite.width / 2, (float)p.sprite.height / 2}, 
+              0.0f, 
+              GetColor(0x00ff00ff));
+
           DrawTexturePro(
               e_ps.sprite[i], 
               { 
@@ -205,13 +216,14 @@ shooting:
               {(float)e_ps.sprite[i].width / 2 , (float)e_ps.sprite[i].height / 2 },
               (e_ps.spaces[i].angle), WHITE);
 
+
           if(!p.d_time) {
             bool hit;
             switch(e_ps.spaces[i].shape) {
               case ProjectileShape::PS_RECT:
                 hit = CheckCollisionRecsAngle(
                       p_hitbox,
-                      (0.0f),
+                      RAD(0.0f),
                       ps_hitbox,
                       RAD(e_ps.spaces[i].angle)
                       );
