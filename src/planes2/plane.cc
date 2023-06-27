@@ -52,9 +52,33 @@ namespace plane {
       float mx = GetMouseX();
       float my = GetMouseY();
 
+      if(IsKeyDown(KEY_UP)) {
+        p.pos.y -= p.speed;
+      }
+      if(IsKeyDown(KEY_DOWN)) {
+        p.pos.y += p.speed;
+      }
+      if(IsKeyDown(KEY_RIGHT)) {
+        p.pos.x += p.speed;
+      }
+      if(IsKeyDown(KEY_LEFT)) {
+        p.pos.x -= p.speed;
+      }
+
+      Rectangle p_hitbox = {
+        .x = p.pos.x + (p.sprite.width * 0.5f) - (p.in_sprite.width * 0.5f),
+        .y = p.pos.y + (p.sprite.height * 0.5f) - (p.in_sprite.height * 0.5f),
+        .width = (float)p.sprite.width,
+        .height = (float)p.sprite.height
+      };
+
+      DrawTextureV(p.sprite, {p.pos.x - (p.sprite.width / 2.0f), p.pos.y - (p.sprite.height / 2.0f) }, WHITE);
       for(int i = 0; i < bs.size(); ++i) {
         bs[i].update();
         bs[i].draw();
+        if(bs[i].collision_check(p_hitbox)) {
+          std::cout << "HIT*****\n";
+        }
         DrawLineV({mx, my}, bs[0].origin.vec, GREEN);
       }
 
@@ -157,12 +181,12 @@ namespace plane {
         DrawTextureEx(bgw, {0, bgw_scroll}, 0.0f, 1.0f, WHITE);
         DrawTextureEx(bgw, {0, -(bgw.height - bgw_scroll)}, 0.0f, 1.0f, WHITE);
 
-        Rectangle p_hitbox = {
-                  p.pos.x + (0.5f * p.sprite.width) - (0.5f * p.in_sprite.width),
-                  p.pos.y + (0.5f * p.sprite.height) - (0.5f * p.in_sprite.height), 
-                  (float)p.in_sprite.width, 
-                  (float)p.in_sprite.height 
-        };
+        // Rectangle p_hitbox = {
+        //           p.pos.x + (0.5f * p.sprite.width) - (0.5f * p.in_sprite.width),
+        //           p.pos.y + (0.5f * p.sprite.height) - (0.5f * p.in_sprite.height), 
+        //           (float)p.in_sprite.width, 
+        //           (float)p.in_sprite.height 
+        // };
 
         if(!p.d_time) {
           DrawTextureV(p.sprite, {p.pos.x - (p.sprite.width / 2.0f), p.pos.y - (p.sprite.height / 2.0f) }, WHITE);

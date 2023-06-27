@@ -30,7 +30,7 @@ namespace plane {
 
   struct Enemy {
     std::vector<Vec2> points;
-    std::array<BulletMgr, 8> danmaku;
+    std::array<BulletMgr, 16> danmaku;
     std::vector<float> stopstarts;
     uint32_t size;
     float health;

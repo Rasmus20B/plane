@@ -2,6 +2,7 @@
 #include "../common/vector_calc.h"
 
 #include "texture.h"
+#include "collision.h"
 
 #include "raylib.h"
 
@@ -36,6 +37,7 @@ struct BulletMgr {
   uint16_t count;
   uint16_t layers;
   BulletFlag mode;
+  BulletSprite type;
 
   Vec2& getPos(const int r, const int c) noexcept {
     int idx = c * layers + r;
@@ -87,6 +89,7 @@ struct BulletMgr {
 
   void setType(const BulletSprite s) noexcept {
     sprite = tm.eBulletSprites[static_cast<int>(s)];
+    type = s;
   }
 
   void setAngle(float a1, float a2, Vec2* p = nullptr) noexcept {
@@ -183,6 +186,45 @@ struct BulletMgr {
           Vec2(origin - getPos(i, j)).face_velocity(), WHITE);
       }
     }
+  }
+
+  bool collision_check(const Rectangle& hitbox) {
+    bool hit = false;
+    switch(this->type) {
+      case BulletSprite::BLADE_01:
+        for(int i = 0; i < layers; ++i) {
+          for(int j = 0; j < count; ++j) {
+            Rectangle ps_hitbox = Rectangle{
+                    getPos(i, j).vec.x, 
+                    getPos(i, j).vec.y, 
+                    static_cast<float>(sprite.width), 
+                    static_cast<float>(sprite.height)
+            };
+            if(CheckCollisionRecsAngle(
+                  hitbox,
+                  RAD(0.0f),
+                  ps_hitbox,
+                  RAD(ang1)
+                  )) {
+              return true;
+            }
+
+            }
+          }
+        break;
+      case BulletSprite::ORB_02:
+        for(int i = 0; i < layers; ++i) {
+          for(int j = 0; j < count; ++j) {
+            if(CheckCollisionCircleRec(getPos(i, j).vec, sprite.width * 0.5, hitbox)) {
+              return true;
+            }
+          }
+        }
+        break;
+      default:
+        break;
+    }
+    return hit;
   }
 };
 }
