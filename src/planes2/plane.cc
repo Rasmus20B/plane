@@ -46,7 +46,7 @@ namespace plane {
 
     load_stage1enemies(tm, enemies);
 
-    std::vector<BulletMgr<4, 4>> bs;
+    std::vector<BulletMgr> bs;
 
     while(!WindowShouldClose()) {
       ClearBackground(BLACK);
@@ -66,9 +66,10 @@ namespace plane {
         Vec2 *m = new Vec2{mx, my};
 
 
-        plane::BulletMgr<4, 4> b {
+        plane::BulletMgr b {
           .mode = BulletFlag::AIMED,
         };
+        b.setCount(4, 4);
         b.setOrigin({300.f , 300});
         b.setAngle(0, 15, m);
         b.setSpeed(3, 3);

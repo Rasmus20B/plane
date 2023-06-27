@@ -24,19 +24,23 @@ enum class BulletSprite : uint8_t {
   S_SIZE
 };
 
-template<uint16_t N, uint16_t L>
 struct BulletMgr {
   Texture2D sprite;
-  Vec2 positions[L][N];
+  std::vector<Vec2> positions;
   Vec2 origin;
   float ang1;
   float ang2;
   float speed1;
   float speed2;
   uint32_t entry_frame;
-  uint16_t count = N;
-  uint16_t layers = L;
+  uint16_t count;
+  uint16_t layers;
   BulletFlag mode;
+
+  Vec2& getPos(const int r, const int c) {
+    int idx = r * layers + c;
+    return positions[idx];
+  }
 
   void setOrigin(const Vec2 o) {
     origin = o;
@@ -44,8 +48,8 @@ struct BulletMgr {
       case BulletFlag::AIMED:
         for(int i = 0; i < layers; ++i) {
           for(int j = 0; j < count; ++j) {
-            positions[i][j].x() = origin.x() + (cos(RAD(ang1) + RAD(ang2) * j + 1));
-            positions[i][j].y() = origin.y() + (sin(RAD(ang1) + RAD(ang2) * j + 1));
+            getPos(i, j).x() = origin.x() + (cos(RAD(ang1) + RAD(ang2) * j + 1));
+            getPos(i, j).y() = origin.y() + (sin(RAD(ang1) + RAD(ang2) * j + 1));
           }
         }
         break;
@@ -54,13 +58,22 @@ struct BulletMgr {
           for(int j = 0; j < count; ++j) {
                   // enemies.space[i].position.vec.x + (float)(15 * cos((360.0f/s->second.size) * j)),
                   // enemies.space[i].position.vec.y + (float)(15 * sin((360.0f/s->second.size) * j))
-            positions[i][j].x() = origin.x() + (cos(RAD(360.f / j * i + 1) * j * i) + RAD(ang2) * j + 1);
-            positions[i][j].y() = origin.y() + (sin(RAD(360.f / j * i + 1) * j * i) + RAD(ang2) * j + 1);
+            getPos(i, j).x() = origin.x() + (cos(RAD(360.f / j * i + 1) * j * i) + RAD(ang2) * j + 1);
+            getPos(i, j).y() = origin.y() + (sin(RAD(360.f / j * i + 1) * j * i) + RAD(ang2) * j + 1);
           }
         }
         break;
+      default:
+        break;
       }
+
       
+  }
+
+  void setCount(const uint16_t l, const uint16_t c) {
+    this->layers = l;
+    this->count = c;
+    positions.resize(l*c+1);
   }
 
   void setSpeed(const float s1, const float s2) {
@@ -97,8 +110,8 @@ struct BulletMgr {
         for(int i = 0; i < layers; ++i) {
           float lspeed = (speed1 + speed2) / (float(layers + 1) / (i + 1));
           for(int j = 0; j < count; ++j) {
-            positions[i][j].vec.x += (cos(RAD(ang1) + RAD(ang2) * j) * lspeed);
-            positions[i][j].vec.y += (sin(RAD(ang1) + RAD(ang2) * j) * lspeed);
+            getPos(i, j).x() += (cos(RAD(ang1) + RAD(ang2) * j) * lspeed);
+            getPos(i, j).y() += (sin(RAD(ang1) + RAD(ang2) * j) * lspeed);
           }
         }
         break;
@@ -106,8 +119,8 @@ struct BulletMgr {
         for(int i = 0; i < layers; ++i) {
           float lspeed = (speed1 + speed2) / (float(layers + 1) / (i + 1));
           for(int j = 0; j < count; ++j) {
-            positions[i][j].vec.x += (cos(RAD(360.f/ ang1 * j + 1 * i + 1) + (RAD(360.f / ang2) * i + 1 *j + 1)) * lspeed);
-            positions[i][j].vec.y += (sin(RAD(360.f/ ang1  * j + 1 * i + 1) + (RAD(360.f / ang2) * i + 1 *j + 1)) * lspeed);
+            getPos(i, j).x() += (cos(RAD(360.f/ ang1 * j + 1 * i + 1) + (RAD(360.f / ang2) * i + 1 *j + 1)) * lspeed);
+            getPos(i, j).y() += (sin(RAD(360.f/ ang1  * j + 1 * i + 1) + (RAD(360.f / ang2) * i + 1 *j + 1)) * lspeed);
           }
         }
         break;
@@ -115,8 +128,8 @@ struct BulletMgr {
         for(int i = 0; i < layers; ++i) {
           float lspeed = (speed1 + speed2) / (float(layers + 1) / (i + 1));
           for(int j = 0; j < count; ++j) {
-            positions[i][j].vec.x += (float)(RAD(ang2) + cos(RAD( 360.0f / (j + 1)) ) ) * lspeed;
-            positions[i][j].vec.y += (float)(RAD(ang2) + sin(RAD( 360.0f / (j + 1)) ) ) * lspeed;
+            getPos(i, j).y() += (float)(RAD(ang2) + cos(RAD( 360.0f / (j + 1)) ) ) * lspeed;
+            getPos(i, j).y() += (float)(RAD(ang2) + sin(RAD( 360.0f / (j + 1)) ) ) * lspeed;
           }
         }
         break;
@@ -125,11 +138,11 @@ struct BulletMgr {
 
   void draw() {
     Color cols[4] = { WHITE, RED, GREEN, PURPLE };
-    for(int i = 0; i < L; ++i) {
-      for(int j = 0; j < N; ++j) {
+    for(int i = 0; i < layers; ++i) {
+      for(int j = 0; j < count; ++j) {
           Rectangle ps_hitbox = Rectangle{
-                  positions[i][j].vec.x, 
-                  positions[i][j].vec.y, 
+                  getPos(i, j).vec.x, 
+                  getPos(i, j).vec.y, 
                   static_cast<float>(sprite.width ), 
                   static_cast<float>(sprite.height )
                 };
@@ -143,14 +156,9 @@ struct BulletMgr {
             },
             ps_hitbox,
             {(float)sprite.width / 2 , (float)sprite.height / 2 },
-            Vec2(origin - positions[i][j]).face_velocity(), WHITE);
+            Vec2(origin - getPos(i, j)).face_velocity(), WHITE);
       }
     }
-
-    DrawLineV(positions[0][0].vec, positions[3][0].vec, RED);
-    DrawLineV(positions[0][1].vec, positions[3][1].vec, RED);
-    DrawLineV(positions[0][2].vec, positions[3][2].vec, RED);
-    DrawLineV(positions[0][3].vec, positions[3][3].vec, RED);
   }
 };
 
