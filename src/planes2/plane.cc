@@ -54,27 +54,26 @@ namespace plane {
       // ClearBackground(BLACK);
       //
       // BeginDrawing();
+      // float mx = GetMouseX();
+      // float my = GetMouseY();
       //
       // for(int i = 0; i < bs.size(); ++i) {
       //   bs[i].update();
       //   bs[i].draw();
+      //   DrawLineV({mx, my}, bs[0].origin.vec, GREEN);
       // }
       //
+      //
       // if(frame_count % 75 == 0) {
-      //   float mx = GetMouseX();
-      //   float my = GetMouseY();
       //   Vec2 *m = new Vec2{mx, my};
       //
       //
       //   plane::BulletMgr<4, 4> b {
-      //     .origin = {config.screen_width / 2.f, 300},
-      //     .speed1 = 10,
-      //     .speed2 = 2,
       //     .mode = BulletFlag::AIMED,
       //   };
-      //   b.setOrigin({config.screen_width / 2, 300});
-      //   b.setAngle(0, 7, m);
-      //   b.setSpeed(4, 2);
+      //   b.setOrigin({500.f , 300});
+      //   b.setAngle(0, 15, m);
+      //   b.setSpeed(7, 7);
       //   bs.push_back(b);
       //   delete m;
       // }
@@ -83,7 +82,7 @@ namespace plane {
       // EndDrawing();
       //
       // continue;
-
+      //
 
       bool micro = false;
       BeginDrawing();

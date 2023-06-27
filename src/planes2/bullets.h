@@ -27,9 +27,11 @@ struct BulletMgr {
   BulletFlag mode;
 
   void setOrigin(const Vec2 o) {
+    origin = o;
     for(int i = 0; i < layers; ++i) {
       for(int j = 0; j < count; ++j) {
-        positions[i][j] = o;
+        positions[i][j].x() = origin.x() + (cos(RAD(ang1) + RAD(ang2) * j));
+        positions[i][j].y() = origin.y() + (sin(RAD(ang1) + RAD(ang2) * j));
       }
     }
   }
@@ -42,6 +44,10 @@ struct BulletMgr {
   void setAngle(float a1, float a2, Vec2* p = nullptr) {
     if(mode == BulletFlag::AIMED) {
       if(!p) return;
+      float add = 270 - (a2 * ((float)count / 2)) + (a2 / ((float) count / 2));
+      this->ang1 = (*p - this->origin).norm().face_velocity() + a1 + add;
+      this->ang2 = a2;
+    } else if(mode == BulletFlag::RING_AIMED) {
       float add = 270 - (a2 * ((float)count / 2)) + (a2 / ((float) count / 2));
       this->ang1 = (*p - this->origin).norm().face_velocity() + a1 + add;
       this->ang2 = a2;
@@ -61,6 +67,16 @@ struct BulletMgr {
         }
         break;
       case BulletFlag::RING_AIMED:
+        for(int i = 0; i < layers; ++i) {
+          float lspeed = (speed1 + speed2) / (float(layers + 1) / (i + 1));
+          for(int j = 0; j < count; ++j) {
+            positions[i][j].vec.x += (cos(RAD(360.f/ ang1 * j ) + RAD(ang2) * j) * lspeed);
+            positions[i][j].vec.y += (sin(RAD(360.f/ ang1 ) + RAD(ang2) * j) * lspeed);
+            // positions[i][j].vec.x += (float)(RAD(ang2) + cos(RAD( 360.0f / (j + 1)) ) ) * lspeed;
+            // positions[i][j].vec.y += (float)(RAD(ang2) + sin(RAD( 360.0f / (j + 1)) ) ) * lspeed;
+          }
+        }
+
         break;
       case BulletFlag::RING_AROUND:
         break;
