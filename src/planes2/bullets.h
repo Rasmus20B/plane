@@ -32,6 +32,7 @@ struct BulletMgr {
   float ang2;
   float speed1;
   float speed2;
+  uint32_t entry_frame;
   uint16_t count;
   uint16_t layers;
   BulletFlag mode;

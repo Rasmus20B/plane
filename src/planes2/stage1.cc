@@ -33,7 +33,7 @@ namespace plane {
         }, 0).calc_points(0.01f, 5.0f, false);
       addEnemy(ep, std::move(Enemy{
         .points = tmp,
-        .shots = shots,
+        // .shots = shots,
         .size = 20,
         .health = 4,
         .speed = 5.0f,
@@ -51,7 +51,7 @@ namespace plane {
 
       addEnemy(ep, std::move(Enemy{
         .points = tmp,
-        .shots = shots,
+        // .shots = shots,
         .size = 20,
         .health = 4,
         .speed = 5.0f,
@@ -69,7 +69,7 @@ namespace plane {
         }, 0).calc_points(0.01f, 5.0f, false);
       addEnemy(ep, std::move(Enemy{
         .points = tmp,
-        .shots = shots,
+        // .shots = shots,
         .size = 20,
         .health = 4,
         .speed = 5.0f,
@@ -174,7 +174,7 @@ namespace plane {
 
       addEnemy(ep, std::move(Enemy{
         .points = tmp,
-        .shots = big,
+        // .shots = big,
         .size = 20,
         .health = 10,
         .speed = 5.0f,
@@ -185,7 +185,7 @@ namespace plane {
 
       addEnemy(ep, std::move(Enemy{
         .points = tmp2,
-        .shots = big,
+        // .shots = big,
         .size = 20,
         .health = 10,
         .speed = 5.0f,
