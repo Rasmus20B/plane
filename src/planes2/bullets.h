@@ -53,11 +53,17 @@ struct BulletMgr {
           }
         }
         break;
+      case BulletFlag::NORM:
+        for(int i = 0; i < layers; ++i) {
+          for(int j = 0; j < count; ++j) {
+            getPos(i, j).x() = origin.x() + (cos(RAD(ang1) + RAD(ang2) * j + 1));
+            getPos(i, j).y() = origin.y() + (sin(RAD(ang1) + RAD(ang2) * j + 1));
+          }
+        }
+        break;
       case BulletFlag::RING_AIMED:
         for(int i = 0; i < layers; ++i) {
           for(int j = 0; j < count; ++j) {
-                  // enemies.space[i].position.vec.x + (float)(15 * cos((360.0f/s->second.size) * j)),
-                  // enemies.space[i].position.vec.y + (float)(15 * sin((360.0f/s->second.size) * j))
             getPos(i, j).x() = origin.x() + (cos(RAD(360.f / j * i + 1) * j * i) + RAD(ang2) * j + 1);
             getPos(i, j).y() = origin.y() + (sin(RAD(360.f / j * i + 1) * j * i) + RAD(ang2) * j + 1);
           }
@@ -66,8 +72,6 @@ struct BulletMgr {
       default:
         break;
       }
-
-      
   }
 
   void setCount(const uint16_t l, const uint16_t c) {
@@ -86,9 +90,10 @@ struct BulletMgr {
   }
 
   void setAngle(float a1, float a2, Vec2* p = nullptr) {
-    if(mode == BulletFlag::AIMED) {
+    float add = 0;
+    switch(mode) {
+    case BulletFlag::AIMED:
       if(!p) return;
-      float add = 0;
         if(this->count & 1) {
           add = -90 - (a2 * ((int)(count * 0.5f) + 1)) + a2;
         } else {
@@ -96,22 +101,38 @@ struct BulletMgr {
         }
       this->ang1 = (*p - this->origin).norm().face_velocity() + a1 + add;
       this->ang2 = a2;
-    } else if(mode == BulletFlag::RING_AIMED) {
-      float add = -90 - (a2 * (count / 2.f)) + (a2 / (count / 2.f));
+    case BulletFlag::NORM:
+      this->ang1 = a1;
+      this->ang2 = a2;
+      break;
+    case  BulletFlag::RING_AIMED:
+      add = -90 - (a2 * (count / 2.f)) + (a2 / (count / 2.f));
       this->ang1 = (*p - this->origin).norm().face_velocity() + a1 + add;
       this->ang2 = a2;
+    default:
+      break;
     }
   }
 
   void update() {
 
     switch(mode) {
+
       case BulletFlag::AIMED:
         for(int i = 0; i < layers; ++i) {
           float lspeed = (speed1 + speed2) / (float(layers + 1) / (i + 1));
           for(int j = 0; j < count; ++j) {
             getPos(i, j).x() += (cos(RAD(ang1) + RAD(ang2) * j) * lspeed);
             getPos(i, j).y() += (sin(RAD(ang1) + RAD(ang2) * j) * lspeed);
+          }
+        }
+        break;
+      case BulletFlag::NORM:
+        for(int i = 0; i < layers; ++i) {
+          float lspeed = (speed1 + speed2) / (float(layers + 1) / (i + 1));
+          for(int j = 0; j < count; ++j) {
+            getPos(i, j).x() += (cos(RAD(-90 + ang1) + RAD(ang2) * j) * lspeed);
+            getPos(i, j).y() += (sin(RAD(-90 + ang1) + RAD(ang2) * j) * lspeed);
           }
         }
         break;
@@ -132,6 +153,8 @@ struct BulletMgr {
             getPos(i, j).y() += (float)(RAD(ang2) + sin(RAD( 360.0f / (j + 1)) ) ) * lspeed;
           }
         }
+        break;
+      default:
         break;
     }
   }
@@ -161,7 +184,4 @@ struct BulletMgr {
     }
   }
 };
-
-
-
 }

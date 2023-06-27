@@ -67,12 +67,12 @@ namespace plane {
 
 
         plane::BulletMgr b {
-          .mode = BulletFlag::AIMED,
+          .mode = BulletFlag::NORM,
         };
-        b.setCount(4, 4);
-        b.setOrigin({300.f , 300});
-        b.setAngle(0, 15, m);
-        b.setSpeed(3, 3);
+        b.setCount(14, 14);
+        b.setOrigin({config.screen_width / 2 , 300});
+        b.setAngle(100, 2, m);
+        b.setSpeed(3, 1);
         b.setType(BulletSprite::BLADE_01);
         bs.push_back(b);
         delete m;
