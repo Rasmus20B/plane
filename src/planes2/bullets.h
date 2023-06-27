@@ -114,8 +114,8 @@ struct BulletMgr {
             { 
               0,
               0,
-              sprite.width,
-              sprite.height
+              static_cast<float>(sprite.width),
+              static_cast<float>(sprite.height)
             },
             ps_hitbox,
             {(float)sprite.width / 2 , (float)sprite.height / 2 },
