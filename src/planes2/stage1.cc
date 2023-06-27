@@ -11,7 +11,7 @@ namespace plane {
                 .speed = 4.0f,
                 .angle = 0,
                 .attr = ProjectileAttributes::PROJECTILE_ATTRIBUTES_AIMED,
-                .sprite = tm.textures[9],
+                // .sprite = tm.textures[9],
                 .shape = ProjectileShape::PS_CIRC,
                 .mt = MoveType::MOVE_NORM,
                 .live = true,
@@ -38,7 +38,7 @@ namespace plane {
         .health = 4,
         .speed = 5.0f,
         .spawntime = 100,
-        .sprite = tm.textures[8],
+        // .sprite = tm.textures[8],
         .looped = false,
         }));
 
@@ -56,7 +56,7 @@ namespace plane {
         .health = 4,
         .speed = 5.0f,
         .spawntime = 200,
-        .sprite = tm.textures[8],
+        // .sprite = tm.textures[8],
         .looped = false,
         .state = EnemyState::ENEMY_MOVING,
         }));
@@ -74,7 +74,7 @@ namespace plane {
         .health = 4,
         .speed = 5.0f,
         .spawntime = 200,
-        .sprite = tm.textures[8],
+        // .sprite = tm.textures[8],
         .looped = false,
         }));
 
@@ -104,7 +104,7 @@ namespace plane {
           .speed = 10,
           .angle = (90.f / 20) * i,
           .angle_inc = 0.6f,
-          .sprite = tm.textures[4],
+          // .sprite = tm.textures[4],
           .shape = ProjectileShape::PS_RECT,
           .mt = MoveType::MOVE_CIRCLE,
           .live = true,
@@ -120,7 +120,7 @@ namespace plane {
           .speed = 10,
           .angle = (180.f / 20) * i,
           .angle_inc = 0.9f,
-          .sprite = tm.textures[4],
+          // .sprite = tm.textures[4],
           .shape = ProjectileShape::PS_RECT,
           .mt = MoveType::MOVE_CIRCLE,
           .live = true,
@@ -136,7 +136,7 @@ namespace plane {
           .speed = 10,
           .angle = (270.f / 20) * i,
           .angle_inc = 0.3f,
-          .sprite = tm.textures[4],
+          // .sprite = tm.textures[4],
           .shape = ProjectileShape::PS_RECT,
           .mt = MoveType::MOVE_CIRCLE,
           .live = true,
@@ -153,7 +153,7 @@ namespace plane {
           .speed = 4.0f,
           .angle = 0,
           .attr = ProjectileAttributes::PROJECTILE_ATTRIBUTES_AIMED,
-          .sprite = tm.textures[11],
+          // .sprite = tm.textures[11],
           .shape = ProjectileShape::PS_RECT,
           .mt = MoveType::MOVE_NORM,
           .live = true,
@@ -179,7 +179,7 @@ namespace plane {
         .health = 10,
         .speed = 5.0f,
         .spawntime = 300,
-        .sprite = tm.textures[8],
+        // .sprite = tm.textures[8],
         .looped = false,
         }));
 
@@ -190,7 +190,7 @@ namespace plane {
         .health = 10,
         .speed = 5.0f,
         .spawntime = 300,
-        .sprite = tm.textures[8],
+        // .sprite = tm.textures[8],
         .looped = false,
         }));
   }

@@ -1,6 +1,8 @@
 #pragma once
 #include "../common/vector_calc.h"
 
+#include "texture.h"
+
 #include "raylib.h"
 
 namespace plane {
@@ -13,8 +15,18 @@ enum class BulletFlag : uint8_t {
   SIZE 
 };
 
+enum class BulletSprite : uint8_t {
+  ORB_01 = 0,
+  ORB_02 = 1,
+  ORB_03 = 2,
+  PELLET_01 = 3,
+  BLADE_01 = 4,
+  S_SIZE
+};
+
 template<uint16_t N, uint16_t L>
 struct BulletMgr {
+  Texture2D sprite;
   Vec2 positions[L][N];
   Vec2 origin;
   float ang1;
@@ -39,6 +51,10 @@ struct BulletMgr {
   void setSpeed(const float s1, const float s2) {
     this->speed1 = s1;
     this->speed2 = s2;
+  }
+
+  void setType(const BulletSprite s) {
+    sprite = tm.eBulletSprites[static_cast<int>(s)];
   }
 
   void setAngle(float a1, float a2, Vec2* p = nullptr) {
@@ -87,7 +103,23 @@ struct BulletMgr {
     Color cols[4] = { WHITE, RED, GREEN, PURPLE };
     for(int i = 0; i < L; ++i) {
       for(int j = 0; j < N; ++j) {
-        DrawCircleV(positions[i][j].vec, 24, cols[i]);
+          Rectangle ps_hitbox = Rectangle{
+                  positions[i][j].vec.x, 
+                  positions[i][j].vec.y, 
+                  static_cast<float>(sprite.width ), 
+                  static_cast<float>(sprite.height )
+                };
+        DrawTexturePro(
+            this->sprite, 
+            { 
+              0,
+              0,
+              sprite.width,
+              sprite.height
+            },
+            ps_hitbox,
+            {(float)sprite.width / 2 , (float)sprite.height / 2 },
+            Vec2(origin - positions[i][j]).face_velocity(), WHITE);
       }
     }
 

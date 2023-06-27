@@ -21,8 +21,6 @@ namespace plane {
 
     int exp = 0;
 
-    TextureManager tm;
-    tm.textures.reserve(10);
     initTextureManager(tm);
 
     ProjectilePool e_ps;
@@ -37,8 +35,8 @@ namespace plane {
 
     size_t frame_count = 0;
 
-    Texture2D bg = tm.textures[6];
-    Texture2D bgw = tm.textures[7];
+    Texture2D bg = tm.fx[1];
+    Texture2D bgw = tm.fx[2];
 
     float bg_scroll = 0.0f;
     float bgw_scroll = 0.0f;
@@ -51,38 +49,39 @@ namespace plane {
     std::vector<BulletMgr<4, 4>> bs;
 
     while(!WindowShouldClose()) {
-      // ClearBackground(BLACK);
-      //
-      // BeginDrawing();
-      // float mx = GetMouseX();
-      // float my = GetMouseY();
-      //
-      // for(int i = 0; i < bs.size(); ++i) {
-      //   bs[i].update();
-      //   bs[i].draw();
-      //   DrawLineV({mx, my}, bs[0].origin.vec, GREEN);
-      // }
-      //
-      //
-      // if(frame_count % 75 == 0) {
-      //   Vec2 *m = new Vec2{mx, my};
-      //
-      //
-      //   plane::BulletMgr<4, 4> b {
-      //     .mode = BulletFlag::AIMED,
-      //   };
-      //   b.setOrigin({500.f , 300});
-      //   b.setAngle(0, 15, m);
-      //   b.setSpeed(7, 7);
-      //   bs.push_back(b);
-      //   delete m;
-      // }
-      // frame_count++;
-      //
-      // EndDrawing();
-      //
-      // continue;
-      //
+      ClearBackground(BLACK);
+
+      BeginDrawing();
+      float mx = GetMouseX();
+      float my = GetMouseY();
+
+      for(int i = 0; i < bs.size(); ++i) {
+        bs[i].update();
+        bs[i].draw();
+        DrawLineV({mx, my}, bs[0].origin.vec, GREEN);
+      }
+
+
+      if(frame_count % 75 == 0) {
+        Vec2 *m = new Vec2{mx, my};
+
+
+        plane::BulletMgr<4, 4> b {
+          .mode = BulletFlag::AIMED,
+        };
+        b.setOrigin({500.f , 300});
+        b.setAngle(0, 15, m);
+        b.setSpeed(7, 4);
+        b.setType(BulletSprite::ORB_02);
+        bs.push_back(b);
+        delete m;
+      }
+      frame_count++;
+
+      EndDrawing();
+
+      continue;
+
 
       bool micro = false;
       BeginDrawing();
@@ -127,7 +126,7 @@ namespace plane {
                 .old_position = p.pos,
                 .velocity = {0, 20},
                 .attr = {},
-                .sprite = tm.textures[1],
+                .sprite = tm.fx[0],
                 .live = true
             };
             addProjectile(p_ps, std::move(tmp));
@@ -282,7 +281,7 @@ shooting:
 
               addProjectile(d_ps, Projectile {
                 .position = p.pos,
-                .sprite = tm.textures[10],
+                // .sprite = tm.textures[10],
                 .live = true,
               });
 
@@ -317,7 +316,7 @@ shooting:
                   if(!enemies.health[j]) {
                     addProjectile(d_ps, Projectile {
                       .position = enemies.space[j].position,
-                      .sprite = tm.textures[10],
+                      // .sprite = tm.textures[10],
                       .live = true,
                       });
                   }
@@ -326,7 +325,7 @@ shooting:
             }
             DrawTextureV(p_ps.sprite[i], {
                 p_ps.spaces[i].position.vec.x - (p_ps.sprite[i].width / 2.0f),
-                p_ps.spaces[i].position.vec.y - (p_ps.sprite[i].width / 2.0f),
+                p_ps.spaces[i].position.vec.y - (p_ps.sprite[i].width / 2.0f)
                 }, WHITE);
             p_ps.spaces[i].position.vec = { p.vec.x, p.vec.y - p_ps.spaces[i].velocity.vec.y};
           }
@@ -338,12 +337,12 @@ shooting:
             d_ps.live[i] = false;
           }
           if(d_ps.live[i]) {
-            DrawTextureRec(tm.textures[10], Rectangle {d_ps.spaces[i].angle, 0, 128, 128},
-                Vector2 {
-                  d_ps.spaces[i].position.vec.x - (64),
-                  d_ps.spaces[i].position.vec.y - (64),
-                },
-                WHITE);
+            // DrawTextureRec(tm.textures[10], Rectangle {d_ps.spaces[i].angle, 0, 128, 128},
+                // Vector2 {
+                //   d_ps.spaces[i].position.vec.x - (64),
+                //   d_ps.spaces[i].position.vec.y - (64),
+                // },
+                // WHITE);
             d_ps.spaces[i].angle += 128;
           }
         }
