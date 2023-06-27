@@ -69,10 +69,10 @@ namespace plane {
         plane::BulletMgr<4, 4> b {
           .mode = BulletFlag::AIMED,
         };
-        b.setOrigin({500.f , 300});
+        b.setOrigin({300.f , 300});
         b.setAngle(0, 15, m);
-        b.setSpeed(7, 4);
-        b.setType(BulletSprite::ORB_02);
+        b.setSpeed(3, 3);
+        b.setType(BulletSprite::BLADE_01);
         bs.push_back(b);
         delete m;
       }
