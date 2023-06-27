@@ -15,6 +15,7 @@
 #include "../common/spline.h"
 
 #include "projectile.h"
+#include "bullets.h"
 
 namespace plane {
 
@@ -29,7 +30,7 @@ namespace plane {
 
   struct Enemy {
     std::vector<Vec2> points;
-    std::unordered_map<int, ProjectilePool> shots;
+    std::array<BulletMgr, 8> danmaku;
     std::vector<float> stopstarts;
     uint32_t size;
     float health;

@@ -32,17 +32,16 @@ struct BulletMgr {
   float ang2;
   float speed1;
   float speed2;
-  uint32_t entry_frame;
   uint16_t count;
   uint16_t layers;
   BulletFlag mode;
 
-  Vec2& getPos(const int r, const int c) {
-    int idx = r * layers + c;
+  Vec2& getPos(const int r, const int c) noexcept {
+    int idx = c * layers + r;
     return positions[idx];
   }
 
-  void setOrigin(const Vec2 o) {
+  void setOrigin(const Vec2 o) noexcept {
     origin = o;
     switch(mode) {
       case BulletFlag::AIMED:
@@ -74,22 +73,22 @@ struct BulletMgr {
       }
   }
 
-  void setCount(const uint16_t l, const uint16_t c) {
+  void setCount(const uint16_t l, const uint16_t c) noexcept{
     this->layers = l;
     this->count = c;
     positions.resize(l*c+1);
   }
 
-  void setSpeed(const float s1, const float s2) {
+  void setSpeed(const float s1, const float s2) noexcept{
     this->speed1 = s1;
     this->speed2 = s2;
   }
 
-  void setType(const BulletSprite s) {
+  void setType(const BulletSprite s) noexcept {
     sprite = tm.eBulletSprites[static_cast<int>(s)];
   }
 
-  void setAngle(float a1, float a2, Vec2* p = nullptr) {
+  void setAngle(float a1, float a2, Vec2* p = nullptr) noexcept {
     float add = 0;
     switch(mode) {
     case BulletFlag::AIMED:
@@ -101,6 +100,7 @@ struct BulletMgr {
         }
       this->ang1 = (*p - this->origin).norm().face_velocity() + a1 + add;
       this->ang2 = a2;
+      break;
     case BulletFlag::NORM:
       this->ang1 = a1;
       this->ang2 = a2;
@@ -114,7 +114,7 @@ struct BulletMgr {
     }
   }
 
-  void update() {
+  void update() noexcept {
 
     switch(mode) {
 
@@ -159,27 +159,27 @@ struct BulletMgr {
     }
   }
 
-  void draw() {
+  void draw() noexcept {
     Color cols[4] = { WHITE, RED, GREEN, PURPLE };
     for(int i = 0; i < layers; ++i) {
       for(int j = 0; j < count; ++j) {
-          Rectangle ps_hitbox = Rectangle{
-                  getPos(i, j).vec.x, 
-                  getPos(i, j).vec.y, 
-                  static_cast<float>(sprite.width ), 
-                  static_cast<float>(sprite.height )
-                };
+        Rectangle ps_hitbox = Rectangle{
+                getPos(i, j).vec.x, 
+                getPos(i, j).vec.y, 
+                static_cast<float>(sprite.width ), 
+                static_cast<float>(sprite.height )
+        };
         DrawTexturePro(
-            this->sprite, 
-            { 
-              0,
-              0,
-              static_cast<float>(sprite.width),
-              static_cast<float>(sprite.height)
-            },
-            ps_hitbox,
-            {(float)sprite.width / 2 , (float)sprite.height / 2 },
-            Vec2(origin - getPos(i, j)).face_velocity(), WHITE);
+          this->sprite, 
+          { 
+            0,
+            0,
+            static_cast<float>(sprite.width),
+            static_cast<float>(sprite.height)
+          },
+          ps_hitbox,
+          {(float)sprite.width / 2 , (float)sprite.height / 2 },
+          Vec2(origin - getPos(i, j)).face_velocity(), WHITE);
       }
     }
   }

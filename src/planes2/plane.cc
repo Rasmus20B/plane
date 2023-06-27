@@ -18,11 +18,8 @@ namespace plane {
     SetTargetFPS(60);
 
     int gamepad = 0;
-
     int exp = 0;
-
     initTextureManager(tm);
-
     ProjectilePool e_ps;
     projectilePoolInit(e_ps, 5000);
     ProjectilePool p_ps;
@@ -64,17 +61,25 @@ namespace plane {
 
       if(frame_count % 75 == 0) {
         Vec2 *m = new Vec2{mx, my};
-
-
-        plane::BulletMgr b {
-          .mode = BulletFlag::NORM,
+        plane::BulletMgr b1 {
+          .mode = BulletFlag::AIMED,
         };
-        b.setCount(14, 14);
-        b.setOrigin({config.screen_width / 2 , 300});
-        b.setAngle(100, 2, m);
-        b.setSpeed(3, 1);
-        b.setType(BulletSprite::BLADE_01);
-        bs.push_back(b);
+        b1.setCount(2, 3);
+        b1.setOrigin({config.screen_width / 2 , 300});
+        b1.setAngle(0, 15, m);
+        b1.setSpeed(3, 1);
+        b1.setType(BulletSprite::BLADE_01);
+        bs.push_back(b1);
+
+        plane::BulletMgr b2 {
+          .mode = BulletFlag::AIMED,
+        };
+        b2.setCount(3, 4);
+        b2.setOrigin({config.screen_width / 2 , 300});
+        b2.setAngle(0, 15, m);
+        b2.setSpeed(3, 3);
+        b2.setType(BulletSprite::ORB_02);
+        bs.push_back(b2);
         delete m;
       }
       frame_count++;
