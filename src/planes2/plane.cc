@@ -19,6 +19,7 @@ namespace plane {
 
     int gamepad = 0;
     int exp = 0;
+    bool micro;
     initTextureManager(tm);
     ProjectilePool e_ps;
     projectilePoolInit(e_ps, 5000);
@@ -49,8 +50,6 @@ namespace plane {
       ClearBackground(BLACK);
 
       BeginDrawing();
-      float mx = GetMouseX();
-      float my = GetMouseY();
 
       if(IsKeyDown(KEY_UP)) {
         p.pos.y -= p.speed;
@@ -65,6 +64,13 @@ namespace plane {
         p.pos.x -= p.speed;
       }
 
+      if(IsKeyDown(KEY_LEFT_SHIFT)) {
+        micro = true;
+        p.speed = 2.5f;
+      } else if(IsKeyReleased(KEY_LEFT_SHIFT)) {
+        micro = false;
+        p.speed = 8.0f;
+      }
       Rectangle p_hitbox = {
         .x = p.pos.x + (p.sprite.width * 0.5f) - (p.in_sprite.width * 0.5f),
         .y = p.pos.y + (p.sprite.height * 0.5f) - (p.in_sprite.height * 0.5f),
@@ -73,11 +79,16 @@ namespace plane {
       };
 
       DrawTextureV(p.sprite, {p.pos.x , p.pos.y }, WHITE);
+
+#ifdef DRAW_HITBOX
       DrawRectangleRec(p_hitbox, RED);
+#endif
 
       for(int i = 0; i < bs.size(); ++i) {
         bs[i].update();
         bs[i].draw();
+
+#ifdef DRAW_HITBOX
         for(int j = 0; j < bs[i].layers; ++j) {
           for(int k = 0; k < bs[i].count; ++k) {
             auto coord = bs[i].getPos(j, k);
@@ -90,21 +101,22 @@ namespace plane {
             DrawRectanglePro(bhitbox, {bs[i].sprite.width * 0.5f, bs[i].sprite.height * 0.5f},Vec2(bs[i].origin - bs[i].getPos(j, k)).face_velocity(), GetColor(0xff000088));
           }
         }
+#endif
         if(bs[i].collision_check(p_hitbox)) {
           std::cout << "HIT*: " << frame_count << "\n";
         }
-        DrawLineV({mx, my}, bs[0].origin.vec, GREEN);
+        DrawLineV(p.pos, bs[0].origin.vec, GREEN);
       }
 
+      Vec2 ploc = Vec2{p.pos};
 
       if(frame_count % 75 == 0) {
-        Vec2 *m = new Vec2{mx, my};
         plane::BulletMgr b1 {
           .mode = BulletFlag::AIMED,
         };
         b1.setCount(2, 3);
         b1.setOrigin({config.screen_width / 2 , 300});
-        b1.setAngle(0, 15, m);
+        b1.setAngle(0, 15, &ploc);
         b1.setSpeed(3, 1);
         b1.setType(BulletSprite::BLADE_01);
         bs.push_back(b1);
@@ -114,11 +126,10 @@ namespace plane {
         };
         b2.setCount(3, 4);
         b2.setOrigin({config.screen_width / 2 , 300});
-        b2.setAngle(0, 15, m);
+        b2.setAngle(0, 15, &ploc);
         b2.setSpeed(3, 3);
         b2.setType(BulletSprite::ORB_02);
         bs.push_back(b2);
-        delete m;
       }
       frame_count++;
 
@@ -155,13 +166,6 @@ namespace plane {
           }
         }
 
-        if(IsKeyDown(KEY_LEFT_SHIFT)) {
-          micro = true;
-          p.speed = 2.5f;
-        } else if(IsKeyReleased(KEY_LEFT_SHIFT)) {
-          micro = false;
-          p.speed = 8.0f;
-        }
 
         if(IsKeyDown(KEY_SPACE)) {
           if(time - p.last_shot > 0.10) {
