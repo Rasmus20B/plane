@@ -68,16 +68,30 @@ namespace plane {
       Rectangle p_hitbox = {
         .x = p.pos.x + (p.sprite.width * 0.5f) - (p.in_sprite.width * 0.5f),
         .y = p.pos.y + (p.sprite.height * 0.5f) - (p.in_sprite.height * 0.5f),
-        .width = (float)p.sprite.width,
-        .height = (float)p.sprite.height
+        .width = (float)p.in_sprite.width,
+        .height = (float)p.in_sprite.height
       };
 
-      DrawTextureV(p.sprite, {p.pos.x - (p.sprite.width / 2.0f), p.pos.y - (p.sprite.height / 2.0f) }, WHITE);
+      DrawTextureV(p.sprite, {p.pos.x , p.pos.y }, WHITE);
+      DrawRectangleRec(p_hitbox, RED);
+
       for(int i = 0; i < bs.size(); ++i) {
         bs[i].update();
         bs[i].draw();
+        for(int j = 0; j < bs[i].layers; ++j) {
+          for(int k = 0; k < bs[i].count; ++k) {
+            auto coord = bs[i].getPos(j, k);
+            Rectangle bhitbox = {
+              coord.x(),
+              coord.y(),
+              (float)bs[i].sprite.width,
+              (float)bs[i].sprite.height
+            };
+            DrawRectanglePro(bhitbox, {bs[i].sprite.width * 0.5f, bs[i].sprite.height * 0.5f},Vec2(bs[i].origin - bs[i].getPos(j, k)).face_velocity(), GetColor(0xff000088));
+          }
+        }
         if(bs[i].collision_check(p_hitbox)) {
-          std::cout << "HIT*****\n";
+          std::cout << "HIT*: " << frame_count << "\n";
         }
         DrawLineV({mx, my}, bs[0].origin.vec, GREEN);
       }

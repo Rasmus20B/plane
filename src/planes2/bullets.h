@@ -202,9 +202,9 @@ struct BulletMgr {
             };
             if(CheckCollisionRecsAngle(
                   hitbox,
-                  RAD(0.0f),
+                  RAD(0.f),
                   ps_hitbox,
-                  RAD(ang1)
+                  RAD(Vec2(origin - getPos(i, j)).face_velocity())
                   )) {
               return true;
             }
@@ -215,7 +215,18 @@ struct BulletMgr {
       case BulletSprite::ORB_02:
         for(int i = 0; i < layers; ++i) {
           for(int j = 0; j < count; ++j) {
-            if(CheckCollisionCircleRec(getPos(i, j).vec, sprite.width * 0.5, hitbox)) {
+            Rectangle ps_hitbox = Rectangle{
+                    getPos(i, j).vec.x, 
+                    getPos(i, j).vec.y, 
+                    static_cast<float>(sprite.width), 
+                    static_cast<float>(sprite.height)
+            };
+            if(CheckCollisionRecsAngle(
+                  hitbox,
+                  RAD(0.f),
+                  ps_hitbox,
+                  RAD(Vec2(origin - getPos(i, j)).face_velocity())
+                  )) {
               return true;
             }
           }
