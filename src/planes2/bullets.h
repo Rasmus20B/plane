@@ -54,6 +54,7 @@ struct BulletMgr {
   void update() noexcept;
 
   void draw() noexcept;
+  void drawHitbox() noexcept;
 
   bool collision_check(const Rectangle& hitbox);
 };

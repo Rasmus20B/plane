@@ -126,6 +126,24 @@ namespace plane {
     }
   }
 
+  void BulletMgr::drawHitbox() noexcept {
+
+    for(int j = 0; j < this->layers; ++j) {
+      for(int k = 0; k < this->count; ++k) {
+        auto coord = this->getPos(j, k);
+        Rectangle bhitbox = {
+          coord.x(),
+          coord.y(),
+          (float)this->sprite.width,
+          (float)this->sprite.height
+        };
+        DrawRectanglePro(bhitbox, {this->sprite.width * 0.5f, this->sprite.height * 0.5f},Vec2(this->origin - this->getPos(j, k)).face_velocity(), GetColor(0xff000088));
+      }
+    }
+    return;
+
+  }
+
   void BulletMgr::draw() noexcept {
     Color cols[4] = { WHITE, RED, GREEN, PURPLE };
     for(int i = 0; i < layers; ++i) {

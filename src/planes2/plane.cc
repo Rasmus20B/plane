@@ -80,32 +80,18 @@ namespace plane {
 
       DrawTextureV(p.sprite, {p.pos.x , p.pos.y }, WHITE);
 
-#ifdef DRAW_HITBOX
-      DrawRectangleRec(p_hitbox, RED);
-#endif
-
       for(int i = 0; i < bs.size(); ++i) {
         bs[i].update();
         bs[i].draw();
 
 #ifdef DRAW_HITBOX
-        for(int j = 0; j < bs[i].layers; ++j) {
-          for(int k = 0; k < bs[i].count; ++k) {
-            auto coord = bs[i].getPos(j, k);
-            Rectangle bhitbox = {
-              coord.x(),
-              coord.y(),
-              (float)bs[i].sprite.width,
-              (float)bs[i].sprite.height
-            };
-            DrawRectanglePro(bhitbox, {bs[i].sprite.width * 0.5f, bs[i].sprite.height * 0.5f},Vec2(bs[i].origin - bs[i].getPos(j, k)).face_velocity(), GetColor(0xff000088));
-          }
-        }
+        DrawRectangleRec(p_hitbox, RED);
+        bs[i].drawHitbox();
+        DrawLineV(p.pos, bs[0].origin.vec, GREEN);
 #endif
         if(bs[i].collision_check(p_hitbox)) {
           std::cout << "HIT*: " << frame_count << "\n";
         }
-        DrawLineV(p.pos, bs[0].origin.vec, GREEN);
       }
 
       Vec2 ploc = Vec2{p.pos};
@@ -114,21 +100,21 @@ namespace plane {
         plane::BulletMgr b1 {
           .mode = BulletFlag::AIMED,
         };
-        b1.setCount(2, 3);
+        b1.setCount(5, 3);
         b1.setOrigin({config.screen_width / 2 , 300});
         b1.setAngle(0, 15, &ploc);
-        b1.setSpeed(3, 1);
+        b1.setSpeed(5, 4);
         b1.setType(BulletSprite::BLADE_01);
         bs.push_back(b1);
 
         plane::BulletMgr b2 {
           .mode = BulletFlag::AIMED,
         };
-        b2.setCount(3, 4);
+        b2.setCount(12, 8);
         b2.setOrigin({config.screen_width / 2 , 300});
-        b2.setAngle(0, 15, &ploc);
-        b2.setSpeed(3, 3);
-        b2.setType(BulletSprite::ORB_02);
+        b2.setAngle(0, 50, &ploc);
+        b2.setSpeed(1, 1);
+        b2.setType(BulletSprite::ORB_01);
         bs.push_back(b2);
       }
       frame_count++;
