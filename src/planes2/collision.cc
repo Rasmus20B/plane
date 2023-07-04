@@ -50,11 +50,8 @@ namespace plane {
 
 #elif __x86_64__
 
+
 #endif
-    float min1 = std::numeric_limits<float>().max();
-    float max1 = std::numeric_limits<float>().min();
-    float min2 = std::numeric_limits<float>().max();
-    float max2 = std::numeric_limits<float>().min();
 
     for(int i = 0; i < 4; ++i) {
       float dx = cs1[(i+1) % 4].vec.x - cs1[i].vec.x;
@@ -62,6 +59,10 @@ namespace plane {
       Vec2 edge = cs1[(i+1) % 4] - cs1[i];
       Vector2 axis = {-edge.vec.y, edge.vec.x};
 
+      float min1 = std::numeric_limits<float>().max();
+      float max1 = std::numeric_limits<float>().min();
+      float min2 = std::numeric_limits<float>().max();
+      float max2 = std::numeric_limits<float>().min();
       for(int j = 0; j < 4; ++j) {
         float proj1 = cs1[j].dot(Vec2{axis});
         float proj2 = cs2[j].dot(Vec2{axis});
@@ -82,6 +83,10 @@ namespace plane {
       Vec2 edge = cs2[(i+1) % 4] - cs2[i];
       Vector2 axis = {-edge.vec.y, edge.vec.x};
 
+      float min1 = std::numeric_limits<float>().max();
+      float max1 = std::numeric_limits<float>().min();
+      float min2 = std::numeric_limits<float>().max();
+      float max2 = std::numeric_limits<float>().min();
       for(int j = 0; j < 4; ++j) {
         float proj1 = cs2[j].dot(Vec2{axis});
         float proj2 = cs1[j].dot(Vec2{axis});

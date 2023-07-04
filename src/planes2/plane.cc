@@ -121,7 +121,7 @@ namespace plane {
         b2.setOrigin({config.screen_width / 2 , 300});
         b2.setAngle(0, 25, &ploc);
         b2.setSpeed(1, 1);
-        b2.setType(BulletSprite::ORB_01);
+        b2.setType(BulletSprite::PELLET_01);
         bs.push_back(b2);
       }
       frame_count++;

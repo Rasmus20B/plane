@@ -20,7 +20,9 @@ struct alignas(64) Queue{
   }
 
   bool push(T val) {
+#ifdef MULTI_T
     std::scoped_lock<std::mutex> lock(m);
+#endif
     if(this->full()) return false;
     if(head == capacity && !populated[0]) {
       head = 0;
@@ -36,7 +38,9 @@ struct alignas(64) Queue{
   }
 
   void pop() {
+#ifdef MULTI_T
     std::scoped_lock<std::mutex> lock(m);
+#endif
     if(tail == head) return;
     if(tail == capacity) tail = 0;
     if(head > tail) {
@@ -46,7 +50,9 @@ struct alignas(64) Queue{
   }
   
   std::optional<T> pop_and_get() {
+#ifdef MULTI_T
     std::scoped_lock<std::mutex> lock(m);
+#endif
     if(populated[tail]){ 
       if(tail == capacity - 1) {
         tail = 0;
@@ -61,7 +67,9 @@ struct alignas(64) Queue{
   }
 
   std::optional<T> front() {
+#ifdef MULTI_T
     std::scoped_lock<std::mutex> lock(m);
+#endif
     return buf[tail];
   }
 
@@ -69,5 +77,7 @@ struct alignas(64) Queue{
   std::array<bool, N> populated{};
   size_t head = 0, tail = 0;
   size_t capacity = N, size = 0;
+#ifdef MULTI_T
   std::mutex m;
+#endif
 };

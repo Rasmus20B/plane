@@ -193,10 +193,12 @@ namespace plane {
       case BulletSprite::ORB_03:
         for(int i = 0; i < layers; ++i) {
           for(int j = 0; j < count; ++j) {
-            if(CheckCollisionCircleRec(getPos(i, j).vec, sprite.width * 0.5, hitbox)) 
+            if(CheckCollisionCircleRec(getPos(i, j).vec, sprite.width * 0.5, hitbox)) {
               return true;
+            }
           }
         }
+        break;
       default:
         break;
     }

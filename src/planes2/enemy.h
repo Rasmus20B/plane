@@ -29,8 +29,8 @@ namespace plane {
   };
 
   struct Enemy {
-    std::vector<Vec2> points;
     std::array<BulletMgr, 16> danmaku;
+    std::vector<Vec2> points;
     std::vector<float> stopstarts;
     uint32_t size;
     float health;
@@ -55,9 +55,9 @@ namespace plane {
     std::vector<std::unordered_map<int, ProjectilePool>> shots;
     std::vector<std::vector<float>> stopstarts;
     std::vector<float> health;
-    std::vector<bool> looped;
     std::vector<float> spawntimes;
     std::vector<EnemyState> states;
+    std::vector<bool> looped;
 #ifdef MULTI_T
     std::mutex m;
 #endif
