@@ -11,6 +11,11 @@ namespace plane {
   }
 
   void main_loop() {
+
+#ifdef __arm64__
+    bool v = __has_attribute(ext_vector_type);
+#endif
+
     srand(time(0));
 
     SetConfigFlags(FLAG_MSAA_4X_HINT);
@@ -45,6 +50,8 @@ namespace plane {
     load_stage1enemies(tm, enemies);
 
     std::vector<BulletMgr> bs;
+
+    std::cout << v << "\n";
 
     while(!WindowShouldClose()) {
       ClearBackground(BLACK);
@@ -103,7 +110,7 @@ namespace plane {
         b1.setCount(5, 3);
         b1.setOrigin({config.screen_width / 2 , 300});
         b1.setAngle(0, 15, &ploc);
-        b1.setSpeed(5, 4);
+        b1.setSpeed(3, 2);
         b1.setType(BulletSprite::BLADE_01);
         bs.push_back(b1);
 
@@ -112,7 +119,7 @@ namespace plane {
         };
         b2.setCount(12, 8);
         b2.setOrigin({config.screen_width / 2 , 300});
-        b2.setAngle(0, 50, &ploc);
+        b2.setAngle(0, 25, &ploc);
         b2.setSpeed(1, 1);
         b2.setType(BulletSprite::ORB_01);
         bs.push_back(b2);

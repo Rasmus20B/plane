@@ -11,13 +11,6 @@ namespace plane {
     origin = o;
     switch(mode) {
       case BulletFlag::AIMED:
-        for(int i = 0; i < layers; ++i) {
-          for(int j = 0; j < count; ++j) {
-            getPos(i, j).x() = origin.x() + (cos(RAD(ang1) + RAD(ang2) * j + 1));
-            getPos(i, j).y() = origin.y() + (sin(RAD(ang1) + RAD(ang2) * j + 1));
-          }
-        }
-        break;
       case BulletFlag::NORM:
         for(int i = 0; i < layers; ++i) {
           for(int j = 0; j < count; ++j) {
@@ -137,11 +130,13 @@ namespace plane {
           (float)this->sprite.width,
           (float)this->sprite.height
         };
-        DrawRectanglePro(bhitbox, {this->sprite.width * 0.5f, this->sprite.height * 0.5f},Vec2(this->origin - this->getPos(j, k)).face_velocity(), GetColor(0xff000088));
+        DrawRectanglePro(bhitbox, 
+            {this->sprite.width * 0.5f, this->sprite.height * 0.5f},
+            Vec2(this->origin - this->getPos(j, k)).face_velocity(), 
+            GetColor(0xff000088));
       }
     }
     return;
-
   }
 
   void BulletMgr::draw() noexcept {
@@ -172,27 +167,8 @@ namespace plane {
   bool BulletMgr::collision_check(const Rectangle& hitbox) {
     bool hit = false;
     switch(this->type) {
+      case BulletSprite::PELLET_01:
       case BulletSprite::BLADE_01:
-        for(int i = 0; i < layers; ++i) {
-          for(int j = 0; j < count; ++j) {
-            Rectangle ps_hitbox = Rectangle{
-                    getPos(i, j).vec.x, 
-                    getPos(i, j).vec.y, 
-                    static_cast<float>(sprite.width), 
-                    static_cast<float>(sprite.height)
-            };
-            if(CheckCollisionRecsAngle(
-                  hitbox,
-                  RAD(0.f),
-                  ps_hitbox,
-                  RAD(Vec2(origin - getPos(i, j)).face_velocity())
-                  )) {
-              return true;
-            }
-
-            }
-          }
-        break;
       case BulletSprite::ORB_02:
         for(int i = 0; i < layers; ++i) {
           for(int j = 0; j < count; ++j) {
@@ -213,6 +189,14 @@ namespace plane {
           }
         }
         break;
+      case BulletSprite::ORB_01:
+      case BulletSprite::ORB_03:
+        for(int i = 0; i < layers; ++i) {
+          for(int j = 0; j < count; ++j) {
+            if(CheckCollisionCircleRec(getPos(i, j).vec, sprite.width * 0.5, hitbox)) 
+              return true;
+          }
+        }
       default:
         break;
     }

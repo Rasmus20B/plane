@@ -40,22 +40,14 @@ struct BulletMgr {
   BulletSprite type;
 
   Vec2& getPos(const int r, const int c) noexcept;
-
   void setOrigin(const Vec2 o) noexcept;
-
   void setCount(const uint16_t l, const uint16_t c) noexcept;
-
   void setSpeed(const float s1, const float s2) noexcept;
-
   void setType(const BulletSprite s) noexcept;
-
   void setAngle(float a1, float a2, Vec2* p ) noexcept;
-
   void update() noexcept;
-
   void draw() noexcept;
   void drawHitbox() noexcept;
-
   bool collision_check(const Rectangle& hitbox);
 };
 }

@@ -19,6 +19,7 @@ add_executable(${PROJECT_NAME}
   planes2/stage1.h
   planes2/texture.h
   planes2/texture.cc
+  planes2/timeline.h
   planes2/move.h
   planes2/move.cc
   # planes1/main.cc

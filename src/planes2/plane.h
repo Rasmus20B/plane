@@ -17,13 +17,14 @@
 #include "../common/vector_calc.h"
 #include "../common/config.h"
 
+#include "collision.h"
 #include "enemy.h"
+#include "move.h"
 #include "player.h"
 #include "projectile.h"
 #include "stage1.h"
 #include "texture.h"
-#include "move.h"
-#include "collision.h"
+#include "timeline.h"
 
 namespace plane {
   void main_loop();
