@@ -57,8 +57,6 @@ namespace plane {
 
     std::unordered_map<uint32_t, bool> liveBMs;
 
-    std::cout << v << "\n";
-
     while(!WindowShouldClose()) {
       ClearBackground(BLACK);
 
