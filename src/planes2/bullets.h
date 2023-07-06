@@ -51,7 +51,7 @@ struct BulletMgr {
   void update() noexcept;
   void draw() noexcept;
   void drawHitbox() noexcept;
-  bool collision_check(const Rectangle& hitbox);
+  bool collision_check(const Rectangle& hitbox) noexcept;
   bool OutOfBounds(Vec2 pos, const float width, const float height) noexcept;
 };
 }

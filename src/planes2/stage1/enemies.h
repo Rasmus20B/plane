@@ -1,8 +1,8 @@
 #pragma once
 
-// #include "../timeline.h"
+#include "../timeline.h"
 
-// namespace plane {
+namespace plane {
 //   void burst_ship01(timeline& tm) {
 //
 //     /* define bullets. */
@@ -13,4 +13,6 @@
 //
 //   }
 //
-// }
+  
+  int load_enemies();
+}

@@ -22,8 +22,8 @@ namespace plane {
       case BulletFlag::RING_AIMED:
         for(int i = 0; i < layers; ++i) {
           for(int j = 0; j < count; ++j) {
-            getPos(i, j).x() = origin.x() + (cos(RAD(360.f / j * i + 1) * j * i) + RAD(ang2) * j + 1);
-            getPos(i, j).y() = origin.y() + (sin(RAD(360.f / j * i + 1) * j * i) + RAD(ang2) * j + 1);
+            getPos(i, j).x() = origin.x() + (cos(RAD(j + 1 * i + 1 / 360.f ) * j + 1 * i + 1) + RAD(ang2) * j + 1);
+            getPos(i, j).y() = origin.y() + (sin(RAD(j + 1 * i + 1 / 360.f ) * j + 1 * i + 1) + RAD(ang2) * j + 1);
           }
         }
         break;
@@ -38,6 +38,7 @@ namespace plane {
     positions.resize(l*c);
 
     oobs.resize(l*c);
+    /* set first element of out of bounds to true to allow adjacent find later */
     oobs[0] = true;
   }
 
@@ -55,8 +56,9 @@ namespace plane {
     for(int i = 0; i < layers; ++i) {
       for(int j = 0; j < count; ++j) {
         if(OutOfBounds(getPos(i, j), config.screen_width, config.screen_height)) {
-          this->oobs[(j * layers + i)] = true;
+          this->oobs[j * layers + i] = true;
         }
+        std::cout << getPos(i, j).x() << " , " << getPos(i,j).y() << "\n";
       }
     }
   }
@@ -113,8 +115,8 @@ namespace plane {
         for(int i = 0; i < layers; ++i) {
           float lspeed = (speed1 + speed2) / (float(layers + 1) / (i + 1));
           for(int j = 0; j < count; ++j) {
-            getPos(i, j).x() += (cos(RAD(360.f/ ang1 * j + 1 * i + 1) + (RAD(360.f / ang2) * i + 1 *j + 1)) * lspeed);
-            getPos(i, j).y() += (sin(RAD(360.f/ ang1  * j + 1 * i + 1) + (RAD(360.f / ang2) * i + 1 *j + 1)) * lspeed);
+            getPos(i, j).x() += (cos(RAD(360.f/ ang1 * j  * i ) + (RAD(360.f / ang2) * i  * j )) * lspeed);
+            getPos(i, j).y() += (sin(RAD(360.f/ ang1  * j  * i ) + (RAD(360.f / ang2) * i  * j )) * lspeed);
           }
         }
         break;
@@ -122,7 +124,7 @@ namespace plane {
         for(int i = 0; i < layers; ++i) {
           float lspeed = (speed1 + speed2) / (float(layers + 1) / (i + 1));
           for(int j = 0; j < count; ++j) {
-            getPos(i, j).y() += (float)(RAD(ang2) + cos(RAD( 360.0f / (j + 1)) ) ) * lspeed;
+            getPos(i, j).x() += (float)(RAD(ang2) + cos(RAD( 360.0f / (j + 1)) ) ) * lspeed;
             getPos(i, j).y() += (float)(RAD(ang2) + sin(RAD( 360.0f / (j + 1)) ) ) * lspeed;
           }
         }
@@ -133,7 +135,6 @@ namespace plane {
   }
 
   void BulletMgr::drawHitbox() noexcept {
-
     for(int j = 0; j < this->layers; ++j) {
       for(int k = 0; k < this->count; ++k) {
         auto coord = this->getPos(j, k);
@@ -177,7 +178,7 @@ namespace plane {
     }
   }
 
-  bool BulletMgr::collision_check(const Rectangle& hitbox) {
+  bool BulletMgr::collision_check(const Rectangle& hitbox) noexcept {
     switch(this->type) {
       case BulletSprite::PELLET_01:
       case BulletSprite::BLADE_01:

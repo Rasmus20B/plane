@@ -103,13 +103,22 @@ namespace plane {
         DrawLineV(p.pos, bs[0].origin.vec, GREEN);
 #endif
 
-        bs[i].setOutOfBounds();
         if(bs[i].collision_check(p_hitbox)) {
-          std::cout << "HIT*: " << frame_count << "\n";
+          // std::cout << "HIT*: " << frame_count << "\n";
         }
+
+        bs[i].setOutOfBounds();
+
+        std::cout << i << " : "; 
+        for(auto i : bs[i].oobs) {
+          std::cout << i << ", ";
+        }
+        std::cout << "\n";
+
 
         bool ded = (std::adjacent_find(bs[i].oobs.begin(), bs[i].oobs.end(), std::not_equal_to<bool>()) == bs[i].oobs.end());
         if(ded) {
+          std::cout << "deleting : " << i << "\n";
           liveBMs.erase(i);
         }
       }
@@ -117,29 +126,29 @@ namespace plane {
       Vec2 ploc = Vec2{p.pos};
 
       if(frame_count % 200 == 0) {
-        plane::BulletMgr b1 {
-          .mode = BulletFlag::AIMED,
-        };
-        b1.setCount(2, 4);
-        b1.setOrigin({config.screen_width / 2 , 300});
-        b1.setAngle(6, 15, &ploc);
-        b1.setSpeed(12, 12);
-        b1.setType(BulletSprite::BLADE_01);
-        bs.push_back(b1);
+        // plane::BulletMgr b1 {
+        //   .mode = BulletFlag::AIMED,
+        // };
+        // b1.setCount(6, 6);
+        // b1.setOrigin({config.screen_width / 2 , 300});
+        // b1.setAngle(6, 15, &ploc);
+        // b1.setSpeed(12, 12);
+        // b1.setType(BulletSprite::BLADE_01);
+        // bs.push_back(b1);
 
-        liveBMs[bs.size() - 1] = true;
+        liveBMs[bs.size()] = true;
 
         plane::BulletMgr b2 {
           .mode = BulletFlag::RING_AIMED,
         };
-        b2.setCount(12, 8);
-        b2.setOrigin({config.screen_width / 2 , 300});
-        b2.setAngle(0, 25, &ploc);
-        b2.setSpeed(1, 1);
-        b2.setType(BulletSprite::PELLET_01);
+        b2.setCount(3, 3);
+        b2.setOrigin({rand_f(config.screen_width) , 300});
+        b2.setAngle(0, 15, &ploc);
+        b2.setSpeed(7, 7);
+        b2.setType(BulletSprite::ORB_03);
         bs.push_back(b2);
-        
-        liveBMs[bs.size() - 1] = true;
+
+        liveBMs[bs.size()] = true;
       }
       frame_count++;
 
@@ -208,13 +217,6 @@ namespace plane {
 
         DrawTextureEx(bgw, {0, bgw_scroll}, 0.0f, 1.0f, WHITE);
         DrawTextureEx(bgw, {0, -(bgw.height - bgw_scroll)}, 0.0f, 1.0f, WHITE);
-
-        // Rectangle p_hitbox = {
-        //           p.pos.x + (0.5f * p.sprite.width) - (0.5f * p.in_sprite.width),
-        //           p.pos.y + (0.5f * p.sprite.height) - (0.5f * p.in_sprite.height), 
-        //           (float)p.in_sprite.width, 
-        //           (float)p.in_sprite.height 
-        // };
 
         if(!p.d_time) {
           DrawTextureV(p.sprite, {p.pos.x - (p.sprite.width / 2.0f), p.pos.y - (p.sprite.height / 2.0f) }, WHITE);

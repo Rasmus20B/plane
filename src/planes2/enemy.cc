@@ -2,6 +2,10 @@
 
 namespace plane {
 
+  void enmCreate(EnemyPool& ep, const float x, const float y,
+    const uint16_t health, const uint16_t score, 
+    const uint16_t items);
+
   void enemyPoolInit(EnemyPool& ep, size_t sz) {
 #ifdef MULTI_T
     std::scoped_lock<std::mutex> lock(ep.m);

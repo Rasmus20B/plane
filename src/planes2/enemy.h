@@ -19,7 +19,6 @@
 
 namespace plane {
 
-  // void enmCreate(Enemy& e, float x, float y, uint16_t health, uint16_t score, uint16_t item);
 
   enum class EnemyAttrs {
     ENEMY_ATTR_NORM
@@ -33,7 +32,7 @@ namespace plane {
   struct Enemy {
     std::array<BulletMgr, 16> danmaku;
     std::vector<Vec2> points;
-    std::vector<float> stopstarts;
+    std::vector<int> stopstarts;
     uint32_t size;
     float health;
     float speed;
@@ -53,9 +52,10 @@ namespace plane {
 
   struct EnemyPool {
     std::vector<EnemySpatial> space;
+    std::vector<std::array<BulletMgr, 16>> dnmku;
     std::vector<Texture2D> sprite;
     std::vector<std::unordered_map<int, ProjectilePool>> shots;
-    std::vector<std::vector<float>> stopstarts;
+    std::vector<std::vector<int>> stopstarts;
     std::vector<float> health;
     std::vector<float> spawntimes;
     std::vector<EnemyState> states;
@@ -65,6 +65,7 @@ namespace plane {
 #endif
   };
 
+  void enmCreate(Enemy& e, uint16_t idx, float x, float y, uint16_t health, uint16_t score, uint16_t item);
   void enemyPoolInit(EnemyPool& ep, size_t sz);
   void addEnemy(EnemyPool& ep, Enemy&& e);
   void addEnemy(EnemyPool& ep, Enemy& e);

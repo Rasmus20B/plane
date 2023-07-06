@@ -10,8 +10,8 @@
 namespace plane {
 
   struct stage1 {
-    void load_state1Timeline(Queue<std::pair<uint32_t, std::array<uint16_t, 16>>, 256>& timeline) {
-     
+    void load_stage1Timeline(Queue<std::pair<uint32_t, std::array<uint16_t, 16>>, 256>& timeline) {
+      // timeline stage1;
     }
   };
 }
