@@ -1,5 +1,6 @@
 #pragma once
 #include "../common/vector_calc.h"
+#include "../common/config.h"
 
 #include "texture.h"
 #include "collision.h"
@@ -26,16 +27,17 @@ enum class BulletSprite : uint8_t {
 };
 
 struct BulletMgr {
+
   Texture2D sprite;
   std::vector<Vec2> positions;
+  std::vector<bool> oobs;
   Vec2 origin;
   float ang1;
   float ang2;
   float speed1;
   float speed2;
-  uint32_t entry_frame;
-  uint16_t count;
-  uint16_t layers;
+  uint8_t count;
+  uint8_t layers;
   BulletFlag mode;
   BulletSprite type;
 
@@ -45,9 +47,11 @@ struct BulletMgr {
   void setSpeed(const float s1, const float s2) noexcept;
   void setType(const BulletSprite s) noexcept;
   void setAngle(float a1, float a2, Vec2* p ) noexcept;
+  void setOutOfBounds() noexcept;
   void update() noexcept;
   void draw() noexcept;
   void drawHitbox() noexcept;
   bool collision_check(const Rectangle& hitbox);
+  bool OutOfBounds(Vec2 pos, const float width, const float height) noexcept;
 };
 }

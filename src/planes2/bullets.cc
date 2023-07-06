@@ -35,7 +35,10 @@ namespace plane {
   void BulletMgr::setCount(const uint16_t l, const uint16_t c) noexcept{
     this->layers = l;
     this->count = c;
-    positions.resize(l*c+1);
+    positions.resize(l*c);
+
+    oobs.resize(l*c);
+    oobs[0] = true;
   }
 
   void BulletMgr::setSpeed(const float s1, const float s2) noexcept{
@@ -46,6 +49,16 @@ namespace plane {
   void BulletMgr::setType(const BulletSprite s) noexcept {
     sprite = tm.eBulletSprites[static_cast<int>(s)];
     type = s;
+  }
+
+  void BulletMgr::setOutOfBounds() noexcept {
+    for(int i = 0; i < layers; ++i) {
+      for(int j = 0; j < count; ++j) {
+        if(OutOfBounds(getPos(i, j), config.screen_width, config.screen_height)) {
+          this->oobs[(j * layers + i)] = true;
+        }
+      }
+    }
   }
 
   void BulletMgr::setAngle(float a1, float a2, Vec2* p = nullptr) noexcept {
@@ -77,13 +90,13 @@ namespace plane {
   void BulletMgr::update() noexcept {
 
     switch(mode) {
-
       case BulletFlag::AIMED:
         for(int i = 0; i < layers; ++i) {
           float lspeed = (speed1 + speed2) / (float(layers + 1) / (i + 1));
           for(int j = 0; j < count; ++j) {
-            getPos(i, j).x() += (cos(RAD(ang1) + RAD(ang2) * j) * lspeed);
-            getPos(i, j).y() += (sin(RAD(ang1) + RAD(ang2) * j) * lspeed);
+            Vec2 *pos = &getPos(i, j);
+            pos->x() += (cos(RAD(ang1) + RAD(ang2) * j) * lspeed);
+            pos->y() += (sin(RAD(ang1) + RAD(ang2) * j) * lspeed);
           }
         }
         break;
@@ -165,7 +178,6 @@ namespace plane {
   }
 
   bool BulletMgr::collision_check(const Rectangle& hitbox) {
-    bool hit = false;
     switch(this->type) {
       case BulletSprite::PELLET_01:
       case BulletSprite::BLADE_01:
@@ -202,6 +214,13 @@ namespace plane {
       default:
         break;
     }
-    return hit;
+    return false;
+  }
+
+  bool BulletMgr::OutOfBounds(Vec2 pos, const float width, const float height) noexcept {
+    if(pos.x() > width || pos.y() > height || pos.x() < 0 || pos.y() < 0) {
+      return true;
+    }
+    return false;
   }
 }

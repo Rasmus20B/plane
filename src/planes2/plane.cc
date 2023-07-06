@@ -47,9 +47,15 @@ namespace plane {
     bool pause = false;
     Player p;
 
-    load_stage1enemies(tm, enemies);
+    /* timeline will be a queue where only the front is checked per frame.
+     * At most 4 enemies 'types' can spawned. 
+     * Queue will give indexes for use in array */
+    Queue<std::pair<uint32_t, std::array<uint16_t, 4>>, 256> timeline;
+    std::array<Enemy, 256> ents;
 
     std::vector<BulletMgr> bs;
+
+    std::unordered_map<uint32_t, bool> liveBMs;
 
     std::cout << v << "\n";
 
@@ -88,6 +94,8 @@ namespace plane {
       DrawTextureV(p.sprite, {p.pos.x , p.pos.y }, WHITE);
 
       for(int i = 0; i < bs.size(); ++i) {
+
+        if(!liveBMs[i]) continue;
         bs[i].update();
         bs[i].draw();
 
@@ -96,26 +104,35 @@ namespace plane {
         bs[i].drawHitbox();
         DrawLineV(p.pos, bs[0].origin.vec, GREEN);
 #endif
+
+        bs[i].setOutOfBounds();
         if(bs[i].collision_check(p_hitbox)) {
           std::cout << "HIT*: " << frame_count << "\n";
+        }
+
+        bool ded = (std::adjacent_find(bs[i].oobs.begin(), bs[i].oobs.end(), std::not_equal_to<bool>()) == bs[i].oobs.end());
+        if(ded) {
+          liveBMs.erase(i);
         }
       }
 
       Vec2 ploc = Vec2{p.pos};
 
-      if(frame_count % 75 == 0) {
+      if(frame_count % 200 == 0) {
         plane::BulletMgr b1 {
           .mode = BulletFlag::AIMED,
         };
-        b1.setCount(5, 3);
+        b1.setCount(2, 4);
         b1.setOrigin({config.screen_width / 2 , 300});
-        b1.setAngle(0, 15, &ploc);
-        b1.setSpeed(3, 2);
+        b1.setAngle(6, 15, &ploc);
+        b1.setSpeed(12, 12);
         b1.setType(BulletSprite::BLADE_01);
         bs.push_back(b1);
 
+        liveBMs[bs.size() - 1] = true;
+
         plane::BulletMgr b2 {
-          .mode = BulletFlag::AIMED,
+          .mode = BulletFlag::RING_AIMED,
         };
         b2.setCount(12, 8);
         b2.setOrigin({config.screen_width / 2 , 300});
@@ -123,6 +140,8 @@ namespace plane {
         b2.setSpeed(1, 1);
         b2.setType(BulletSprite::PELLET_01);
         bs.push_back(b2);
+        
+        liveBMs[bs.size() - 1] = true;
       }
       frame_count++;
 

@@ -7,7 +7,7 @@
 
 namespace plane {
 struct Player {
-  Vector2 pos{config.screen_width/10 * 9,(config.screen_height/8) * 6};
+  Vector2 pos{config.screen_width/ 2,(config.screen_height/ 6) * 4};
   float speed = 8.0f;
   short lives = 3;
   float b_size = 0;

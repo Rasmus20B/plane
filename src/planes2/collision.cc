@@ -50,7 +50,6 @@ namespace plane {
 
 #elif __x86_64__
 
-
 #endif
 
     for(int i = 0; i < 4; ++i) {

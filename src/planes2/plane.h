@@ -19,6 +19,7 @@
 
 #include "collision.h"
 #include "enemy.h"
+#include "ent.h"
 #include "move.h"
 #include "player.h"
 #include "projectile.h"

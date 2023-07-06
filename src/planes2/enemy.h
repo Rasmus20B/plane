@@ -19,6 +19,8 @@
 
 namespace plane {
 
+  // void enmCreate(Enemy& e, float x, float y, uint16_t health, uint16_t score, uint16_t item);
+
   enum class EnemyAttrs {
     ENEMY_ATTR_NORM
   };
