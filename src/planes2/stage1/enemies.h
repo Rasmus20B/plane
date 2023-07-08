@@ -1,9 +1,15 @@
 #pragma once
 
 #include "../timeline.h"
+#include "stage1.h"
+#include "../enm.h"
+#include "../bullets.h"
 
 namespace plane {
-//   void burst_ship01(timeline& tm) {
+  Enm burst_enemy01();
+}
+// namespace plane {
+//   void burst_ship01(stage1 s) {
 //
 //     /* define bullets. */
 //
@@ -13,6 +19,6 @@ namespace plane {
 //
 //   }
 //
-  
-  int load_enemies();
-}
+//   
+//   int load_enemies();
+// }

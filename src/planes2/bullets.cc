@@ -58,22 +58,21 @@ namespace plane {
         if(OutOfBounds(getPos(i, j), config.screen_width, config.screen_height)) {
           this->oobs[j * layers + i] = true;
         }
-        std::cout << getPos(i, j).x() << " , " << getPos(i,j).y() << "\n";
+        // std::cout << getPos(i, j).x() << " , " << getPos(i,j).y() << "\n";
       }
     }
   }
 
-  void BulletMgr::setAngle(float a1, float a2, Vec2* p = nullptr) noexcept {
+  void BulletMgr::setAngle(float a1, float a2) noexcept {
     float add = 0;
     switch(mode) {
     case BulletFlag::AIMED:
-      if(!p) return;
-        if(this->count & 1) {
-          add = -90 - (a2 * ((int)(count * 0.5f) + 1)) + a2;
-        } else {
-          add = -90 - (a2 * (count * 0.5f)) + (a2 / (count * 0.5f));
-        }
-      this->ang1 = (*p - this->origin).norm().face_velocity() + a1 + add;
+      if(this->count & 1) {
+        add = -90 - (a2 * ((int)(count * 0.5f) + 1)) + a2;
+      } else {
+        add = -90 - (a2 * (count * 0.5f)) + (a2 / (count * 0.5f));
+      }
+      this->ang1 = a1 + add;
       this->ang2 = a2;
       break;
     case BulletFlag::NORM:
@@ -82,7 +81,7 @@ namespace plane {
       break;
     case  BulletFlag::RING_AIMED:
       add = -90 - (a2 * (count / 2.f)) + (a2 / (count / 2.f));
-      this->ang1 = (*p - this->origin).norm().face_velocity() + a1 + add;
+      this->ang1 = a1 + add;
       this->ang2 = a2;
     default:
       break;
@@ -154,7 +153,6 @@ namespace plane {
   }
 
   void BulletMgr::draw() noexcept {
-    Color cols[4] = { WHITE, RED, GREEN, PURPLE };
     for(int i = 0; i < layers; ++i) {
       for(int j = 0; j < count; ++j) {
         Rectangle ps_hitbox = Rectangle{
@@ -174,8 +172,12 @@ namespace plane {
           ps_hitbox,
           {(float)sprite.width / 2 , (float)sprite.height / 2 },
           Vec2(origin - getPos(i, j)).face_velocity(), WHITE);
+
       }
     }
+#ifdef DRAW_HITBOX
+        this->drawHitbox();
+#endif
   }
 
   bool BulletMgr::collision_check(const Rectangle& hitbox) noexcept {
@@ -223,5 +225,15 @@ namespace plane {
       return true;
     }
     return false;
+  }
+  void BulletMgr::shoot(Vec2 esp, Vec2 tar) {
+    this->setOrigin(esp);
+    switch(this->mode) {
+      case BulletFlag::AIMED:
+        ang1 += (tar - this->origin).norm().face_velocity();
+        break;
+      default:
+        break;
+    }
   }
 }

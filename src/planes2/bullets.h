@@ -27,7 +27,6 @@ enum class BulletSprite : uint8_t {
 };
 
 struct BulletMgr {
-
   Texture2D sprite;
   std::vector<Vec2> positions;
   std::vector<bool> oobs;
@@ -46,8 +45,9 @@ struct BulletMgr {
   void setCount(const uint16_t l, const uint16_t c) noexcept;
   void setSpeed(const float s1, const float s2) noexcept;
   void setType(const BulletSprite s) noexcept;
-  void setAngle(float a1, float a2, Vec2* p ) noexcept;
+  void setAngle(float a1, float a2) noexcept;
   void setOutOfBounds() noexcept;
+  void shoot(Vec2 src, Vec2 tar);
   void update() noexcept;
   void draw() noexcept;
   void drawHitbox() noexcept;

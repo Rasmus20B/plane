@@ -18,14 +18,16 @@
 #include "../common/config.h"
 
 #include "collision.h"
-#include "enemy.h"
-#include "ent.h"
+#include "enm.h"
+#include "input.h"
 #include "move.h"
 #include "player.h"
 #include "projectile.h"
 #include "stage1.h"
 #include "texture.h"
 #include "timeline.h"
+
+#include "stage1/stage1.h"
 
 namespace plane {
   void main_loop();
