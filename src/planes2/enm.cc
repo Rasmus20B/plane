@@ -44,7 +44,6 @@ namespace plane {
           }
           Spline s(pts, e.spatial.speed);
           e_tmp.spatial.move_points = s.calc_points(0.01, e.spatial.speed, false);
-          std::cout << e_tmp.spatial.move_points.size() << "\n";
           break;
         }
       default:
@@ -56,8 +55,19 @@ namespace plane {
   }
   
   void enmUpdatePos(EnmSpace& e) {
+    switch(e.flag) {
+      case enmMoveFlag::ACCEL:
+        e.speed += e.special1;
+        break;
+      default:
+        break;
+    }
+    if(e.speed >= e.move_points.size() - e.cur) {
+      e.speed -= e.special1;
+      return;
+    }
     e.pos = e.move_points[e.cur];
-    if(e.cur < e.move_points.size() - 1)
-      e.cur++;
+    if(e.cur < e.move_points.size() - e.speed - 1)
+      e.cur += e.speed;
   }
 }

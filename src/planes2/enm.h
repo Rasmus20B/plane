@@ -15,6 +15,11 @@ namespace plane {
     RED_SHIP = 0,
   };
 
+  enum enmMoveFlag {
+    NA,
+    ACCEL,
+  };
+
   enum enmMoveType {
     MOVE_LINEAR,
     MOVE_SMOOTH
@@ -24,7 +29,10 @@ namespace plane {
     std::vector<Vec2> move_points;
     Vec2 pos;
     float speed;
+    float special1;
+    float special2;
     enmMoveType movement;
+    enmMoveFlag flag;
     uint16_t cur; // how long along it's path it is, index for movepoints
   };
 

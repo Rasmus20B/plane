@@ -6,8 +6,11 @@ namespace plane {
     Enm e = enmCreate(Enm {
       .spatial = {
         .move_points = {{100, 100}, {200, 200}, {300, 500}, {400, 100}, {600, 100}},
-        .speed = 3.f,
+        .speed = 0.2f,
+        .special1 = 0.3f,
+        .special2 = 0.3f,
         .movement = MOVE_SMOOTH,
+        .flag = enmMoveFlag::ACCEL
       },
       .danmaku = {},
       .sprite = tm.actSprites[0],

@@ -58,7 +58,6 @@ namespace plane {
         if(OutOfBounds(getPos(i, j), config.screen_width, config.screen_height)) {
           this->oobs[j * layers + i] = true;
         }
-        // std::cout << getPos(i, j).x() << " , " << getPos(i,j).y() << "\n";
       }
     }
   }
