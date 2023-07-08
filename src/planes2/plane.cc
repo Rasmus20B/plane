@@ -46,18 +46,16 @@ namespace plane {
     /* timeline will be a queue where only the front is checked per frame.
      * At most 4 enemies 'types' can spawned. 
      * Queue will give indexes for use in array */
-    Queue<std::pair<uint32_t, std::vector<uint16_t>>, 256> timeline;
 
     stage1 s;
     s.load_enemies();
+    s.load_timeline();
 
+    auto timeline = s.timeline;
     std::vector<BulletMgr> bs;
     std::vector<Enm> etypes = s.e;
 
     std::vector<Enm> es;
-
-    timeline.push({{30}, {0}});
-    timeline.push({{30}, {1}});
 
     std::unordered_map<uint32_t, bool> liveBMs;
     std::unordered_map<uint32_t, bool> liveENs;

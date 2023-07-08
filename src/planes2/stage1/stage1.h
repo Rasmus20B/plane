@@ -17,7 +17,9 @@ namespace plane {
     std::vector<Enm> e;
     std::vector<Texture2D> bg;
     std::vector<AudioStream> bgm;
+    Queue<std::pair<uint32_t, std::vector<uint16_t>>, 256> timeline;
 
     void load_enemies();
+    void load_timeline();
   };
 }

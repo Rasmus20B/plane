@@ -1,6 +1,11 @@
 #include "stage1.h"
 namespace plane {
 
+  void stage1::load_timeline() {
+    timeline.push({{30}, {0}});
+    timeline.push({{30}, {1}});
+  }
+
   void stage1::load_enemies() {
     std::vector<Vec2> pts = {{-50, 0}, {0, 0}, {100, 300}, {200, 200}, {300, 300}, {400, 200}, {600, 100}, {700, 100}};
     std::vector<Vec2> pts_rev;
