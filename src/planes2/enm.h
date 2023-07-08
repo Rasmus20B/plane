@@ -18,6 +18,8 @@ namespace plane {
   enum enmMoveFlag {
     NA,
     ACCEL,
+    DECCEL,
+    ACCEL_DECEL,
   };
 
   enum enmMoveType {
@@ -28,12 +30,13 @@ namespace plane {
   struct EnmSpace {
     std::vector<Vec2> move_points;
     Vec2 pos;
+    uint16_t cur; // how long along it's path it is, index for movepoints
     float speed;
+    enmMoveType movement;
+
+    enmMoveFlag flag;
     float special1;
     float special2;
-    enmMoveType movement;
-    enmMoveFlag flag;
-    uint16_t cur; // how long along it's path it is, index for movepoints
   };
 
   struct Enm {

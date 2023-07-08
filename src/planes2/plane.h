@@ -23,7 +23,6 @@
 #include "move.h"
 #include "player.h"
 #include "projectile.h"
-#include "stage1.h"
 #include "texture.h"
 #include "timeline.h"
 

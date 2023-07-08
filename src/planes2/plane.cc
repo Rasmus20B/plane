@@ -57,6 +57,7 @@ namespace plane {
     std::vector<Enm> es;
 
     timeline.push({{30}, {0}});
+    timeline.push({{30}, {1}});
 
     std::unordered_map<uint32_t, bool> liveBMs;
     std::unordered_map<uint32_t, bool> liveENs;
@@ -82,6 +83,7 @@ namespace plane {
         bs.push_back(s->second);
         liveBMs[bs.size() - 1] = true;
       }
+
       for(int i = 0; i < bs.size(); ++i) {
         if(!liveBMs[i]) continue;
         bs[i].update();
@@ -97,34 +99,12 @@ namespace plane {
       }
 
 
-      if(timeline.front()->first == frame_count) {
+      while(timeline.front()->first == frame_count) {
         auto spawns = timeline.pop_and_get()->second;
         for(auto i : spawns) {
           liveENs[es.size() ] = true;
           es.push_back(etypes[i]);
-          // plane::BulletMgr b1 {
-          //   .mode = BulletFlag::AIMED,
-          // };
-          // b1.setCount(6, 6);
-          // b1.setOrigin({config.screen_width / 2 , 300});
-          // b1.setAngle(6, 15, &ploc);
-          // b1.setSpeed(12, 12);
-          // b1.setType(BulletSprite::BLADE_01);
-          // bs.push_back(b1);
-          //
-          // liveBMs[bs.size() - 1] = true;
         }
-        // plane::BulletMgr b2 {
-        //   .mode = BulletFlag::RING_AIMED,
-        // };
-        // b2.setCount(3, 3);
-        // b2.setOrigin({rand_f(config.screen_width) , 300});
-        // b2.setAngle(0, 15, &ploc);
-        // b2.setSpeed(7, 7);
-        // b2.setType(BulletSprite::ORB_03);
-        // bs.push_back(b2);
-        //
-        // liveBMs[bs.size()] = true;
       }
       frame_count++;
 

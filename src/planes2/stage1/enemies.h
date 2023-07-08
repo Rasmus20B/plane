@@ -6,7 +6,7 @@
 #include "../bullets.h"
 
 namespace plane {
-  Enm burst_enemy01();
+  Enm burst_enemy01(std::vector<Vec2> pts) noexcept ;
 }
 // namespace plane {
 //   void burst_ship01(stage1 s) {
