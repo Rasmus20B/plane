@@ -3,7 +3,6 @@
 namespace plane {
 
   Enm burst_enemy01(std::vector<Vec2> pts) noexcept {
-
     Enm e = enmCreate(Enm {
       .spatial = {
         .move_points = pts,
@@ -31,6 +30,16 @@ namespace plane {
     e.shots[200] = b;
     e.shots[300] = b;
 
+    b.mode = BulletFlag::RING_AIMED;
+    b.setCount(4, 4);
+    b.setType(BulletSprite::ORB_03);
+    b.setSpeed(5, 5);
+    b.setAngle(0, 15);
+
+    e.danmaku[1] = b;
+    e.shots[150] = b;
+    e.shots[250] = b;
+    e.shots[350] = b;
     return e;
   }
 }

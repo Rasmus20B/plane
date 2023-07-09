@@ -38,8 +38,10 @@ namespace plane {
     positions.resize(l*c);
 
     oobs.resize(l*c);
-    /* set first element of out of bounds to true to allow adjacent find later */
-    oobs[0] = true;
+    /* set last element of out of bounds to true to allow adjacent find later */
+    /* using last element because it will be ahead of others and won't cause 
+     * visible despawn */
+    oobs[oobs.size()-1] = true;
   }
 
   void BulletMgr::setSpeed(const float s1, const float s2) noexcept{

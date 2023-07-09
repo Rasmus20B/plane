@@ -22,15 +22,6 @@ namespace plane {
     bool micro;
     uint8_t stage = 1;
     initTextureManager(tm);
-    ProjectilePool e_ps;
-    projectilePoolInit(e_ps, 5000);
-    ProjectilePool p_ps;
-    projectilePoolInit(p_ps, 250);
-    ProjectilePool d_ps;
-    projectilePoolInit(p_ps, 40);
-    EnemyPool enemies;
-    enemyPoolInit(enemies, 40);
-    std::unordered_map<int, Enemy> live_enemies;
 
     size_t frame_count = 0;
 
@@ -110,12 +101,11 @@ namespace plane {
 
       continue;
 
-
-      bool micro = false;
-      BeginDrawing();
-        ClearBackground(GetColor(0x052c46ff));
-
-        float time = GetTime();
+      // bool micro = false;
+      // BeginDrawing();
+      //   ClearBackground(GetColor(0x052c46ff));
+      //
+      //   float time = GetTime();
         // Controls
 //         if(!p.d_time) {
 //         if(IsKeyDown(KEY_UP)) {
