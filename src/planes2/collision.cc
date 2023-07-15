@@ -54,12 +54,17 @@ namespace plane {
     __m128 r2 = _mm_mul_ps(cys, csr);
     __m128 res = _mm_add_ps(r1, r2);
 
+    __m128 coords = { r.x, r.y, r.x, r.y };
+
+    __m128 h1 = _mm_add_ps(coords,  res);
+    __m128 h2 = _mm_sub_ps(coords,  res);
+
     return {
       {
-        {r.x + res[0], r.y + res[1]},
-        {r.x + res[2], r.y + res[3]},
-        {r.x - res[0], r.y - res[1]},
-        {r.x - res[2], r.y - res[3]}
+        {h1[0], h1[1]},
+        {h1[2], h1[3]},
+        {h2[0], h2[1]},
+        {h2[2], h2[3]},
       }
     };
 #else
