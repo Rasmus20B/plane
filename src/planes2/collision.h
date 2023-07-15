@@ -18,6 +18,8 @@ namespace plane {
   std::vector<line> getAxis(const Rectangle& r, const float radian);
   std::array<Vec2, 4> getCorners(const Rectangle& r, const float radian);
   std::array<Vec2, 4> getCornersSIMD(const Rectangle& r, const float radian);
+  bool checkContains(std::array<Vec2, 4> cs1, std::array<Vec2, 4> cs2);
+  bool checkContainsSIMD(std::array<Vec2, 4> cs1, std::array<Vec2, 4> cs2);
   bool CheckCollisionRecsAngle(const Rectangle& r1, const float a1, const Rectangle& r2, const float a2);
   Vec2 project(line);
 }

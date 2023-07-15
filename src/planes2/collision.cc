@@ -92,8 +92,6 @@ namespace plane {
 
   bool checkContains(std::array<Vec2, 4> cs1, std::array<Vec2, 4> cs2) {
     for(int i = 0; i < 4; ++i) {
-      float dx = cs1[(i+1) % 4].vec.x - cs1[i].vec.x;
-      float dy = cs1[(i+1) % 4].vec.y - cs1[i].vec.y;
       Vec2 edge = cs1[(i+1) % 4] - cs1[i];
       Vector2 axis = {-edge.vec.y, edge.vec.x};
 
@@ -102,13 +100,18 @@ namespace plane {
       float min2 = std::numeric_limits<float>().max();
       float max2 = std::numeric_limits<float>().min();
       for(int j = 0; j < 4; ++j) {
+
         float proj1 = cs1[j].dot(Vec2{axis});
         float proj2 = cs2[j].dot(Vec2{axis});
 
-        if(proj1 < min1) min1 = proj1;
-        if(proj1 > max1) max1 = proj1;
-        if(proj2 < min2) min2 = proj2;
-        if(proj2 > max2) max2 = proj2;
+        bool r1 = proj1 < min1;
+        bool r2 = max1 < proj1;
+        bool r3 = proj2 < min2;
+        bool r4 = max2 < proj2;
+        if(r1) min1 = proj1;
+        if(r2) max1 = proj1;
+        if(r3) min2 = proj2;
+        if(r4) max2 = proj2;
       }
       if(min1 >= max2 || min2 >= max1) {
         return false;
@@ -116,13 +119,49 @@ namespace plane {
     }
     return true;
   }
+
+  bool checkContainsSIMD(std::array<Vec2, 4> cs1, std::array<Vec2, 4> cs2) {
+    for(int i = 0; i < 4; ++i) {
+      Vec2 edge = cs1[(i+1) % 4] - cs1[i];
+      Vector2 axis = {-edge.vec.y, edge.vec.x};
+
+      float min1 = std::numeric_limits<float>().max();
+      float max1 = std::numeric_limits<float>().min();
+      float min2 = std::numeric_limits<float>().max();
+      float max2 = std::numeric_limits<float>().min();
+      for(int j = 0; j < 4; ++j) {
+
+        float proj1 = cs1[j].dot(Vec2{axis});
+        float proj2 = cs2[j].dot(Vec2{axis});
+#ifdef __x86_64__
+        __m128 o1 = { proj1, max1, proj2, max2 };
+        __m128 o2 = { min1, proj1, min2, proj2 };
+        __m128 comps = _mm_cmplt_ps(o1, o2);
+#endif
+
+        bool r1 = proj1 < min1;
+        bool r2 = max1 < proj1;
+        bool r3 = proj2 < min2;
+        bool r4 = max2 < proj2;
+        if(r1) min1 = proj1;
+        if(r2) max1 = proj1;
+        if(r3) min2 = proj2;
+        if(r4) max2 = proj2;
+      }
+      if(min1 >= max2 || min2 >= max1) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   bool CheckCollisionRecsAngle(const Rectangle& r1, const float a1, const Rectangle& r2, const float a2) {
 
     auto cs1 = getCornersSIMD(r1, a1);
     auto cs2 = getCornersSIMD(r2, a2);
 
-    if(!checkContains(cs1, cs2)) return false;
-    if(!checkContains(cs2, cs1)) return false;
+    if(!checkContainsSIMD(cs1, cs2)) return false;
+    if(!checkContainsSIMD(cs2, cs1)) return false;
 
     return true;
   }
