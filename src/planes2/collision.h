@@ -4,7 +4,7 @@
 #include <array>
 #include "../common/vector_calc.h"
 
-#ifdef __arm64__
+#ifdef __aarch64__
   #include <arm_neon.h>
 #elif __x86_64__
   #include <immintrin.h>

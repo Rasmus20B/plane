@@ -1,5 +1,5 @@
 #include "collision.h"
-#include <xmmintrin.h>
+#include <arm_neon.h>
 
 namespace plane {
   std::vector<line> getAxis(const Rectangle& r, const float radian) {
@@ -43,7 +43,29 @@ namespace plane {
 
     float ca = cos(radian);
     float sa = sin(radian);
-#ifdef __arm64__
+#ifdef __aarch64__
+    float32x4_t cxs = { -cx, -cx, cx, cx };
+    float32x4_t css = { ca, sa, ca, sa };
+    float32x4_t cys = { -cy, cy, -cy, cy };
+    float32x4_t csr = { sa, ca, sa, ca };
+
+    float32x4_t r1 = vmulq_f32(cxs, css);
+    float32x4_t r2 = vmulq_f32(cys, csr);
+    float32x4_t res = vaddq_f32(r1, r2);
+
+    float32x4_t coords = { r.x, r.y, r.x, r.y };
+
+    float32x4_t h1 = vaddq_f32(coords, res);
+    float32x4_t h2 = vsubq_f32(coords, res);
+    return {
+      {
+        {h1[0], h1[1]},
+        {h1[2], h1[3]},
+        {h2[0], h2[1]},
+        {h2[2], h2[3]},
+      }
+    };
+
 #elif __x86_64__
     __m128 cxs = { -cx, -cx, cx, cx };
     __m128 css = { ca, sa, ca, sa };

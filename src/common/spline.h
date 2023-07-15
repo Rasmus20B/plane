@@ -19,7 +19,7 @@ struct SplinePt {
 };
 struct Spline {
 
-  constexpr Spline(const std::vector<SplinePt> p, float speed) {
+  Spline(const std::vector<SplinePt> p, float speed) {
     this->pts = p;
   };
   
@@ -110,7 +110,7 @@ struct Spline {
     return (float)i + (p / pts[i].len);
   }
 
-  constexpr std::vector<Vec2> calc_points(float t, const float speed, bool loop = false) {
+  std::vector<Vec2> calc_points(float t, const float speed, bool loop = false) {
     for(int j = 0; j < pts.size(); j++) {
       this->len += (this->pts[j].len = this->SegmentLength(j, loop));
     }
