@@ -1,5 +1,4 @@
 #include "collision.h"
-#include <arm_neon.h>
 
 namespace plane {
   std::vector<line> getAxis(const Rectangle& r, const float radian) {
@@ -40,7 +39,6 @@ namespace plane {
   std::array<Vec2, 4> getCornersSIMD(const Rectangle& r, const float radian) {
     float cx = 0.5f * r.width;
     float cy = 0.5f * r.height;
-
     float ca = cos(radian);
     float sa = sin(radian);
 #ifdef __aarch64__
@@ -65,7 +63,6 @@ namespace plane {
         {h2[2], h2[3]},
       }
     };
-
 #elif __x86_64__
     __m128 cxs = { -cx, -cx, cx, cx };
     __m128 css = { ca, sa, ca, sa };
@@ -94,8 +91,8 @@ namespace plane {
   }
   bool CheckCollisionRecsAngle(const Rectangle& r1, const float a1, const Rectangle& r2, const float a2) {
 
-    auto cs1 = getCorners(r1, a1);
-    auto cs2 = getCorners(r2, a2);
+    auto cs1 = getCornersSIMD(r1, a1);
+    auto cs2 = getCornersSIMD(r2, a2);
 
 
     for(int i = 0; i < 4; ++i) {
