@@ -46,5 +46,6 @@ TEST(collision, checkContains) {
   auto res2 = checkContains(cs1, cs2);
   res = std::chrono::steady_clock::now().time_since_epoch().count() - s;
 
+  EXPECT_EQ(res1, res2);
   std::cout << res2 << " : " << res << "\n";
 }

@@ -87,6 +87,19 @@ namespace plane {
       }
     };
 #else
+    const float r1x = -cx * ca - cy * sa;
+    const float r1y = -cx * sa + cy * ca;
+    const float r2x = cx * ca - cy * sa;
+    const float r2y = cx * sa + cy * ca;
+
+    return {
+      {
+        {r.x + r1x, r.y + r1y},
+        {r.x + r2x, r.y + r2y},
+        {r.x - r1x, r.y - r1y},
+        {r.x - r2x, r.y - r2y},
+      }
+    };
 #endif
   }
 
@@ -130,23 +143,23 @@ namespace plane {
       float min2 = std::numeric_limits<float>().max();
       float max2 = std::numeric_limits<float>().min();
       for(int j = 0; j < 4; ++j) {
-
         float proj1 = cs1[j].dot(Vec2{axis});
         float proj2 = cs2[j].dot(Vec2{axis});
 #ifdef __x86_64__
         __m128 o1 = { proj1, max1, proj2, max2 };
         __m128 o2 = { min1, proj1, min2, proj2 };
         __m128 comps = _mm_cmplt_ps(o1, o2);
+#else 
+        bool comps[4];
+        bool comps[0] = proj1 < min1;
+        bool comps[1] = max1 < proj1;
+        bool comps[2] = proj2 < min2;
+        bool comps[3] = max2 < proj2;
 #endif
-
-        bool r1 = proj1 < min1;
-        bool r2 = max1 < proj1;
-        bool r3 = proj2 < min2;
-        bool r4 = max2 < proj2;
-        if(r1) min1 = proj1;
-        if(r2) max1 = proj1;
-        if(r3) min2 = proj2;
-        if(r4) max2 = proj2;
+        if(comps[0]) min1 = proj1;
+        if(comps[1]) max1 = proj1;
+        if(comps[2]) min2 = proj2;
+        if(comps[3]) max2 = proj2;
       }
       if(min1 >= max2 || min2 >= max1) {
         return false;
