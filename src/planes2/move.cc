@@ -4,6 +4,7 @@ namespace plane {
   void eMove(EnemySpatial& e) {
     return;
   }
+
   void pMove(ProjectileSpace& p) {
     auto vec = p.position.norm();
     switch(p.mt) {

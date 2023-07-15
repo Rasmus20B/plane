@@ -1,14 +1,10 @@
 #include "collision.h"
+#include <xmmintrin.h>
 
-#include <iostream> 
-#include <chrono>
-#include <algorithm>
-#include <limits>
 namespace plane {
   std::vector<line> getAxis(const Rectangle& r, const float radian) {
     const Vec2 ox = { 1, 0 };
     const Vec2 oy = { 0, 1 };
-    
 
     const Vec2 rx = ox.rotate(radian);
     const Vec2 ry = oy.rotate(radian);
@@ -20,16 +16,16 @@ namespace plane {
   }
 
   std::array<Vec2, 4> getCorners(const Rectangle& r, const float radian) {
-    auto cx = 0.5f * r.width;
-    auto cy = 0.5f * r.height;
+    const float cx = 0.5f * r.width;
+    const float cy = 0.5f * r.height;
 
-    float ca = cos(radian);
-    float sa = sin(radian);
+    const float ca = cos(radian);
+    const float sa = sin(radian);
 
-    float r1x = -cx * ca - cy * sa;
-    float r1y = -cx * sa + cy * ca;
-    float r2x = cx * ca - cy * sa;
-    float r2y = cx * sa + cy * ca;
+    const float r1x = -cx * ca - cy * sa;
+    const float r1y = -cx * sa + cy * ca;
+    const float r2x = cx * ca - cy * sa;
+    const float r2y = cx * sa + cy * ca;
 
     return {
       {
@@ -41,16 +37,39 @@ namespace plane {
     };
   }
 
+  std::array<Vec2, 4> getCornersSIMD(const Rectangle& r, const float radian) {
+    float cx = 0.5f * r.width;
+    float cy = 0.5f * r.height;
+
+    float ca = cos(radian);
+    float sa = sin(radian);
+#ifdef __arm64__
+#elif __x86_64__
+    __m128 cxs = { -cx, -cx, cx, cx };
+    __m128 css = { ca, sa, ca, sa };
+    __m128 cys = { -cy, cy, -cy, cy };
+    __m128 csr = { sa, ca, sa, ca };
+
+    __m128 r1 = _mm_mul_ps(cxs,  css);
+    __m128 r2 = _mm_mul_ps(cys, csr);
+    __m128 res = _mm_add_ps(r1, r2);
+
+    return {
+      {
+        {r.x + res[0], r.y + res[1]},
+        {r.x + res[2], r.y + res[3]},
+        {r.x - res[0], r.y - res[1]},
+        {r.x - res[2], r.y - res[3]}
+      }
+    };
+#else
+#endif
+  }
   bool CheckCollisionRecsAngle(const Rectangle& r1, const float a1, const Rectangle& r2, const float a2) {
 
     auto cs1 = getCorners(r1, a1);
     auto cs2 = getCorners(r2, a2);
 
-#ifdef __arm64__
-
-#elif __x86_64__
-
-#endif
 
     for(int i = 0; i < 4; ++i) {
       float dx = cs1[(i+1) % 4].vec.x - cs1[i].vec.x;

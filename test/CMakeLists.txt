@@ -12,9 +12,14 @@ enable_testing()
 
 add_executable(queue_test queue_test.cc)
 add_executable(vector_test vector_test.cc)
+add_executable(collision_test collision_test.cc
+  ${CMAKE_SOURCE_DIR}/src/planes2/collision.h
+  ${CMAKE_SOURCE_DIR}/src/planes2/collision.cc
+  )
 add_executable(queue_bench queue_benchmark.cc)
 
 target_link_libraries(queue_test GTest::gtest_main)
+target_link_libraries(collision_test GTest::gtest_main raylib)
 target_link_libraries(vector_test GTest::gtest_main raylib)
 
 include(GoogleTest)

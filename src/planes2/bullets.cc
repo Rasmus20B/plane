@@ -22,8 +22,8 @@ namespace plane {
       case BulletFlag::RING_AIMED:
         for(int i = 0; i < layers; ++i) {
           for(int j = 0; j < count; ++j) {
-            getPos(i, j).x() = origin.x() + (cos(RAD(j + 1 * i + 1 / 360.f ) * j + 1 * i + 1) + RAD(ang2) * j + 1);
-            getPos(i, j).y() = origin.y() + (sin(RAD(j + 1 * i + 1 / 360.f ) * j + 1 * i + 1) + RAD(ang2) * j + 1);
+            getPos(i, j).x() = origin.x() + (cos(RAD(360.f / j + 1 * i + 1 ) * j + 1 * i + 1) + RAD(ang2) * j + 1);
+            getPos(i, j).y() = origin.y() + (sin(RAD(360.f / j + 1 * i + 1 ) * j + 1 * i + 1) + RAD(ang2) * j + 1);
           }
         }
         break;
@@ -64,7 +64,7 @@ namespace plane {
     }
   }
 
-  void BulletMgr::setAngle(float a1, float a2) noexcept {
+  void BulletMgr::setAngle(const float a1, const float a2) noexcept {
     float add = 0;
     switch(mode) {
     case BulletFlag::AIMED:

@@ -45,10 +45,10 @@ namespace plane {
     auto timeline = s.timeline;
     std::vector<BulletMgr> bs;
     std::vector<Enm> etypes = s.e;
-
     std::vector<Enm> es;
 
     std::unordered_map<uint32_t, bool> liveBMs;
+    std::unordered_map<uint32_t, bool> livePBs;
     std::unordered_map<uint32_t, bool> liveENs;
     liveENs.reserve(timeline.size);
 
@@ -58,7 +58,6 @@ namespace plane {
 
       handle_game_input(p.spatial);
       auto p_hitbox = p.getPlayerHitbox();
-      Vec2 ploc = Vec2{p.spatial.pos};
       DrawTextureV(p.sprite, {p.spatial.pos.x , p.spatial.pos.y }, WHITE);
 
       for(int i = 0; i < es.size(); ++i) {
@@ -81,7 +80,9 @@ namespace plane {
           std::cout << "HIT*: " << frame_count << "\n";
         }
         bs[i].setOutOfBounds();
-        bool ded = (std::adjacent_find(bs[i].oobs.begin(), bs[i].oobs.end(), std::not_equal_to<bool>()) == bs[i].oobs.end());
+        bool ded = (std::adjacent_find(bs[i].oobs.begin(), 
+              bs[i].oobs.end(), 
+              std::not_equal_to<bool>()) == bs[i].oobs.end());
         if(ded) {
           liveBMs.erase(i);
         }
@@ -101,8 +102,7 @@ namespace plane {
 
       continue;
 
-      // bool micro = false;
-      // BeginDrawing();
+      // bool micro = false; BeginDrawing();
       //   ClearBackground(GetColor(0x052c46ff));
       //
       //   float time = GetTime();
