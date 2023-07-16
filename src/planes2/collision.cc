@@ -1,4 +1,5 @@
 #include "collision.h"
+#include <smmintrin.h>
 
 namespace plane {
   std::vector<line> getAxis(const Rectangle& r, const float radian) {
@@ -117,14 +118,10 @@ namespace plane {
         float proj1 = cs1[j].dot(Vec2{axis});
         float proj2 = cs2[j].dot(Vec2{axis});
 
-        bool r1 = proj1 < min1;
-        bool r2 = max1 < proj1;
-        bool r3 = proj2 < min2;
-        bool r4 = max2 < proj2;
-        if(r1) min1 = proj1;
-        if(r2) max1 = proj1;
-        if(r3) min2 = proj2;
-        if(r4) max2 = proj2;
+        min1 = std::min(min1, proj1);
+        max1 = std::max(proj2, max1);
+        min2 = std::min(min2, proj2);
+        max2 = std::max(max2, proj2);
       }
       if(min1 >= max2 || min2 >= max1) {
         return false;
@@ -133,48 +130,46 @@ namespace plane {
     return true;
   }
 
+#ifdef __x86_64__
   bool checkContainsSIMD(std::array<Vec2, 4> cs1, std::array<Vec2, 4> cs2) {
     for(int i = 0; i < 4; ++i) {
       Vec2 edge = cs1[(i+1) % 4] - cs1[i];
       Vector2 axis = {-edge.vec.y, edge.vec.x};
-
-      float min1 = std::numeric_limits<float>().max();
-      float max1 = std::numeric_limits<float>().min();
-      float min2 = std::numeric_limits<float>().max();
-      float max2 = std::numeric_limits<float>().min();
+      __m128 limits = {
+        std::numeric_limits<float>().max(),
+        std::numeric_limits<float>().min(),
+        std::numeric_limits<float>().max(),
+        std::numeric_limits<float>().min(),
+      };
       for(int j = 0; j < 4; ++j) {
         float proj1 = cs1[j].dot(Vec2{axis});
         float proj2 = cs2[j].dot(Vec2{axis});
-#ifdef __x86_64__
-        __m128 o1 = { proj1, max1, proj2, max2 };
-        __m128 o2 = { min1, proj1, min2, proj2 };
-        __m128 comps = _mm_cmplt_ps(o1, o2);
-#else 
-        bool comps[4];
-        bool comps[0] = proj1 < min1;
-        bool comps[1] = max1 < proj1;
-        bool comps[2] = proj2 < min2;
-        bool comps[3] = max2 < proj2;
-#endif
-        if(comps[0]) min1 = proj1;
-        if(comps[1]) max1 = proj1;
-        if(comps[2]) min2 = proj2;
-        if(comps[3]) max2 = proj2;
+        __m128 o1 = { proj1, limits[1], proj2, limits[3] };
+        __m128 o2 = { limits[0], proj1, limits[2], proj2 };
+        __m128 res1 = _mm_min_ps(o1, o2);
+        __m128 res2 = _mm_max_ps(o1, o2);
+        limits = __m128{ res1[0], res2[1], res1[2], res2[3] };
       }
-      if(min1 >= max2 || min2 >= max1) {
+      if(limits[0] >= limits[3] || limits[2] >= limits[1]) {
         return false;
       }
     }
     return true;
   }
+#endif
 
   bool CheckCollisionRecsAngle(const Rectangle& r1, const float a1, const Rectangle& r2, const float a2) {
 
     auto cs1 = getCornersSIMD(r1, a1);
     auto cs2 = getCornersSIMD(r2, a2);
 
+#ifdef __x86_64__
     if(!checkContainsSIMD(cs1, cs2)) return false;
     if(!checkContainsSIMD(cs2, cs1)) return false;
+#else
+    if(!checkContains(cs1, cs2)) return false;
+    if(!checkContains(cs2, cs1)) return false;
+#endif
 
     return true;
   }
