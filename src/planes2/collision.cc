@@ -130,8 +130,8 @@ namespace plane {
     return true;
   }
 
-#ifdef __x86_64__
   bool checkContainsSIMD(std::array<Vec2, 4> cs1, std::array<Vec2, 4> cs2) {
+#ifdef __x86_64__
     for(int i = 0; i < 4; ++i) {
       Vec2 edge = cs1[(i+1) % 4] - cs1[i];
       Vector2 axis = {-edge.vec.y, edge.vec.x};
@@ -156,6 +156,31 @@ namespace plane {
     }
     return true;
   }
+#elif __aarch64__
+    for(int i = 0; i < 4; ++i) {
+      Vec2 edge = cs1[(i+1) % 4] - cs1[i];
+      Vector2 axis = {-edge.vec.y, edge.vec.x};
+      float32x4_t limits = {
+        std::numeric_limits<float>().max(),
+        std::numeric_limits<float>().min(),
+        std::numeric_limits<float>().max(),
+        std::numeric_limits<float>().min(),
+      };
+      for(int j = 0; j < 4; ++j) {
+        float proj1 = cs1[j].dot(Vec2{axis});
+        float proj2 = cs2[j].dot(Vec2{axis});
+        float32x4_t o1 = { proj1, limits[1], proj2, limits[3] };
+        float32x4_t o2 = { limits[0], proj1, limits[2], proj2 };
+        float32x4_t res1 = vminq_f32(o1, o2);
+        float32x4_t res2 = vmaxq_f32(o1, o2);
+        limits = float32x4_t{ res1[0], res2[1], res1[2], res2[3] };
+      }
+      if(limits[0] >= limits[3] || limits[2] >= limits[1]) {
+        return false;
+      }
+    }
+    return true;
+  }
 #endif
 
   bool CheckCollisionRecsAngle(const Rectangle& r1, const float a1, const Rectangle& r2, const float a2) {
@@ -163,14 +188,13 @@ namespace plane {
     auto cs1 = getCornersSIMD(r1, a1);
     auto cs2 = getCornersSIMD(r2, a2);
 
-#ifdef __x86_64__
+#if defined(__x86_64__) || defined(__aarch64__)
     if(!checkContainsSIMD(cs1, cs2)) return false;
     if(!checkContainsSIMD(cs2, cs1)) return false;
 #else
     if(!checkContains(cs1, cs2)) return false;
     if(!checkContains(cs2, cs1)) return false;
 #endif
-
     return true;
   }
 }
