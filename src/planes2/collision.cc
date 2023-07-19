@@ -184,14 +184,14 @@ namespace plane {
 #endif
 
   bool CheckCollisionRecsAngle(const Rectangle& r1, const float a1, const Rectangle& r2, const float a2) {
-
+#if defined(__x86_64__) || defined(__aarch64__)
     auto cs1 = getCornersSIMD(r1, a1);
     auto cs2 = getCornersSIMD(r2, a2);
-
-#if defined(__x86_64__) || defined(__aarch64__)
     if(!checkContainsSIMD(cs1, cs2)) return false;
     if(!checkContainsSIMD(cs2, cs1)) return false;
 #else
+    auto cs1 = getCorners(r1, a1);
+    auto cs2 = getCorners(r2, a2);
     if(!checkContains(cs1, cs2)) return false;
     if(!checkContains(cs2, cs1)) return false;
 #endif

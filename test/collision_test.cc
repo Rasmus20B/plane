@@ -11,12 +11,14 @@ TEST(collision, getCorners) {
   Rectangle r = { 200, 200, 300, 400 };
 
   // Scaler Benchmark
+  std::cout << "SCALER::::::::::::::::::::::::::\n";
   auto s = std::chrono::steady_clock::now().time_since_epoch().count();
   std::array<Vec2, 4> res1 = getCorners(r, 0.f);
   auto res = std::chrono::steady_clock::now().time_since_epoch().count() - s;
   std::cout << res << "\n";
 
   // SIMD Benchmark
+  std::cout << "VECTOR::::::::::::::::::::::::::\n";
   s = std::chrono::steady_clock::now().time_since_epoch().count();
   std::array<Vec2, 4> res2 = getCornersSIMD(r, 0.f);
   res = std::chrono::steady_clock::now().time_since_epoch().count() - s;
@@ -40,14 +42,14 @@ TEST(collision, checkContains) {
   auto s = std::chrono::steady_clock::now().time_since_epoch().count();
   auto res1 = checkContains(cs1, cs2);
   auto res = std::chrono::steady_clock::now().time_since_epoch().count() - s;
-  std::cout << res << "\n";
+  std::cout << res << "ms\n";
 
   // SIMD BenchMark
   std::cout << "VECTOR::::::::::::::::::::::::::\n";
   s = std::chrono::steady_clock::now().time_since_epoch().count();
   auto res2 = checkContainsSIMD(cs1, cs2);
   res = std::chrono::steady_clock::now().time_since_epoch().count() - s;
-  std::cout << res << "\n";
+  std::cout << res << "ms\n";
 
   EXPECT_EQ(res1, res2);
 }

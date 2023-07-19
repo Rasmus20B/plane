@@ -28,18 +28,4 @@ add_executable(${PROJECT_NAME}
   planes2/stage1/stage1.cc
   planes2/stage1/enemies.cc
   planes2/stage1/enemies.h
-  # planes1/main.cc
-  # planes1/enemy.h
-  # planes1/patterns.cc
-  # planes1/patterns.h
-  # planes1/planes.cc
-  # planes1/planes.h
-  # planes1/player.h
-  # planes1/projectile.h
-  # planes1/spline.cc
-  # planes1/spline.h
-  # planes1/stage1.cc
-  # planes1/stage1.h
-  # planes1/tasking.cc
-  # planes1/tasking.h
   )

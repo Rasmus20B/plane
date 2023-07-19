@@ -100,7 +100,6 @@ namespace plane {
 
       EndDrawing();
 
-      continue;
 
       // bool micro = false; BeginDrawing();
       //   ClearBackground(GetColor(0x052c46ff));
