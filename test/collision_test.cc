@@ -12,17 +12,17 @@ TEST(collision, getCorners) {
 
   // Scaler Benchmark
   std::cout << "SCALER::::::::::::::::::::::::::\n";
-  auto s = std::chrono::steady_clock::now().time_since_epoch().count();
+  auto s = std::chrono::steady_clock::now().time_since_epoch();
   std::array<Vec2, 4> res1 = getCorners(r, 0.f);
-  auto res = std::chrono::steady_clock::now().time_since_epoch().count() - s;
-  std::cout << res << "\n";
+  auto res = std::chrono::steady_clock::now().time_since_epoch() - s;
+  std::cout << std::chrono::duration_cast<std::chrono::nanoseconds>(res) << "\n";
 
   // SIMD Benchmark
   std::cout << "VECTOR::::::::::::::::::::::::::\n";
-  s = std::chrono::steady_clock::now().time_since_epoch().count();
+  s = std::chrono::steady_clock::now().time_since_epoch();
   std::array<Vec2, 4> res2 = getCornersSIMD(r, 0.f);
-  res = std::chrono::steady_clock::now().time_since_epoch().count() - s;
-  std::cout << res << "\n";
+  res = std::chrono::steady_clock::now().time_since_epoch() - s;
+  std::cout << std::chrono::duration_cast<std::chrono::nanoseconds>(res) << "\n";
 
   for(int i = 0; i < res1.size(); ++i) {
     EXPECT_EQ(res1[i], res2[i]);
@@ -39,17 +39,17 @@ TEST(collision, checkContains) {
 
   // Scaler Benchmark
   std::cout << "SCALER::::::::::::::::::::::::::\n";
-  auto s = std::chrono::steady_clock::now().time_since_epoch().count();
+  auto s = std::chrono::steady_clock::now().time_since_epoch();
   auto res1 = checkContains(cs1, cs2);
-  auto res = std::chrono::steady_clock::now().time_since_epoch().count() - s;
-  std::cout << res << "ms\n";
+  auto res = std::chrono::steady_clock::now().time_since_epoch() - s;
+  std::cout << std::chrono::duration_cast<std::chrono::nanoseconds>(res) << "\n";
 
   // SIMD BenchMark
   std::cout << "VECTOR::::::::::::::::::::::::::\n";
-  s = std::chrono::steady_clock::now().time_since_epoch().count();
+  s = std::chrono::steady_clock::now().time_since_epoch();
   auto res2 = checkContainsSIMD(cs1, cs2);
-  res = std::chrono::steady_clock::now().time_since_epoch().count() - s;
-  std::cout << res << "ms\n";
+  res = std::chrono::steady_clock::now().time_since_epoch() - s;
+  std::cout << std::chrono::duration_cast<std::chrono::nanoseconds>(res) << "\n";
 
   EXPECT_EQ(res1, res2);
 }
