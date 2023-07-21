@@ -1,5 +1,4 @@
 #include "collision.h"
-#include <smmintrin.h>
 
 namespace plane {
   std::vector<line> getAxis(const Rectangle& r, const float radian) {
