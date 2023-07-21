@@ -4,7 +4,6 @@
 
 #include <chrono>
 
-
 using namespace plane;
 
 TEST(collision, getCorners) {

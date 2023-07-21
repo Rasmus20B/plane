@@ -4,11 +4,12 @@
 #include "../common/config.h"
 #include <cmath>
 #include <vector> 
+#include "virt_screen.h"
 
 namespace plane {
 
   struct pSpace {
-    Vector2 pos{config.screen_width/ 2,(config.screen_height/ 6) * 4};
+    Vector2 pos{gg.x + (gg.c/ 2), gg.y + (gg.r / 6) * 4};
     float speed = 8.0f;
     bool micro = false;
   };

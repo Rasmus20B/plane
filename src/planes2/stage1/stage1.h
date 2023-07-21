@@ -9,6 +9,7 @@
 
 #include "../enm.h"
 #include "enemies.h"
+#include "../virt_screen.h"
 
 #include <raylib.h>
 

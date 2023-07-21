@@ -1,5 +1,7 @@
 #include "enm.h"
 
+#include "virt_screen.h"
+
 namespace plane {
 
   void Enm::draw() {
@@ -33,7 +35,6 @@ namespace plane {
 
     e_tmp.spatial.pos = {x, y};
 
-
     switch(e.spatial.movement) {
       case MOVE_LINEAR:
         break;
@@ -41,10 +42,10 @@ namespace plane {
         {
           std::vector<SplinePt> pts;
           if(Vector2{x, y} != e.spatial.move_points[0]) {
-            pts.push_back({ {x, y}, 0});
+            pts.push_back({ {gg.x + x,  gg.y + y}, 0});
           }
           for(auto &i : e.spatial.move_points) {
-            pts.push_back({ {i.vec.x, i.vec.y}, 0});
+            pts.push_back({ {gg.x + i.vec.x, gg.y + i.vec.y}, 0});
           }
           Spline s(pts, e.spatial.speed);
           e_tmp.spatial.move_points = s.calc_points(0.01, e.spatial.speed, false);

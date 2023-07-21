@@ -1,5 +1,6 @@
 #include "plane.h"
 #include "projectile.h"
+#include "virt_screen.h"
 
 #include <random>
 #include <raylib.h>
@@ -16,6 +17,11 @@ namespace plane {
     SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(config.screen_width, config.screen_height, "Plane");
     SetTargetFPS(60);
+
+    gg.x = config.screen_width / 10;
+    gg.y = 0;
+    gg.r = (1920.f / 3)  * 2;
+    gg.c = config.screen_height;
 
     int gamepad = 0;
     int exp = 0;
@@ -96,11 +102,12 @@ namespace plane {
           es.push_back(etypes[i]);
         }
       }
+
+      DrawRectangle(gg.x + gg.c, 0, config.screen_width - (gg.c + gg.x), config.screen_height, GRAY);
+      DrawRectangle(0, 0, config.screen_width / 10, config.screen_height, GRAY);
       frame_count++;
 
       EndDrawing();
-
-
       // bool micro = false; BeginDrawing();
       //   ClearBackground(GetColor(0x052c46ff));
       //
