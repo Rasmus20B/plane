@@ -33,6 +33,8 @@ namespace plane {
   
     Enm e_tmp = e;
 
+    e_tmp.attrs.health = health;
+
     e_tmp.spatial.pos = {x, y};
 
     switch(e.spatial.movement) {
@@ -73,6 +75,10 @@ namespace plane {
         } else {
           e.speed += e.special1;
         }
+        break;
+      case NA:
+        e.cur += e.speed;
+        break;
       default:
         break;
     }
@@ -81,7 +87,8 @@ namespace plane {
       return;
     }
     e.pos = e.move_points[e.cur];
-    if(e.cur < e.move_points.size() - e.speed - 1)
+    if(e.cur < e.move_points.size() - e.speed - 1) {
       e.cur += e.speed;
+    }
   }
 }

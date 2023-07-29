@@ -6,13 +6,12 @@ namespace plane {
     Enm e = enmCreate(Enm {
       .spatial = {
         .move_points = pts,
-        .speed = 0.2f,
+        .speed = 0.2,
         .movement = MOVE_SMOOTH,
         .flag = enmMoveFlag::ACCEL_DECEL,
         .special1 = 0.3f,
         .special2 = 0.3f,
       },
-      .danmaku = {},
       .sprite = tm.actSprites[0],
     }, pts[0].x(), pts[0].y(), 15, 2, 0);
 
@@ -25,10 +24,10 @@ namespace plane {
     b.setSpeed(3, 2);
     b.setAngle(0, 15);
 
-    e.danmaku[0] = b;
-    e.shots[100] = b;
-    e.shots[200] = b;
-    e.shots[300] = b;
+    e.shooting.danmaku[0] = b;
+    e.shooting.shots[100] = b;
+    e.shooting.shots[200] = b;
+    e.shooting.shots[300] = b;
 
     b.mode = BulletFlag::RING_AIMED;
     b.setCount(4, 4);
@@ -36,10 +35,10 @@ namespace plane {
     b.setSpeed(5, 5);
     b.setAngle(0, 15);
 
-    e.danmaku[1] = b;
-    e.shots[150] = b;
-    e.shots[250] = b;
-    e.shots[350] = b;
+    e.shooting.danmaku[1] = b;
+    e.shooting.shots[150] = b;
+    e.shooting.shots[250] = b;
+    e.shooting.shots[350] = b;
     return e;
   }
 }

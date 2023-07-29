@@ -13,15 +13,19 @@ namespace plane {
     float speed = 8.0f;
     bool micro = false;
   };
+
+  struct pShooting {
+    float lastshot = 0;
+    float shottime = 0.3;
+  };
+
   struct Player {
     pSpace spatial;
     short lives = 3;
     float b_size = 0;
     float b_max_size = 300;
-    float last_shot = 0;
-    bool b_fire = false;
-    bool b_charging = false;
     uint32_t d_time = 0;
+    pShooting shooting;
     Texture2D sprite = LoadTexture("../assets/Sprite-0001.png");
     Texture2D in_sprite = LoadTexture("../assets/soul.png");
     std::vector<size_t> marked;

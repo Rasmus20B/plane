@@ -6,6 +6,6 @@
 
 namespace plane {
 
-  int handle_game_input(pSpace& p);
+  int handle_game_input(pSpace& p, pShooting& s);
 
 }

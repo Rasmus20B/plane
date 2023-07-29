@@ -27,10 +27,15 @@ namespace plane {
     MOVE_SMOOTH
   };
 
+  enum enmShootType {
+    SHOOT_FIXED,
+    SHOOT_LOOP
+  };
+
   struct EnmSpace {
     std::vector<Vec2> move_points;
     Vec2 pos;
-    uint16_t cur; // how long along it's path it is, index for movepoints
+    float cur; // how long along it's path it is, index for movepoints
     float speed;
     enmMoveType movement;
 
@@ -39,12 +44,21 @@ namespace plane {
     float special2;
   };
 
-  struct Enm {
-    EnmSpace spatial;
+  struct EnmShoot {
     BulletMgr danmaku[16];
     std::unordered_map<uint32_t, BulletMgr> shots;
-    Texture2D sprite;
+    enmShootType type;
+  };
 
+  struct EnmAttrs {
+    float health;
+  };
+
+  struct Enm {
+    EnmSpace spatial;
+    EnmShoot shooting;
+    EnmAttrs attrs;
+    Texture2D sprite;
     void draw();
   };
 

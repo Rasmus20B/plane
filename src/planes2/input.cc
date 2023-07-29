@@ -1,7 +1,9 @@
 #include "input.h"
+#include "player.h"
+#include <raylib.h>
 
 namespace plane {
-  int handle_game_input(pSpace& p) {
+  int handle_game_input(pSpace& p, pShooting& s) {
       if(IsKeyDown(KEY_UP)) {
         p.pos.y -= p.speed;
       }
@@ -28,6 +30,13 @@ namespace plane {
 
       if(IsKeyDown(KEY_SPACE)) {
         
+      }
+
+      if(IsKeyDown(KEY_Z)) {
+        if (GetTime() - s.lastshot > s.shottime) {
+          //shoot
+          s.lastshot = GetTime();
+        }
       }
 
       return 0;

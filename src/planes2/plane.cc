@@ -52,6 +52,7 @@ namespace plane {
     std::vector<BulletMgr> bs;
     std::vector<Enm> etypes = s.e;
     std::vector<Enm> es;
+    std::vector<BulletMgr> player_bullets;
 
     std::unordered_map<uint32_t, bool> liveBMs;
     std::unordered_map<uint32_t, bool> livePBs;
@@ -62,17 +63,34 @@ namespace plane {
       ClearBackground(BLACK);
       BeginDrawing();
 
-      handle_game_input(p.spatial);
+      handle_game_input(p.spatial, p.shooting);
       auto p_hitbox = p.getPlayerHitbox();
       DrawTextureV(p.sprite, {p.spatial.pos.x , p.spatial.pos.y }, WHITE);
+
+      // Check Player Bullets
+      for(auto b : player_bullets) {
+        b.update();
+        b.draw();
+        for(int i = 0; i < es.size(); ++i) {
+          Rectangle hitbox = {
+            .x = es[i].spatial.pos.x(),
+            .y = es[i].spatial.pos.y(),
+            .width = static_cast<float>(es[i].sprite.width),
+            .height = static_cast<float>(es[i].sprite.height)
+          };
+          if(b.collision_check(hitbox)) {
+            es[i].attrs.health--;
+          }
+        }
+      }
 
       for(int i = 0; i < es.size(); ++i) {
         if(!liveENs[i]) continue;
         enmUpdatePos(es[i].spatial);
         es[i].draw();
 
-        auto s = es[i].shots.find(frame_count);
-        if(s == es[i].shots.end()) continue;
+        auto s = es[i].shooting.shots.find(frame_count);
+        if(s == es[i].shooting.shots.end()) continue;
         s->second.shoot(es[i].spatial.pos, p.spatial.pos);
         bs.push_back(s->second);
         liveBMs[bs.size() - 1] = true;
