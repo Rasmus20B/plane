@@ -8,10 +8,32 @@ namespace dml {
     pgtext = std::move(progtext);
   }
 
+  constexpr uint32_t VM::getIntFromStack(){
+    uint32_t num = (memory[stackptr-4] << 24) | (memory[stackptr-3] << 16) | 
+      (memory[stackptr-2] << 8) | memory[stackptr-1];
+    return num;
+  }
+
+  constexpr uint32_t VM::getIntFromArgument() {
+    uint32_t num;
+    num |= this->pgtext[pc+1];
+    num |= this->pgtext[pc+2];
+    num |= this->pgtext[pc+3];
+    num |= this->pgtext[pc+4];
+    return num;
+  }
+
   void VM::init() {
     this->pc = 0;
     this->waitctr = 0;
     this->stackptr = 0;
+  }
+
+  constexpr void VM::loadIntToStack() {
+    this->memory[stackptr++] = this->pgtext[pc+1];
+    this->memory[stackptr++] = this->pgtext[pc+2];
+    this->memory[stackptr++] = this->pgtext[pc+3];
+    this->memory[stackptr++] = this->pgtext[pc+4];
   }
 
   void VM::run() {
@@ -21,23 +43,27 @@ namespace dml {
         this->waitctr--;
         return;
       }
-      uint32_t opcode = pgtext[pc];
+      int opcode = pgtext[pc];
       opcode = opcode << 16;
       this->pc++;
-      opcode |= (uint32_t)pgtext[pc];
-      switch(opcode) {
-        case 0x0000:
+      opcode |= pgtext[pc];
+      OpCodes oc = static_cast<OpCodes>(opcode);
+      switch(oc) {
+        case OpCodes::NOP:
           // nop
           pc++;
-        case 0x0001:
+        case OpCodes::DELETE:
           // delete execution
           pc++;
-          continue;
-        case 0x0002:
+          break;
+        case OpCodes::JMP:
           // jmp
           pc++;
-          continue;
-        case 0x0017: {
+          break;
+        case OpCodes::JUMPEQ:
+          pc++;
+          break;
+        case OpCodes::WAIT: {
           // wait
           uint32_t time = 0;
           time |= (pgtext[pc+4]);
@@ -45,42 +71,95 @@ namespace dml {
           pc += 5;
           break;
           };
-        case 0x000D: 
-          continue;
-        case 0x0004:
           break;
-        case 0x000A:
+        case OpCodes::RETURN:
           // Return
           break;
-        case 0x002A:
+        case OpCodes::PUSHI:
           // push i
           {
-          int num = (pgtext[pc+1] << 24) | (pgtext[pc+2] << 16) | (pgtext[pc+3] << 8) | pgtext[pc+4];
-          this->memory[stackptr++] = this->pgtext[pc+1];
-          this->memory[stackptr++] = this->pgtext[pc+2];
-          this->memory[stackptr++] = this->pgtext[pc+3];
-          this->memory[stackptr++] = this->pgtext[pc+4];
+          loadIntToStack();
           this->pc += sizeof(int) + 1;
-          continue;
+          break;
           }
-        case 0x002B:
+        case OpCodes::SETI:
+          // set i
+          {
+          uint32_t var = (pgtext[pc+1] << 24) | (pgtext[pc+2] << 16) | (pgtext[pc+3] << 8) | pgtext[pc+4];
+          uint32_t num = (memory[stackptr-4] << 24) | (memory[stackptr-3] << 16) | (memory[stackptr-2] << 8) | memory[stackptr-1];
+          std::cout << "OVERWRITING VAR: " << var << " WITH " << num << "\n";
+          this->vars[var] = num;
+          this->pc += sizeof(int) + 1;
+          this->stackptr -= 5;
+          break;
+          }
+        case OpCodes::PUSHF:
+          // push f
+          {
+          int num = (pgtext[pc+1] << 24) | (pgtext[pc+2] << 16) | (pgtext[pc+3] << 8) | pgtext[pc+4];
+          loadIntToStack();
+          this->pc += sizeof(int) + 1;
+          break;
+          }
+        case OpCodes::SETF:
+          // set f
           {
           uint32_t var = (pgtext[pc+1] << 24) | (pgtext[pc+2] << 16) | (pgtext[pc+3] << 8) | pgtext[pc+4];
           uint32_t num = (memory[stackptr-4] << 24) | (memory[stackptr-3] << 16) | (memory[stackptr-2] << 8) | memory[stackptr-1];
           this->vars[var] = num;
           this->pc += sizeof(int) + 1;
           this->stackptr -= 5;
+          break;
           }
-        case 0x0032:{
+        case OpCodes::ADDI:
+          {
+          // add i 
           uint32_t res = 0;
-          while(stackptr > 0) {
-            uint32_t o = (memory[stackptr-4] << 24) | (memory[stackptr-3] << 16) | (memory[stackptr-2] << 8) | memory[stackptr-1];
-            res += o;
-            this->stackptr -= 4;
-          }
-          pc += 3;
-          };
+          uint32_t o1 = getIntFromStack();
+          this->stackptr -= 4;
+          uint32_t o2 = getIntFromStack();
+          this->stackptr -= 4;
+          res = o1 + o2;
 
+          this->memory[this->stackptr++] = res << 24;
+          this->memory[this->stackptr++] = res << 16;
+          this->memory[this->stackptr++] = res << 8;
+          this->memory[this->stackptr++] = res;
+          this->pc += sizeof(int);
+          break;
+          }
+        case OpCodes::ADDF: 
+          {
+          // add f 
+          float res = 0;
+          float o1 = getIntFromStack();
+          this->stackptr -= 4;
+          float o2 = getIntFromStack();
+          this->stackptr -= 4;
+          res = o1 + o2;
+
+          std::cout << "GOT " << res << "\n";
+
+          this->memory[this->stackptr++] = *(uint32_t*)&res << 24;
+          this->memory[this->stackptr++] = *(uint32_t*)&res << 16;
+          this->memory[this->stackptr++] = *(uint32_t*)&res << 8;
+          this->memory[this->stackptr++] = *(uint32_t*)&res ;
+          this->pc += sizeof(int);
+          break;
+          }
+
+
+        case OpCodes::ENMCREATE:
+          // enmCreate()
+          break;
+
+        case OpCodes::MOVEPOS:
+          // movPos(x, y)
+          break;
+
+        case OpCodes::MOVPOSTIME:
+          // movPosTime(x, y, t)
+          break;
         default:
           std::cout << "OPCODE NOT IMPLEMENTED\n";
           return;
