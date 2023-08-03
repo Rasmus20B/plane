@@ -16,30 +16,38 @@
 
 namespace dml {
 
+struct Task {
+  std::array<char, 2000> mem{};
+  std::array<float, 16> vars{};
+  uint16_t pc = 0;
+  uint16_t sp = 0;
+  uint16_t waitctr = 0;
+
+  void set_entry(uint16_t ep);
+};
 struct Scheduler {
   uint32_t n_tasks = 1;
+  std::array<Task, 128> tasks;
+  std::array<bool, 128> tasks_mask;
   float total_duration = 0.002;
-  float cur_slice;
-  uint32_t c_task;
+  float cur_slice = 0;
+  uint16_t c_task = 0;
 
+  void init();
   void set_ts_duration(float ts);
-  void add_task();
+  bool add_task(uint16_t ep);
   void del_task();
+  bool next_task();
 };
 
-struct task {
-  std::array<char, 2000> mem;
-  std::array<float, 16> vars;
-  uint32_t pc;
-  uint32_t sp;
-  uint32_t waitctr;
-};
 
 struct VM {
+#define CURTASK sch.tasks[sch.c_task]
   std::string pgtext{};
-  std::vector<task> tasks;
   Scheduler sch;
   std::atomic_flag power;
+
+  std::vector<Task> tasks;
 
   void load_script(const std::string&& progtext);
   void init();

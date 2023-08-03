@@ -1,23 +1,73 @@
 #include "dml.h"
 #include <chrono>
 #include <cstring>
+#include <iterator>
 #include <raylib.h>
 
 namespace dml {
+
+  void Task::set_entry(uint16_t ep) {
+    this->pc = ep;
+  }
+  
+  void Scheduler::init() {
+    std::fill(tasks_mask.begin(), tasks_mask.end(), false);
+    tasks_mask[0] = true;
+    Task t;
+    t.set_entry(0);
+    tasks[0] = t;
+  }
 
   void Scheduler::set_ts_duration(float ts) {
     this->total_duration = ts;
     this->cur_slice = this->total_duration / this->n_tasks;
   }
 
-  void Scheduler::add_task() {
+  bool Scheduler::add_task(uint16_t ep) {
+
+    uint16_t i = c_task + 1;
+    while(tasks_mask[i]) {
+      if(i >= tasks_mask.size() - 1) {
+        i = 0;
+      }
+      if(i == c_task) {
+        return false;
+      }
+      i++;
+    }
+    tasks_mask[i] = true;
+    Task t;
+    t.set_entry(ep);
+    tasks[i] = t;
     this->n_tasks++;
     this->cur_slice = this->total_duration / (this->n_tasks) ;
+    return true;
   }
   
   void Scheduler::del_task() {
     this->n_tasks--;
     this->cur_slice = this->total_duration / this->n_tasks;
+    tasks_mask[c_task] = false;
+  }
+
+  bool Scheduler::next_task() {
+    uint16_t i = c_task + 1;
+    while(!this->tasks_mask[i]) {
+      if(i >= this->tasks_mask.size() - 1) {
+        i = 0;
+        continue;
+      }
+      if(i == c_task) {
+        if(!tasks_mask[c_task]) {
+          // no active tasks, lets shut down
+          return false;
+          // else we stick with the same one
+        } else break;
+      }
+      i++;
+    }
+    this->c_task = i;
+    return true;
   }
 
   void VM::load_script(const std::string&& progtext) {
@@ -26,19 +76,20 @@ namespace dml {
   }
 
   constexpr uint32_t VM::getIntFromStack(uint32_t t_id){
-    uint32_t num = (tasks[t_id].mem[tasks[t_id].sp-4] << 24)
-      | (tasks[t_id].mem[tasks[t_id].sp-3] << 16) 
-      | (tasks[t_id].mem[tasks[t_id].sp-2] << 8) 
-      | tasks[t_id].mem[tasks[t_id].sp-1];
+    uint32_t num = 
+        (CURTASK.mem[CURTASK.sp-4] << 24)
+      | (CURTASK.mem[CURTASK.sp-3] << 16) 
+      | (CURTASK.mem[CURTASK.sp-2] << 8) 
+      |  CURTASK.mem[CURTASK.sp-1];
     return num;
   }
 
   constexpr uint32_t VM::getIntFromArgument(uint32_t t_id) {
     uint32_t num = 0;
-    num = this->pgtext[tasks[t_id].pc+1];
-    num |= this->pgtext[tasks[t_id].pc+2];
-    num |= this->pgtext[tasks[t_id].pc+3];
-    num |= this->pgtext[tasks[t_id].pc+4];
+    num = this->pgtext[CURTASK.pc+1];
+    num |= this->pgtext[CURTASK.pc+2];
+    num |= this->pgtext[CURTASK.pc+3];
+    num |= this->pgtext[CURTASK.pc+4];
     return num;
   }
   
@@ -53,87 +104,88 @@ namespace dml {
   }
 
   void VM::init(uint32_t t_id, uint32_t start) {
-    tasks[t_id].pc = start;
-    tasks[t_id].waitctr = 0;
-    tasks[t_id].sp = 0;
+    CURTASK.pc = start;
+    CURTASK.waitctr = 0;
+    CURTASK.sp = 0;
   }
 
   constexpr void VM::loadIntToStack(uint32_t t_id, uint32_t num) {
-    tasks[t_id].mem[tasks[t_id].sp++] = num << 24;
-    tasks[t_id].mem[tasks[t_id].sp++] = num << 16;
-    tasks[t_id].mem[tasks[t_id].sp++] = num << 8;
-    tasks[t_id].mem[tasks[t_id].sp++] = num;
+    CURTASK.mem[CURTASK.sp++] = num << 24;
+    CURTASK.mem[CURTASK.sp++] = num << 16;
+    CURTASK.mem[CURTASK.sp++] = num << 8;
+    CURTASK.mem[CURTASK.sp++] = num;
   }
 
   constexpr void VM::loadIntToStack(uint32_t t_id) {
-    tasks[t_id].mem[tasks[t_id].sp++] = this->pgtext[tasks[t_id].pc+1];
-    tasks[t_id].mem[tasks[t_id].sp++] = this->pgtext[tasks[t_id].pc+2];
-    tasks[t_id].mem[tasks[t_id].sp++] = this->pgtext[tasks[t_id].pc+3];
-    tasks[t_id].mem[tasks[t_id].sp++] = this->pgtext[tasks[t_id].pc+4];
+    CURTASK.mem[CURTASK.sp++] = this->pgtext[CURTASK.pc+1];
+    CURTASK.mem[CURTASK.sp++] = this->pgtext[CURTASK.pc+2];
+    CURTASK.mem[CURTASK.sp++] = this->pgtext[CURTASK.pc+3];
+    CURTASK.mem[CURTASK.sp++] = this->pgtext[CURTASK.pc+4];
   }
 
   void VM::run() {
 
-    uint32_t t_id = 0;
     float time_acc = 0.f;
 
     sch.set_ts_duration(0.004);
+    sch.init();
     while(true) {
+
       if(this->power.test()) {
         return;
       }
 
       if(time_acc >= sch.cur_slice) {
         time_acc = 0.f;
-        t_id++;
+        sch.next_task();
       }
 
-      std::cout << t_id + 1 << " / " << sch.n_tasks << "\n";
-
-      if(t_id >= sch.n_tasks) {
-        t_id = 0;
-      }
-
-      if(tasks[t_id].waitctr) {
-        tasks[t_id].waitctr--;
+      if(CURTASK.waitctr) {
+        CURTASK.waitctr -= 1;
+        std::cout << sch.c_task << " : " << std::dec << CURTASK.waitctr << "\n";
+        if(!sch.next_task()) {
+          return;
+        }
         continue;
       }
 
-      if(tasks[t_id].pc == this->pgtext.size()) {
-        if(t_id == 0) {
+      if(CURTASK.pc >= this->pgtext.size() - 1) {
+        if(!sch.next_task()) {
           return;
         }
+
         sch.del_task();
+        sch.next_task();
+        continue;
       }
 
       auto start_time = std::chrono::high_resolution_clock::now();
-      int opcode = pgtext[tasks[t_id].pc];
+      int opcode = pgtext[CURTASK.pc];
       opcode = opcode << 8;
-      tasks[t_id].pc++;
-      opcode |= pgtext[tasks[t_id].pc];
+      CURTASK.pc++;
+      opcode |= pgtext[CURTASK.pc];
       OpCodes oc = static_cast<OpCodes>(opcode);
-      // std::cout << t_id << ": " << std::hex << opcode << "\n";
+      // std::cout << sch.c_task << ": " << std::hex << opcode << "\n";
       switch(oc) {
         case OpCodes::NOP:
           // nop
-          tasks[t_id].pc++;
+          CURTASK.pc++;
         case OpCodes::DELETE:
           // delete execution
-          tasks[t_id].pc++;
+          CURTASK.pc++;
           break;
         case OpCodes::JMP:
           // jmp
-          tasks[t_id].pc++;
+          CURTASK.pc++;
           break;
         case OpCodes::JUMPEQ:
-          tasks[t_id].pc++;
+          CURTASK.pc++;
           break;
         case OpCodes::WAIT: {
           // wait
-          uint32_t time = 0;
-          time |= (pgtext[tasks[t_id].pc+4]);
-          tasks[t_id].waitctr = time;
-          tasks[t_id].pc += 5;
+          uint16_t time = getIntFromArgument(sch.c_task);
+          CURTASK.waitctr = time;
+          CURTASK.pc += sizeof(int) + 1;
           break;
           };
         case OpCodes::RETURN:
@@ -142,27 +194,24 @@ namespace dml {
         case OpCodes::PUSHI:
           // push i
           {
-          loadIntToStack(t_id);
-          tasks[t_id].pc += sizeof(int) + 1;
+          loadIntToStack(sch.c_task);
+          CURTASK.pc += sizeof(int) + 1;
           break;
           }
         case OpCodes::SETI:
           // set i
           {
-          uint32_t var = getIntFromArgument(t_id);
-          uint32_t num = getIntFromStack(t_id);
+          uint32_t var = getIntFromArgument(sch.c_task);
+          uint32_t num = getIntFromStack(sch.c_task);
           std::cout << "OVERWRITING VAR: " << var << " WITH " << num << "\n";
-          tasks[t_id].vars[var] = num;
-          tasks[t_id].pc += sizeof(int) + 1;
-          tasks[t_id].sp -= 4;
+          CURTASK.vars[var] = num;
+          CURTASK.pc += sizeof(int) + 1;
+          CURTASK.sp -= 4;
           break;
           }
         case OpCodes::PUSHF:
           // push f
           {
-          int num = getIntFromArgument(t_id);
-          loadIntToStack(t_id);
-          tasks[t_id].pc += sizeof(int) + 1;
           break;
           }
         case OpCodes::SETF:
@@ -173,14 +222,14 @@ namespace dml {
           {
           // add i 
           uint32_t res = 0;
-          uint32_t o1 = getIntFromStack(t_id);
-          tasks[t_id].sp -= 4;
-          uint32_t o2 = getIntFromStack(t_id);
-          tasks[t_id].sp -= 4;
+          uint32_t o1 = getIntFromStack(sch.c_task);
+          CURTASK.sp -= 4;
+          uint32_t o2 = getIntFromStack(sch.c_task);
+          CURTASK.sp -= 4;
           res = o1 + o2;
 
-          loadIntToStack(t_id, res);
-          tasks[t_id].pc += sizeof(int);
+          loadIntToStack(sch.c_task, res);
+          CURTASK.pc++;
           break;
           }
         case OpCodes::ADDF: 
@@ -194,12 +243,11 @@ namespace dml {
           // enmCreate()
           // push an enemy to a vector
           // assign them a program counter
-          task tnew;
-          tasks.push_back(tnew);
-          this->init(tasks.size() - 1, 2);
-          sch.add_task();
-          tasks[t_id].pc++;
+          {
+          sch.add_task(2);
+          CURTASK.pc++;
           break;
+          }
         case OpCodes::MOVEPOS:
           // movPos(x, y)
           break;

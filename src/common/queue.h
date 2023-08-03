@@ -8,7 +8,7 @@
 #include <bit> 
 
 template<class T, size_t N>
-requires(std::has_single_bit(N), sizeof(T) < 64)
+requires(std::has_single_bit(N), sizeof(T) <= 64)
 struct alignas(64) Queue{
 
   [[nodiscard]]
