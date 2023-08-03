@@ -8,149 +8,165 @@ namespace dml {
     pgtext = std::move(progtext);
   }
 
-  constexpr uint32_t VM::getIntFromStack(){
-    uint32_t num = (memory[stackptr-4] << 24) | (memory[stackptr-3] << 16) | 
-      (memory[stackptr-2] << 8) | memory[stackptr-1];
+  constexpr uint32_t VM::getIntFromStack(uint32_t t_id){
+    uint32_t num = (tasks[t_id].mem[tasks[t_id].sp-4] << 24)
+      | (tasks[t_id].mem[tasks[t_id].sp-3] << 16) 
+      | (tasks[t_id].mem[tasks[t_id].sp-2] << 8) 
+      | tasks[t_id].mem[tasks[t_id].sp-1];
     return num;
   }
 
-  constexpr uint32_t VM::getIntFromArgument() {
-    uint32_t num;
-    num |= this->pgtext[pc+1];
-    num |= this->pgtext[pc+2];
-    num |= this->pgtext[pc+3];
-    num |= this->pgtext[pc+4];
+  constexpr uint32_t VM::getIntFromArgument(uint32_t t_id) {
+    uint32_t num = 0;
+    num = this->pgtext[tasks[t_id].pc+1];
+    num |= this->pgtext[tasks[t_id].pc+2];
+    num |= this->pgtext[tasks[t_id].pc+3];
+    num |= this->pgtext[tasks[t_id].pc+4];
     return num;
   }
-
+  
   void VM::init() {
-    this->pc = 0;
-    this->waitctr = 0;
-    this->stackptr = 0;
+    tasks.reserve(256);
+    tasks.push_back({
+        .pc = 0,
+        .sp = 0,
+        .waitctr = 0,
+        .mem = {}
+        });
   }
 
-  constexpr void VM::loadIntToStack() {
-    this->memory[stackptr++] = this->pgtext[pc+1];
-    this->memory[stackptr++] = this->pgtext[pc+2];
-    this->memory[stackptr++] = this->pgtext[pc+3];
-    this->memory[stackptr++] = this->pgtext[pc+4];
+  void VM::init(uint32_t t_id, uint32_t start) {
+    tasks[t_id].pc = start;
+    tasks[t_id].waitctr = 0;
+    tasks[t_id].sp = 0;
+  }
+
+  constexpr void VM::loadIntToStack(uint32_t t_id, uint32_t num) {
+    tasks[t_id].mem[tasks[t_id].sp++] = num << 24;
+    tasks[t_id].mem[tasks[t_id].sp++] = num << 16;
+    tasks[t_id].mem[tasks[t_id].sp++] = num << 8;
+    tasks[t_id].mem[tasks[t_id].sp++] = num;
+  }
+
+  constexpr void VM::loadIntToStack(uint32_t t_id) {
+    tasks[t_id].mem[tasks[t_id].sp++] = this->pgtext[tasks[t_id].pc+1];
+    tasks[t_id].mem[tasks[t_id].sp++] = this->pgtext[tasks[t_id].pc+2];
+    tasks[t_id].mem[tasks[t_id].sp++] = this->pgtext[tasks[t_id].pc+3];
+    tasks[t_id].mem[tasks[t_id].sp++] = this->pgtext[tasks[t_id].pc+4];
   }
 
   void VM::run() {
 
+    uint32_t t_id = 0;
     while(true) {
-      if(this->waitctr) {
-        this->waitctr--;
+      if(this->power.test()) {
         return;
       }
-      int opcode = pgtext[pc];
-      opcode = opcode << 16;
-      this->pc++;
-      opcode |= pgtext[pc];
+      if(t_id == tasks.size()) {
+        t_id = 0;
+      }
+      if(tasks[t_id].waitctr) {
+        tasks[t_id].waitctr--;
+        continue;
+      }
+      if(tasks[t_id].pc == this->pgtext.size()) {
+        if(t_id == 0) {
+          return;
+        }
+        tasks[t_id].pc = 0;
+      }
+      int opcode = pgtext[tasks[t_id].pc];
+      opcode = opcode << 8;
+      tasks[t_id].pc++;
+      opcode |= pgtext[tasks[t_id].pc];
       OpCodes oc = static_cast<OpCodes>(opcode);
+      std::cout << t_id << ": " << std::hex << opcode << "\n";
       switch(oc) {
         case OpCodes::NOP:
           // nop
-          pc++;
+          tasks[t_id].pc++;
         case OpCodes::DELETE:
           // delete execution
-          pc++;
+          tasks[t_id].pc++;
           break;
         case OpCodes::JMP:
           // jmp
-          pc++;
+          tasks[t_id].pc++;
           break;
         case OpCodes::JUMPEQ:
-          pc++;
+          tasks[t_id].pc++;
           break;
         case OpCodes::WAIT: {
           // wait
           uint32_t time = 0;
-          time |= (pgtext[pc+4]);
-          this->waitctr = time;
-          pc += 5;
+          time |= (pgtext[tasks[t_id].pc+4]);
+          tasks[t_id].waitctr = time;
+          tasks[t_id].pc += 5;
+          t_id++;
           break;
           };
-          break;
         case OpCodes::RETURN:
           // Return
           break;
         case OpCodes::PUSHI:
           // push i
           {
-          loadIntToStack();
-          this->pc += sizeof(int) + 1;
+          loadIntToStack(t_id);
+          tasks[t_id].pc += sizeof(int) + 1;
           break;
           }
         case OpCodes::SETI:
           // set i
           {
-          uint32_t var = (pgtext[pc+1] << 24) | (pgtext[pc+2] << 16) | (pgtext[pc+3] << 8) | pgtext[pc+4];
-          uint32_t num = (memory[stackptr-4] << 24) | (memory[stackptr-3] << 16) | (memory[stackptr-2] << 8) | memory[stackptr-1];
+          uint32_t var = getIntFromArgument(t_id);
+          uint32_t num = getIntFromStack(t_id);
           std::cout << "OVERWRITING VAR: " << var << " WITH " << num << "\n";
           this->vars[var] = num;
-          this->pc += sizeof(int) + 1;
-          this->stackptr -= 5;
+          tasks[t_id].pc += sizeof(int) + 1;
+          tasks[t_id].sp -= 4;
           break;
           }
         case OpCodes::PUSHF:
           // push f
           {
-          int num = (pgtext[pc+1] << 24) | (pgtext[pc+2] << 16) | (pgtext[pc+3] << 8) | pgtext[pc+4];
-          loadIntToStack();
-          this->pc += sizeof(int) + 1;
+          int num = getIntFromArgument(t_id);
+          loadIntToStack(t_id);
+          tasks[t_id].pc += sizeof(int) + 1;
           break;
           }
         case OpCodes::SETF:
           // set f
           {
-          uint32_t var = (pgtext[pc+1] << 24) | (pgtext[pc+2] << 16) | (pgtext[pc+3] << 8) | pgtext[pc+4];
-          uint32_t num = (memory[stackptr-4] << 24) | (memory[stackptr-3] << 16) | (memory[stackptr-2] << 8) | memory[stackptr-1];
-          this->vars[var] = num;
-          this->pc += sizeof(int) + 1;
-          this->stackptr -= 5;
-          break;
           }
         case OpCodes::ADDI:
           {
           // add i 
           uint32_t res = 0;
-          uint32_t o1 = getIntFromStack();
-          this->stackptr -= 4;
-          uint32_t o2 = getIntFromStack();
-          this->stackptr -= 4;
+          uint32_t o1 = getIntFromStack(t_id);
+          tasks[t_id].sp -= 4;
+          uint32_t o2 = getIntFromStack(t_id);
+          tasks[t_id].sp -= 4;
           res = o1 + o2;
 
-          this->memory[this->stackptr++] = res << 24;
-          this->memory[this->stackptr++] = res << 16;
-          this->memory[this->stackptr++] = res << 8;
-          this->memory[this->stackptr++] = res;
-          this->pc += sizeof(int);
+          loadIntToStack(t_id, res);
+          tasks[t_id].pc += sizeof(int);
           break;
           }
         case OpCodes::ADDF: 
           {
           // add f 
-          float res = 0;
-          float o1 = getIntFromStack();
-          this->stackptr -= 4;
-          float o2 = getIntFromStack();
-          this->stackptr -= 4;
-          res = o1 + o2;
-
-          std::cout << "GOT " << res << "\n";
-
-          this->memory[this->stackptr++] = *(uint32_t*)&res << 24;
-          this->memory[this->stackptr++] = *(uint32_t*)&res << 16;
-          this->memory[this->stackptr++] = *(uint32_t*)&res << 8;
-          this->memory[this->stackptr++] = *(uint32_t*)&res ;
-          this->pc += sizeof(int);
           break;
           }
 
 
         case OpCodes::ENMCREATE:
           // enmCreate()
+          // push an enemy to a vector
+          // assign them a program counter
+          task tnew;
+          tasks.push_back(tnew);
+          this->init(tasks.size() - 1, 2);
+          tasks[t_id].pc++;
           break;
 
         case OpCodes::MOVEPOS:
@@ -168,7 +184,7 @@ namespace dml {
   }
 
   void VM::stop() {
-    
+    this->power.test_and_set();
   }
 }
 

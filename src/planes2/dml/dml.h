@@ -3,6 +3,7 @@
 #include <variant>
 #include <array>
 #include <cstdint>
+#include <atomic>
 #include <iostream>
 #include <string>
 #include <string_view>
@@ -13,23 +14,33 @@
 
 namespace dml {
 
+struct task {
+  uint32_t pc;
+  uint32_t sp;
+  uint32_t waitctr;
+  std::array<char, 2000> mem;
+};
+
 struct VM {
   std::array<char, 10192> memory;
   std::array<float, 20> vars;
   std::string pgtext{};
-  uint32_t stackptr;
-  uint32_t waitctr;
-  uint32_t pc;
-  
+  std::vector<task> tasks;
+  std::atomic_flag power;
+
+
   void load_script(const std::string&& progtext);
   void init();
+  void init(uint32_t t_id, uint32_t start);
   void run();
   void stop();
 
   constexpr uint32_t getIntFromStack();
+  constexpr uint32_t getIntFromStack(uint32_t t_id);
   constexpr uint32_t getIntFromArgument();
-  constexpr void loadIntToStack(uint32_t num);
-  constexpr void loadIntToStack();
+  constexpr uint32_t getIntFromArgument(uint32_t t_id);
+  constexpr void loadIntToStack(uint32_t t_id);
+  constexpr void loadIntToStack(uint32_t t_id, uint32_t num);
 };
 
 enum class OpCodes  {
