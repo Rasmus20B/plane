@@ -12,22 +12,34 @@
 #include <vector>
 #include <string_view>
 
+#include <raylib.h>
+
 namespace dml {
 
+struct Scheduler {
+  uint32_t n_tasks = 1;
+  float total_duration = 0.002;
+  float cur_slice;
+  uint32_t c_task;
+
+  void set_ts_duration(float ts);
+  void add_task();
+  void del_task();
+};
+
 struct task {
+  std::array<char, 2000> mem;
+  std::array<float, 16> vars;
   uint32_t pc;
   uint32_t sp;
   uint32_t waitctr;
-  std::array<char, 2000> mem;
 };
 
 struct VM {
-  std::array<char, 10192> memory;
-  std::array<float, 20> vars;
   std::string pgtext{};
   std::vector<task> tasks;
+  Scheduler sch;
   std::atomic_flag power;
-
 
   void load_script(const std::string&& progtext);
   void init();

@@ -1,7 +1,24 @@
 #include "dml.h"
+#include <chrono>
 #include <cstring>
+#include <raylib.h>
 
 namespace dml {
+
+  void Scheduler::set_ts_duration(float ts) {
+    this->total_duration = ts;
+    this->cur_slice = this->total_duration / this->n_tasks;
+  }
+
+  void Scheduler::add_task() {
+    this->n_tasks++;
+    this->cur_slice = this->total_duration / (this->n_tasks) ;
+  }
+  
+  void Scheduler::del_task() {
+    this->n_tasks--;
+    this->cur_slice = this->total_duration / this->n_tasks;
+  }
 
   void VM::load_script(const std::string&& progtext) {
     // Load text into the end of memory
@@ -28,10 +45,10 @@ namespace dml {
   void VM::init() {
     tasks.reserve(256);
     tasks.push_back({
+        .mem = {},
         .pc = 0,
         .sp = 0,
         .waitctr = 0,
-        .mem = {}
         });
   }
 
@@ -58,29 +75,44 @@ namespace dml {
   void VM::run() {
 
     uint32_t t_id = 0;
+    float time_acc = 0.f;
+
+    sch.set_ts_duration(0.004);
     while(true) {
       if(this->power.test()) {
         return;
       }
-      if(t_id == tasks.size()) {
+
+      if(time_acc >= sch.cur_slice) {
+        time_acc = 0.f;
+        t_id++;
+      }
+
+      std::cout << t_id + 1 << " / " << sch.n_tasks << "\n";
+
+      if(t_id >= sch.n_tasks) {
         t_id = 0;
       }
+
       if(tasks[t_id].waitctr) {
         tasks[t_id].waitctr--;
         continue;
       }
+
       if(tasks[t_id].pc == this->pgtext.size()) {
         if(t_id == 0) {
           return;
         }
-        tasks[t_id].pc = 0;
+        sch.del_task();
       }
+
+      auto start_time = std::chrono::high_resolution_clock::now();
       int opcode = pgtext[tasks[t_id].pc];
       opcode = opcode << 8;
       tasks[t_id].pc++;
       opcode |= pgtext[tasks[t_id].pc];
       OpCodes oc = static_cast<OpCodes>(opcode);
-      std::cout << t_id << ": " << std::hex << opcode << "\n";
+      // std::cout << t_id << ": " << std::hex << opcode << "\n";
       switch(oc) {
         case OpCodes::NOP:
           // nop
@@ -102,7 +134,6 @@ namespace dml {
           time |= (pgtext[tasks[t_id].pc+4]);
           tasks[t_id].waitctr = time;
           tasks[t_id].pc += 5;
-          t_id++;
           break;
           };
         case OpCodes::RETURN:
@@ -121,7 +152,7 @@ namespace dml {
           uint32_t var = getIntFromArgument(t_id);
           uint32_t num = getIntFromStack(t_id);
           std::cout << "OVERWRITING VAR: " << var << " WITH " << num << "\n";
-          this->vars[var] = num;
+          tasks[t_id].vars[var] = num;
           tasks[t_id].pc += sizeof(int) + 1;
           tasks[t_id].sp -= 4;
           break;
@@ -166,9 +197,9 @@ namespace dml {
           task tnew;
           tasks.push_back(tnew);
           this->init(tasks.size() - 1, 2);
+          sch.add_task();
           tasks[t_id].pc++;
           break;
-
         case OpCodes::MOVEPOS:
           // movPos(x, y)
           break;
@@ -180,6 +211,9 @@ namespace dml {
           std::cout << "OPCODE NOT IMPLEMENTED\n";
           return;
       }
+      auto dur_taken = std::chrono::high_resolution_clock::now();
+      std::chrono::duration<float, std::milli> acc = dur_taken - start_time;
+      time_acc += acc.count();
     }
   }
 
