@@ -6,6 +6,10 @@ add_executable(${PROJECT_NAME}
   common/spline.cc
   planes2/dml/dml.h
   planes2/dml/dml.cc
+  planes2/dml/scheduler.h
+  planes2/dml/scheduler.cc
+  planes2/dml/task.h
+  planes2/dml/task.cc
   planes2/bullets.h
   planes2/bullets.cc
   planes2/collision.cc

@@ -6,69 +6,7 @@
 
 namespace dml {
 
-  void Task::set_entry(uint16_t ep) {
-    this->pc = ep;
-  }
   
-  void Scheduler::init() {
-    std::fill(tasks_mask.begin(), tasks_mask.end(), false);
-    tasks_mask[0] = true;
-    Task t;
-    t.set_entry(0);
-    tasks[0] = t;
-  }
-
-  void Scheduler::set_ts_duration(float ts) {
-    this->total_duration = ts;
-    this->cur_slice = this->total_duration / this->n_tasks;
-  }
-
-  bool Scheduler::add_task(uint16_t ep) {
-
-    uint16_t i = c_task + 1;
-    while(tasks_mask[i]) {
-      if(i >= tasks_mask.size() - 1) {
-        i = 0;
-      }
-      if(i == c_task) {
-        return false;
-      }
-      i++;
-    }
-    tasks_mask[i] = true;
-    Task t;
-    t.set_entry(ep);
-    tasks[i] = t;
-    this->n_tasks++;
-    this->cur_slice = this->total_duration / (this->n_tasks) ;
-    return true;
-  }
-  
-  void Scheduler::del_task() {
-    this->n_tasks--;
-    this->cur_slice = this->total_duration / this->n_tasks;
-    tasks_mask[c_task] = false;
-  }
-
-  bool Scheduler::next_task() {
-    uint16_t i = c_task + 1;
-    while(!this->tasks_mask[i]) {
-      if(i >= this->tasks_mask.size() - 1) {
-        i = 0;
-        continue;
-      }
-      if(i == c_task) {
-        if(!tasks_mask[c_task]) {
-          // no active tasks, lets shut down
-          return false;
-          // else we stick with the same one
-        } else break;
-      }
-      i++;
-    }
-    this->c_task = i;
-    return true;
-  }
 
   void VM::load_script(const std::string&& progtext) {
     // Load text into the end of memory
@@ -81,6 +19,7 @@ namespace dml {
       | (CURTASK.mem[CURTASK.sp-3] << 16) 
       | (CURTASK.mem[CURTASK.sp-2] << 8) 
       |  CURTASK.mem[CURTASK.sp-1];
+    CURTASK.sp -= 4;
     return num;
   }
 
@@ -110,17 +49,17 @@ namespace dml {
   }
 
   constexpr void VM::loadIntToStack(uint32_t t_id, uint32_t num) {
-    CURTASK.mem[CURTASK.sp++] = num << 24;
-    CURTASK.mem[CURTASK.sp++] = num << 16;
-    CURTASK.mem[CURTASK.sp++] = num << 8;
-    CURTASK.mem[CURTASK.sp++] = num;
+    CURTASK.mem[CURTASK.sp+1] = num << 24;
+    CURTASK.mem[CURTASK.sp+2] = num << 16;
+    CURTASK.mem[CURTASK.sp+3] = num << 8;
+    CURTASK.mem[CURTASK.sp+4] = num;
   }
 
   constexpr void VM::loadIntToStack(uint32_t t_id) {
-    CURTASK.mem[CURTASK.sp++] = this->pgtext[CURTASK.pc+1];
-    CURTASK.mem[CURTASK.sp++] = this->pgtext[CURTASK.pc+2];
-    CURTASK.mem[CURTASK.sp++] = this->pgtext[CURTASK.pc+3];
-    CURTASK.mem[CURTASK.sp++] = this->pgtext[CURTASK.pc+4];
+    CURTASK.mem[CURTASK.sp+1] = this->pgtext[CURTASK.pc+1];
+    CURTASK.mem[CURTASK.sp+2] = this->pgtext[CURTASK.pc+2];
+    CURTASK.mem[CURTASK.sp+3] = this->pgtext[CURTASK.pc+3];
+    CURTASK.mem[CURTASK.sp+4] = this->pgtext[CURTASK.pc+4];
   }
 
   void VM::run() {
@@ -149,6 +88,7 @@ namespace dml {
       }
 
       if(CURTASK.pc >= this->pgtext.size() - 1) {
+
         if(!sch.next_task()) {
           return;
         }
@@ -164,7 +104,7 @@ namespace dml {
       CURTASK.pc++;
       opcode |= pgtext[CURTASK.pc];
       OpCodes oc = static_cast<OpCodes>(opcode);
-      // std::cout << sch.c_task << ": " << std::hex << opcode << "\n";
+      std::cout << sch.c_task << ": " << std::dec << CURTASK.pc << " = " << std::hex << opcode << "\n";
       switch(oc) {
         case OpCodes::NOP:
           // nop
@@ -175,7 +115,8 @@ namespace dml {
           break;
         case OpCodes::JMP:
           // jmp
-          CURTASK.pc++;
+          CURTASK.pc = getIntFromArgument(sch.c_task) ;
+          std::cout << CURTASK.pc << "\n";
           break;
         case OpCodes::JUMPEQ:
           CURTASK.pc++;
@@ -239,8 +180,8 @@ namespace dml {
           // enmCreate()
           {
           uint32_t addr = getIntFromArgument(sch.c_task);
-          sch.add_task(addr);
           CURTASK.pc += sizeof(int) + 1;
+          sch.add_task(addr);
           break;
           }
         case OpCodes::MOVEPOS:

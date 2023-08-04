@@ -14,35 +14,13 @@
 
 #include <raylib.h>
 
+#include "scheduler.h"
+
 namespace dml {
-
-struct Task {
-  std::array<char, 2000> mem{};
-  std::array<float, 16> vars{};
-  uint16_t pc = 0;
-  uint16_t sp = 0;
-  uint16_t waitctr = 0;
-
-  void set_entry(uint16_t ep);
-};
-struct Scheduler {
-  uint32_t n_tasks = 1;
-  std::array<Task, 128> tasks;
-  std::array<bool, 128> tasks_mask;
-  float total_duration = 0.002;
-  float cur_slice = 0;
-  uint16_t c_task = 0;
-
-  void init();
-  void set_ts_duration(float ts);
-  bool add_task(uint16_t ep);
-  void del_task();
-  bool next_task();
-};
 
 
 struct VM {
-#define CURTASK sch.tasks[sch.c_task]
+#define CURTASK this->sch.tasks[this->sch.c_task]
   std::string pgtext{};
   Scheduler sch;
   std::atomic_flag power;
