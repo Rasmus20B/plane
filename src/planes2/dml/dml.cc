@@ -142,7 +142,6 @@ namespace dml {
 
       if(CURTASK.waitctr) {
         CURTASK.waitctr -= 1;
-        std::cout << sch.c_task << " : " << std::dec << CURTASK.waitctr << "\n";
         if(!sch.next_task()) {
           return;
         }
@@ -203,7 +202,6 @@ namespace dml {
           {
           uint32_t var = getIntFromArgument(sch.c_task);
           uint32_t num = getIntFromStack(sch.c_task);
-          std::cout << "OVERWRITING VAR: " << var << " WITH " << num << "\n";
           CURTASK.vars[var] = num;
           CURTASK.pc += sizeof(int) + 1;
           CURTASK.sp -= 4;
@@ -237,15 +235,12 @@ namespace dml {
           // add f 
           break;
           }
-
-
         case OpCodes::ENMCREATE:
           // enmCreate()
-          // push an enemy to a vector
-          // assign them a program counter
           {
-          sch.add_task(2);
-          CURTASK.pc++;
+          uint32_t addr = getIntFromArgument(sch.c_task);
+          sch.add_task(addr);
+          CURTASK.pc += sizeof(int) + 1;
           break;
           }
         case OpCodes::MOVEPOS:
