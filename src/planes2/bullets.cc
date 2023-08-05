@@ -4,16 +4,12 @@ namespace plane {
 
   void BulletMgr::init() noexcept {
 
-    this->positions = {};
-    this->layers = 0;
-    this->count = 0;
-    this->origin = {};
     this->mode = BulletFlag::AIMED;
-    this->ang1 = 0;
-    this->ang2 = 0;
-    this->sprite = {};
-    this->oobs = {};
-    this->type = BulletSprite::S_SIZE;
+    this->setCount(2, 3);
+    this->setType(BulletSprite::BLADE_01);
+    this->setSpeed(3, 3);
+    this->setOrigin({400, 200});
+    this->setAngle(0, 0);
   }
   Vec2& BulletMgr::getPos(const int r, const int c) noexcept {
     int idx = c * layers + r;
@@ -103,7 +99,6 @@ namespace plane {
   }
 
   void BulletMgr::update() noexcept {
-
     switch(mode) {
       case BulletFlag::AIMED:
         for(int i = 0; i < layers; ++i) {
@@ -240,7 +235,8 @@ namespace plane {
     }
     return false;
   }
-  void BulletMgr::shoot(Vec2 esp, Vec2 tar) {
+
+  void BulletMgr::shoot(Vec2 esp, Vec2 tar) noexcept {
     this->setOrigin(esp);
     switch(this->mode) {
       case BulletFlag::AIMED:

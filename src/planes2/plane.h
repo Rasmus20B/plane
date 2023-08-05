@@ -25,6 +25,7 @@
 #include "projectile.h"
 #include "texture.h"
 #include "timeline.h"
+#include "dml/dml.h"
 
 #include "stage1/stage1.h"
 

@@ -11,6 +11,7 @@ struct Task {
   std::array<float, 16> vars{};
   plane::Enm e;
   std::array<plane::BulletMgr, 16> bm;
+  std::array<bool, 16> live_bms;
   uint16_t pc = 0;
   uint16_t sp = 0;
   uint16_t waitctr = 0;

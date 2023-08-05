@@ -1,19 +1,22 @@
 #include "dml.h"
+#include <bits/chrono.h>
 #include <chrono>
 #include <cstring>
 #include <iterator>
+#include <ratio>
 #include <raylib.h>
+#include <thread>
 
 namespace dml {
 
   
 
-  void VM::load_script(const std::string&& progtext) {
+  void VM::load_script(const std::vector<uint8_t>&& progtext) {
     // Load text into the end of memory
     pgtext = std::move(progtext);
   }
 
-  constexpr uint32_t VM::getIntFromStack(uint32_t t_id){
+  constexpr uint32_t VM::getIntFromStack(const uint32_t t_id){
     uint32_t num = 
         (CURTASK.mem[CURTASK.sp-4] << 24)
       | (CURTASK.mem[CURTASK.sp-3] << 16) 
@@ -23,7 +26,7 @@ namespace dml {
     return num;
   }
 
-  constexpr uint32_t VM::getIntFromArgument(uint32_t t_id) {
+  constexpr uint32_t VM::getIntFromArgument(const uint32_t t_id) {
     uint32_t num = 0;
     num = this->pgtext[CURTASK.pc+1];
     num |= this->pgtext[CURTASK.pc+2];
@@ -32,52 +35,63 @@ namespace dml {
     return num;
   }
   
-  void VM::init() {
-    tasks.reserve(256);
-    tasks.push_back({
-        .mem = {},
-        .pc = 0,
-        .sp = 0,
-        .waitctr = 0,
-        });
-  }
-
-  void VM::init(uint32_t t_id, uint32_t start) {
+  void VM::init(const uint32_t t_id, const uint32_t start) {
     CURTASK.pc = start;
     CURTASK.waitctr = 0;
     CURTASK.sp = 0;
+    std::fill(CURTASK.live_bms.begin(), CURTASK.live_bms.end(), false);
   }
 
-  constexpr void VM::loadIntToStack(uint32_t t_id, uint32_t num) {
+  constexpr void VM::loadIntToStack(const uint32_t t_id, const uint32_t num) {
     CURTASK.mem[CURTASK.sp+1] = num << 24;
     CURTASK.mem[CURTASK.sp+2] = num << 16;
     CURTASK.mem[CURTASK.sp+3] = num << 8;
     CURTASK.mem[CURTASK.sp+4] = num;
   }
 
-  constexpr void VM::loadIntToStack(uint32_t t_id) {
+  constexpr void VM::loadIntToStack(const uint32_t t_id) {
     CURTASK.mem[CURTASK.sp+1] = this->pgtext[CURTASK.pc+1];
     CURTASK.mem[CURTASK.sp+2] = this->pgtext[CURTASK.pc+2];
     CURTASK.mem[CURTASK.sp+3] = this->pgtext[CURTASK.pc+3];
     CURTASK.mem[CURTASK.sp+4] = this->pgtext[CURTASK.pc+4];
   }
 
+  void VM::fetch_execute() {
+    return;
+  }
+
   void VM::run() {
 
     float time_acc = 0.f;
 
-    sch.set_ts_duration(0.004);
+    sch.set_ts_duration(16.667);
     sch.init();
-    while(true) {
+
+    while(!WindowShouldClose()) {
+      ClearBackground(BLACK);
 
       if(this->power.test()) {
         return;
       }
 
+      if(sch.c_task == 0) {
+      BeginDrawing();
+        for(uint32_t i = 0; i < sch.tasks_mask.size() && sch.tasks_mask[i] == true; ++i){
+          for(uint32_t b = 0; b < sch.tasks[i].bm.size() ; ++b) {
+            if(sch.tasks[i].live_bms[b] == true) {
+              sch.tasks[i].bm[b].update();
+              sch.tasks[i].bm[b].draw();
+            }
+          }
+        }
+      EndDrawing();
+      }
+
       if(time_acc >= sch.cur_slice) {
         time_acc = 0.f;
-        sch.next_task();
+        if(!sch.next_task()) return;
       }
+
 
       if(CURTASK.waitctr) {
         CURTASK.waitctr -= 1;
@@ -87,8 +101,9 @@ namespace dml {
         continue;
       }
 
+      std::cout << sch.c_task << ": " << time_acc << "\n";
+      /* If we reach the end of our sub, then delete the thread */
       if(CURTASK.pc >= this->pgtext.size() ) {
-
         sch.del_task();
         if(!sch.next_task()) {
           return;
@@ -101,6 +116,7 @@ namespace dml {
       opcode = opcode << 8;
       CURTASK.pc++;
       opcode |= pgtext[CURTASK.pc];
+      std::cout << "THREAD " << sch.c_task << " @" << CURTASK.pc << ": " << opcode << "\n";
       OpCodes oc = static_cast<OpCodes>(opcode);
       switch(oc) {
         case OpCodes::NOP:
@@ -168,8 +184,8 @@ namespace dml {
           break;
           }
         case OpCodes::ADDF: 
-          {
           // add f 
+          {
           break;
           }
 
@@ -200,13 +216,43 @@ namespace dml {
         case OpCodes::ETNEW:
           {
           uint32_t idx = getIntFromArgument(sch.c_task);
-          CURTASK.bm[idx].init();
-          CURTASK.pc++;
+          plane::BulletMgr b {
+            .mode = plane::BulletFlag::AIMED
+          };
+          b.setCount(2, 3);
+          b.setType(plane::BulletSprite::BLADE_01);
+          b.setSpeed(3, 2);
+          b.setAngle(0, 15);
+          CURTASK.bm[idx] = b;
+          CURTASK.pc+= sizeof(int) + 1;
           break;
           }
         case OpCodes::ETON:
+          {
+          uint32_t idx = getIntFromArgument(sch.c_task);
+          CURTASK.live_bms[idx] = true;
+          CURTASK.bm[idx].shoot(CURTASK.bm[idx].origin, {100, 200});
+          CURTASK.pc+= sizeof(int) + 1;
           break;
-
+          }
+        case OpCodes::ETSPRITE:
+          {
+          uint32_t idx = getIntFromArgument(sch.c_task);
+          CURTASK.pc+= sizeof(int) + 1;
+          uint32_t type = getIntFromArgument(sch.c_task);
+          CURTASK.bm[idx].setType(static_cast<plane::BulletSprite>(type));
+          // EXTRA PC FOR COLOUR ARGUMENT
+          CURTASK.pc+= sizeof(int) + 1;
+          break;
+          }
+        case OpCodes::ETOFFSET:
+          break;
+        case OpCodes::ETANGLE:
+          break;
+        case OpCodes::ETSPEED:
+          break;
+        case OpCodes::ETCOUNT:
+          break;
         default:
           std::cout << "OPCODE NOT IMPLEMENTED\n";
           return;

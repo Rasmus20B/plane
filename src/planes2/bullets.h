@@ -48,7 +48,7 @@ struct BulletMgr {
   void setType(const BulletSprite s) noexcept;
   void setAngle(float a1, float a2) noexcept;
   void setOutOfBounds() noexcept;
-  void shoot(Vec2 src, Vec2 tar);
+  void shoot(Vec2 src, Vec2 tar) noexcept;
   void update() noexcept;
   void draw() noexcept;
   void drawHitbox() noexcept;
