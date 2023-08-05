@@ -87,14 +87,12 @@ namespace dml {
         continue;
       }
 
-      if(CURTASK.pc >= this->pgtext.size() - 1) {
+      if(CURTASK.pc >= this->pgtext.size() ) {
 
+        sch.del_task();
         if(!sch.next_task()) {
           return;
         }
-
-        sch.del_task();
-        sch.next_task();
         continue;
       }
 
@@ -104,7 +102,6 @@ namespace dml {
       CURTASK.pc++;
       opcode |= pgtext[CURTASK.pc];
       OpCodes oc = static_cast<OpCodes>(opcode);
-      std::cout << sch.c_task << ": " << std::dec << CURTASK.pc << " = " << std::hex << opcode << "\n";
       switch(oc) {
         case OpCodes::NOP:
           // nop
@@ -198,6 +195,18 @@ namespace dml {
         case OpCodes::MOVPOSTIME:
           // movPosTime(x, y, t)
           break;
+
+        /* Bullet Management */
+        case OpCodes::ETNEW:
+          {
+          uint32_t idx = getIntFromArgument(sch.c_task);
+          CURTASK.bm[idx].init();
+          CURTASK.pc++;
+          break;
+          }
+        case OpCodes::ETON:
+          break;
+
         default:
           std::cout << "OPCODE NOT IMPLEMENTED\n";
           return;

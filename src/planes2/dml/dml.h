@@ -111,6 +111,24 @@ enum class OpCodes  {
   MOVEPOS = 400,
   MOVPOSTIME = 401,
 
+  ETNEW = 600,
+  ETON = 601,
+  ETSPRITE = 602,
+  ETOFFSET = 603,
+  ETANGLE = 604,
+  ETSPEED = 605,
+  ETCOUNT = 606,
+  ETAIM = 607,
+  ETSOUND = 608,
+  ETEXSET = 609,
+  ETEXSET2 = 610,
+  ETEX = 611,
+  ETEX2 = 612,
+  ETCLEARALL = 613,
+  ETCOPY = 614,
+  ETCANCEL = 615,
+
+
 };
 
 }

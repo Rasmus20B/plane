@@ -2,6 +2,19 @@
 
 namespace plane {
 
+  void BulletMgr::init() noexcept {
+
+    this->positions = {};
+    this->layers = 0;
+    this->count = 0;
+    this->origin = {};
+    this->mode = BulletFlag::AIMED;
+    this->ang1 = 0;
+    this->ang2 = 0;
+    this->sprite = {};
+    this->oobs = {};
+    this->type = BulletSprite::S_SIZE;
+  }
   Vec2& BulletMgr::getPos(const int r, const int c) noexcept {
     int idx = c * layers + r;
     return positions[idx];

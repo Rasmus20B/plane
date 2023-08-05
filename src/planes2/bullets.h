@@ -41,6 +41,7 @@ struct BulletMgr {
   BulletSprite type;
 
   Vec2& getPos(const int r, const int c) noexcept;
+  void init() noexcept;
   void setOrigin(const Vec2 o) noexcept;
   void setCount(const uint16_t l, const uint16_t c) noexcept;
   void setSpeed(const float s1, const float s2) noexcept;
