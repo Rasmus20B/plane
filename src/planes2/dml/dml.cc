@@ -116,7 +116,7 @@ namespace dml {
       opcode = opcode << 8;
       CURTASK.pc++;
       opcode |= pgtext[CURTASK.pc];
-      std::cout << "THREAD " << sch.c_task << " @" << CURTASK.pc << ": " << opcode << "\n";
+      std::cout << "THREAD " << std::dec << sch.c_task << " @" << CURTASK.pc << ": " << std::hex << opcode << "\n";
       OpCodes oc = static_cast<OpCodes>(opcode);
       switch(oc) {
         case OpCodes::NOP:
@@ -128,7 +128,7 @@ namespace dml {
           break;
         case OpCodes::JMP:
           // jmp
-          CURTASK.pc = getIntFromArgument(sch.c_task) ;
+          CURTASK.pc = getIntFromArgument(sch.c_task);
           break;
         case OpCodes::JUMPEQ:
           CURTASK.pc++;
@@ -194,6 +194,7 @@ namespace dml {
           // enmCreate()
           {
           uint32_t addr = getIntFromArgument(sch.c_task);
+          std::cout << "STARTING TASK @ " << std::hex << addr << "\n";
           CURTASK.pc += sizeof(int) + 1;
           sch.add_task(addr);
           break;
