@@ -106,6 +106,7 @@ enum class OpCodes  {
   ENMCREATE = 300,
   ENMCREATEA = 301,
   ANMSELECT = 302,
+  ENMDELETE = 340,
 
   MOVEPOS = 400,
   MOVPOSTIME = 401,

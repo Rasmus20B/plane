@@ -116,7 +116,6 @@ namespace dml {
         case OpCodes::JMP:
           // jmp
           CURTASK.pc = getIntFromArgument(sch.c_task) ;
-          std::cout << CURTASK.pc << "\n";
           break;
         case OpCodes::JUMPEQ:
           CURTASK.pc++;
@@ -176,6 +175,8 @@ namespace dml {
           // add f 
           break;
           }
+
+        /* ENEMY CREATION AND ANM SCRIPT MANAGEMENT */
         case OpCodes::ENMCREATE:
           // enmCreate()
           {
@@ -184,6 +185,12 @@ namespace dml {
           sch.add_task(addr);
           break;
           }
+
+        case OpCodes::ENMDELETE:
+          sch.del_task();
+          if(!sch.next_task()) return;
+          break;
+
         case OpCodes::MOVEPOS:
           // movPos(x, y)
           break;
