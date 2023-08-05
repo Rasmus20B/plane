@@ -3,17 +3,15 @@
 namespace plane {
 
   void BulletMgr::init() noexcept {
-
-    this->mode = BulletFlag::AIMED;
-    this->setCount(2, 3);
-    this->setType(BulletSprite::BLADE_01);
-    this->setSpeed(3, 3);
-    this->setOrigin({400, 200});
-    this->setAngle(0, 0);
   }
   Vec2& BulletMgr::getPos(const int r, const int c) noexcept {
     int idx = c * layers + r;
     return positions[idx];
+  }
+
+  void BulletMgr::setAim(BulletFlag bf) noexcept {
+    std::cout << "setting aim to " << static_cast<int>(bf) << "\n";
+    this->mode = bf;
   }
 
   void BulletMgr::setOrigin(const Vec2 o) noexcept {

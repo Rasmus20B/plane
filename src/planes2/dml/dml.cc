@@ -75,16 +75,17 @@ namespace dml {
       }
 
       if(sch.c_task == 0) {
-      BeginDrawing();
-        for(uint32_t i = 0; i < sch.tasks_mask.size() && sch.tasks_mask[i] == true; ++i){
-          for(uint32_t b = 0; b < sch.tasks[i].bm.size() ; ++b) {
+        BeginDrawing();
+        for(uint32_t i = 0; i < sch.tasks_mask.size(); ++i){
+          if(sch.tasks_mask[i] != true) continue;
+          for(uint32_t b = 0; b < sch.tasks[i].bm.size(); ++b) {
             if(sch.tasks[i].live_bms[b] == true) {
               sch.tasks[i].bm[b].update();
               sch.tasks[i].bm[b].draw();
             }
           }
         }
-      EndDrawing();
+        EndDrawing();
       }
 
       if(time_acc >= sch.cur_slice) {
@@ -101,9 +102,9 @@ namespace dml {
         continue;
       }
 
-      std::cout << sch.c_task << ": " << time_acc << "\n";
       /* If we reach the end of our sub, then delete the thread */
       if(CURTASK.pc >= this->pgtext.size() ) {
+        std::cout << "EOF\n";
         sch.del_task();
         if(!sch.next_task()) {
           return;
@@ -128,8 +129,11 @@ namespace dml {
           break;
         case OpCodes::JMP:
           // jmp
-          CURTASK.pc = getIntFromArgument(sch.c_task);
+          {
+          uint32_t n = getIntFromArgument(sch.c_task);
+          CURTASK.pc = n;
           break;
+          }
         case OpCodes::JUMPEQ:
           CURTASK.pc++;
           break;
@@ -196,7 +200,9 @@ namespace dml {
           uint32_t addr = getIntFromArgument(sch.c_task);
           std::cout << "STARTING TASK @ " << std::hex << addr << "\n";
           CURTASK.pc += sizeof(int) + 1;
-          sch.add_task(addr);
+          if(!sch.add_task(addr)) {
+            std::cout << "Unable to add new task\n";
+          }
           break;
           }
 
@@ -220,10 +226,7 @@ namespace dml {
           plane::BulletMgr b {
             .mode = plane::BulletFlag::AIMED
           };
-          b.setCount(2, 3);
           b.setType(plane::BulletSprite::BLADE_01);
-          b.setSpeed(3, 2);
-          b.setAngle(0, 15);
           CURTASK.bm[idx] = b;
           CURTASK.pc+= sizeof(int) + 1;
           break;
@@ -232,7 +235,7 @@ namespace dml {
           {
           uint32_t idx = getIntFromArgument(sch.c_task);
           CURTASK.live_bms[idx] = true;
-          CURTASK.bm[idx].shoot(CURTASK.bm[idx].origin, {100, 200});
+          CURTASK.bm[idx].shoot(CURTASK.bm[idx].origin, {600, 500});
           CURTASK.pc+= sizeof(int) + 1;
           break;
           }
@@ -249,11 +252,47 @@ namespace dml {
         case OpCodes::ETOFFSET:
           break;
         case OpCodes::ETANGLE:
+          {
+          uint32_t idx = getIntFromArgument(sch.c_task);
+          CURTASK.pc += sizeof(int) ;
+          uint32_t ang1 = getIntFromArgument(sch.c_task);
+          CURTASK.pc += sizeof(int) ;
+          uint32_t ang2 = getIntFromArgument(sch.c_task);
+          CURTASK.pc += sizeof(int) + 1;
+          CURTASK.bm[idx].setAngle(ang1, ang2);
           break;
+          }
         case OpCodes::ETSPEED:
+          {
+          uint32_t idx = getIntFromArgument(sch.c_task);
+          CURTASK.pc += sizeof(int) ;
+          uint32_t sp1 = getIntFromArgument(sch.c_task);
+          CURTASK.pc += sizeof(int) ;
+          uint32_t sp2 = getIntFromArgument(sch.c_task);
+          CURTASK.pc += sizeof(int) + 1;
+          CURTASK.bm[idx].setSpeed(sp1, sp2);
           break;
+          }
         case OpCodes::ETCOUNT:
+          {
+          uint32_t idx = getIntFromArgument(sch.c_task);
+          CURTASK.pc += sizeof(int) ;
+          uint32_t la = getIntFromArgument(sch.c_task);
+          CURTASK.pc += sizeof(int) ;
+          uint32_t co = getIntFromArgument(sch.c_task);
+          CURTASK.pc += sizeof(int) + 1;
+          CURTASK.bm[idx].setCount(la, co);
           break;
+          }
+        case OpCodes::ETAIM:
+          {
+          uint32_t idx = getIntFromArgument(sch.c_task);
+          CURTASK.pc += sizeof(int) ;
+          uint32_t aim = getIntFromArgument(sch.c_task);
+          CURTASK.pc += sizeof(int) + 1 ;
+          CURTASK.bm[idx].setAim(static_cast<plane::BulletFlag>(aim));
+          break;
+          }
         default:
           std::cout << "OPCODE NOT IMPLEMENTED\n";
           return;
