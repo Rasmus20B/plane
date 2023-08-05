@@ -10,7 +10,6 @@ namespace plane {
   }
 
   void BulletMgr::setAim(BulletFlag bf) noexcept {
-    std::cout << "setting aim to " << static_cast<int>(bf) << "\n";
     this->mode = bf;
   }
 

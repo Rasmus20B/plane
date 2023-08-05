@@ -14,7 +14,7 @@ namespace plane {
   void main_loop() {
     srand(time(0));
 
-    std::string level = "../assets/test.out";
+    std::string level = "../assets/level1.dml";
     std::ifstream instream(level, std::ios::in | std::ios::binary);
     std::vector<uint8_t> prog((std::istreambuf_iterator<char>(instream)), std::istreambuf_iterator<char>());
 
@@ -22,16 +22,22 @@ namespace plane {
     InitWindow(config.screen_width, config.screen_height, "Plane");
     SetTargetFPS(60);
 
+    initTextureManager(tm);
     gg.x = config.screen_width / 10;
     gg.y = 0;
     gg.r = (1920.f / 3)  * 2;
     gg.c = config.screen_height;
+    dml::VM cpu;
+
+    cpu.load_script(std::move(prog));
+    cpu.run();
+
+    return;
 
     int gamepad = 0;
     int exp = 0;
     bool micro;
     uint8_t stage = 1;
-    initTextureManager(tm);
 
     size_t frame_count = 0;
 
@@ -52,28 +58,6 @@ namespace plane {
     s.load_enemies();
     s.load_timeline();
 
-    dml::VM cpu;
-
-    
-    // const std::vector<uint8_t> prog = { 
-    //   0x01, 0x2C, 0x00, 0x00, 0x00, 0x2B,
-    //   0x00, 0x2A, 0x00, 0x00, 0x00, 0x03,
-    //   0x00, 0x2A, 0x00, 0x00, 0x00, 0x04, 
-    //   0x00, 0x32, 
-    //   0x00, 0x2A, 0x00, 0x00, 0x00, 0x03,
-    //   0x00, 0x2A, 0x00, 0x00, 0x00, 0x04, 
-    //   0x00, 0x32, 
-    //   0x00, 0x17, 0x00, 0x00, 0x00, 0x5A, 
-    //   0x00, 0x2B, 0x00, 0x00, 0x00, 0x01,
-    //   0x02, 0x58, 0x00, 0x00, 0x00, 0x00,
-    //   0x02, 0x59, 0x00, 0x00, 0x00, 0x00,
-    //   0x00, 0x17, 0xff, 0xff, 0xff, 0xff,
-    //   0x00, 0x0C, 0x00, 0x00, 0x00, 0x2B
-    // };
-                
-
-    cpu.load_script(std::move(prog));
-    cpu.run();
 
     return;
     auto timeline = s.timeline;

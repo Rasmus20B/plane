@@ -16,6 +16,8 @@
 
 #include "scheduler.h"
 
+#include "../player.h"
+
 namespace dml {
 
 
@@ -25,6 +27,9 @@ struct VM {
   Scheduler sch;
   std::atomic_flag power;
 
+  std::mutex m;
+  plane::Player p;
+
   void load_script(const std::vector<uint8_t>&& progtext);
   void init(const uint32_t t_id, const uint32_t start);
   void run();
@@ -32,12 +37,12 @@ struct VM {
   void render();
   void stop();
 
-  constexpr uint32_t getIntFromStack();
-  constexpr uint32_t getIntFromStack(const uint32_t t_id);
-  constexpr uint32_t getIntFromArgument();
-  constexpr uint32_t getIntFromArgument(const uint32_t t_id);
-  constexpr void loadIntToStack(const uint32_t t_id);
-  constexpr void loadIntToStack(const uint32_t t_id, const uint32_t num);
+  uint32_t getIntFromStack();
+  uint32_t getIntFromStack(const uint32_t t_id);
+  uint32_t getIntFromArgument();
+  uint32_t getIntFromArgument(const uint32_t t_id);
+  void loadIntToStack(const uint32_t t_id);
+  void loadIntToStack(const uint32_t t_id, const uint32_t num);
 };
 
 enum class OpCodes  {

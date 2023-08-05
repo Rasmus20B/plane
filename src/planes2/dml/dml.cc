@@ -1,4 +1,6 @@
 #include "dml.h"
+
+#include "../input.h"
 #include <bits/chrono.h>
 #include <chrono>
 #include <cstring>
@@ -16,7 +18,7 @@ namespace dml {
     pgtext = std::move(progtext);
   }
 
-  constexpr uint32_t VM::getIntFromStack(const uint32_t t_id){
+  uint32_t VM::getIntFromStack(const uint32_t t_id){
     uint32_t num = 
         (CURTASK.mem[CURTASK.sp-4] << 24)
       | (CURTASK.mem[CURTASK.sp-3] << 16) 
@@ -26,12 +28,12 @@ namespace dml {
     return num;
   }
 
-  constexpr uint32_t VM::getIntFromArgument(const uint32_t t_id) {
+  uint32_t VM::getIntFromArgument(const uint32_t t_id) {
     uint32_t num = 0;
-    num = this->pgtext[CURTASK.pc+1];
-    num |= this->pgtext[CURTASK.pc+2];
-    num |= this->pgtext[CURTASK.pc+3];
-    num |= this->pgtext[CURTASK.pc+4];
+    num += this->pgtext[CURTASK.pc+1] & 0x000000FF;
+    num += (this->pgtext[CURTASK.pc+2] << 8) & 0x0000FF00;
+    num += (this->pgtext[CURTASK.pc+3] << 16) & 0x00FF0000;
+    num += (this->pgtext[CURTASK.pc+4] << 24) & 0xFF000000;
     return num;
   }
   
@@ -42,14 +44,14 @@ namespace dml {
     std::fill(CURTASK.live_bms.begin(), CURTASK.live_bms.end(), false);
   }
 
-  constexpr void VM::loadIntToStack(const uint32_t t_id, const uint32_t num) {
+  void VM::loadIntToStack(const uint32_t t_id, const uint32_t num) {
     CURTASK.mem[CURTASK.sp+1] = num << 24;
     CURTASK.mem[CURTASK.sp+2] = num << 16;
     CURTASK.mem[CURTASK.sp+3] = num << 8;
     CURTASK.mem[CURTASK.sp+4] = num;
   }
 
-  constexpr void VM::loadIntToStack(const uint32_t t_id) {
+  void VM::loadIntToStack(const uint32_t t_id) {
     CURTASK.mem[CURTASK.sp+1] = this->pgtext[CURTASK.pc+1];
     CURTASK.mem[CURTASK.sp+2] = this->pgtext[CURTASK.pc+2];
     CURTASK.mem[CURTASK.sp+3] = this->pgtext[CURTASK.pc+3];
@@ -64,7 +66,7 @@ namespace dml {
 
     float time_acc = 0.f;
 
-    sch.set_ts_duration(16.667);
+    sch.set_ts_duration(16.67);
     sch.init();
 
     while(!WindowShouldClose()) {
@@ -73,6 +75,8 @@ namespace dml {
       if(this->power.test()) {
         return;
       }
+
+      plane::handle_game_input(p.spatial,  p.shooting);
 
       if(sch.c_task == 0) {
         BeginDrawing();
@@ -85,6 +89,7 @@ namespace dml {
             }
           }
         }
+        DrawFPS(p.spatial.pos.x, p.spatial.pos.y);
         EndDrawing();
       }
 
@@ -140,6 +145,7 @@ namespace dml {
         case OpCodes::WAIT: {
           // wait
           uint16_t time = getIntFromArgument(sch.c_task);
+          std::cout << "waiting for " << std::dec << time << " frames\n";
           CURTASK.waitctr = time;
           CURTASK.pc += sizeof(int) + 1;
           break;
@@ -213,7 +219,15 @@ namespace dml {
 
         case OpCodes::MOVEPOS:
           // movPos(x, y)
+          { 
+          uint32_t x = getIntFromArgument(sch.c_task);
+          CURTASK.pc += sizeof(int) ;
+          uint32_t y = getIntFromArgument(sch.c_task);
+          CURTASK.pc += sizeof(int) + 1;
+          std::cout << std::dec << "MOVING TO " << x << " , " << y << "\n";
+          CURTASK.pos.vec = {(float)x , (float)y};
           break;
+          }
 
         case OpCodes::MOVPOSTIME:
           // movPosTime(x, y, t)
@@ -224,7 +238,7 @@ namespace dml {
           {
           uint32_t idx = getIntFromArgument(sch.c_task);
           plane::BulletMgr b {
-            .mode = plane::BulletFlag::AIMED
+            .mode = plane::BulletFlag::AIMED,
           };
           b.setType(plane::BulletSprite::BLADE_01);
           CURTASK.bm[idx] = b;
@@ -235,18 +249,19 @@ namespace dml {
           {
           uint32_t idx = getIntFromArgument(sch.c_task);
           CURTASK.live_bms[idx] = true;
-          CURTASK.bm[idx].shoot(CURTASK.bm[idx].origin, {600, 500});
+          CURTASK.bm[idx].shoot(CURTASK.pos, p.spatial.pos);
           CURTASK.pc+= sizeof(int) + 1;
           break;
           }
         case OpCodes::ETSPRITE:
           {
           uint32_t idx = getIntFromArgument(sch.c_task);
-          CURTASK.pc+= sizeof(int) + 1;
-          uint32_t type = getIntFromArgument(sch.c_task);
-          CURTASK.bm[idx].setType(static_cast<plane::BulletSprite>(type));
-          // EXTRA PC FOR COLOUR ARGUMENT
-          CURTASK.pc+= sizeof(int) + 1;
+          CURTASK.pc += sizeof(int) ;
+          uint32_t sprite = getIntFromArgument(sch.c_task);
+          CURTASK.pc += sizeof(int) ;
+          uint32_t colour = getIntFromArgument(sch.c_task);
+          CURTASK.pc += sizeof(int) + 1;
+          CURTASK.bm[idx].setType(static_cast<plane::BulletSprite>(sprite));
           break;
           }
         case OpCodes::ETOFFSET:
