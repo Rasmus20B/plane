@@ -6,7 +6,7 @@ namespace plane {
     Enm e = enmCreate(Enm {
       .spatial = {
         .move_points = pts,
-        .speed = 0.2,
+        .absspeed = 0.2,
         .movement = MOVE_SMOOTH,
         .flag = enmMoveFlag::ACCEL_DECEL,
         .special1 = 0.3f,

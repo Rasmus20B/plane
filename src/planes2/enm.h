@@ -34,9 +34,13 @@ namespace plane {
 
   struct EnmSpace {
     std::vector<Vec2> move_points;
-    Vec2 pos;
+    Vec2 abspos;
+    Vec2 relpos;
+    float absspeed;
+    float relspeed;
+    float absang;
+    float relang;
     float cur; // how long along it's path it is, index for movepoints
-    float speed;
     enmMoveType movement;
 
     enmMoveFlag flag;
@@ -59,6 +63,7 @@ namespace plane {
     EnmShoot shooting;
     EnmAttrs attrs;
     Texture2D sprite;
+    Color col;
     void draw();
   };
 

@@ -1,6 +1,7 @@
 #include "dml.h"
 
 #include "../input.h"
+#include "scheduler.h"
 #include <bits/chrono.h>
 #include <chrono>
 #include <cstring>
@@ -82,12 +83,26 @@ namespace dml {
         BeginDrawing();
         for(uint32_t i = 0; i < sch.tasks_mask.size(); ++i){
           if(sch.tasks_mask[i] != true) continue;
+
+          //TODO: Update all live bullet(Should be done completely different )
           for(uint32_t b = 0; b < sch.tasks[i].bm.size(); ++b) {
             if(sch.tasks[i].live_bms[b] == true) {
               sch.tasks[i].bm[b].update();
               sch.tasks[i].bm[b].draw();
             }
           }
+
+          // Update Enemy positionsS
+          sch.tasks[i].e.spatial.abspos += sch.tasks[i].e.spatial.absspeed;
+          sch.tasks[i].e.spatial.relpos += sch.tasks[i].e.spatial.relspeed;
+
+          std::cout << "updated x : " << sch.tasks[i].e.spatial.abspos.x() << "\n";
+
+          // Draw Enemies
+          DrawTextureV(CURTASK.e.sprite, {
+              (CURTASK.e.spatial.abspos.x() + CURTASK.e.spatial.relpos.x()) - (CURTASK.e.sprite.width * 0.5f), 
+              (CURTASK.e.spatial.abspos.y() + CURTASK.e.spatial.relpos.y()) - (CURTASK.e.sprite.height * 0.5f)
+              }, CURTASK.e.col);
         }
         DrawFPS(p.spatial.pos.x, p.spatial.pos.y);
         EndDrawing();
@@ -128,6 +143,7 @@ namespace dml {
         case OpCodes::NOP:
           // nop
           CURTASK.pc++;
+          break;
         case OpCodes::DELETE:
           // delete execution
           CURTASK.pc++;
@@ -144,8 +160,7 @@ namespace dml {
           break;
         case OpCodes::WAIT: {
           // wait
-          uint16_t time = getIntFromArgument(sch.c_task);
-          std::cout << "waiting for " << std::dec << time << " frames\n";
+          uint32_t time = getIntFromArgument(sch.c_task);
           CURTASK.waitctr = time;
           CURTASK.pc += sizeof(int) + 1;
           break;
@@ -211,7 +226,36 @@ namespace dml {
           }
           break;
           }
-
+        case OpCodes::ENMCREATEA:
+          {
+          std::cout << "NYI\n";
+          CURTASK.pc+=sizeof(int) +1;
+          break;
+          }
+        case OpCodes::ANMSELECT:
+          {
+          uint32_t spr = getIntFromArgument(sch.c_task);
+          CURTASK.pc += sizeof(int) + 1;
+          break;
+          }
+        case OpCodes::ANMSETSPRITE:
+          {
+          uint32_t spr = getIntFromArgument(sch.c_task);
+          CURTASK.pc += sizeof(int) ;
+          uint32_t scr = getIntFromArgument(sch.c_task);
+          CURTASK.pc += sizeof(int) + 1;
+          CURTASK.e.sprite = plane::tm.actSprites[spr];
+          CURTASK.e.col = RAYWHITE;
+          break;
+          }
+        case OpCodes::ANMSETMAIN:
+          {
+          uint32_t slot = getIntFromArgument(sch.c_task);
+          CURTASK.pc += sizeof(int) ;
+          uint32_t scr = getIntFromArgument(sch.c_task);
+          CURTASK.pc += sizeof(int) + 1;
+          break;
+          }
         case OpCodes::ENMDELETE:
           sch.del_task();
           if(!sch.next_task()) return;
@@ -224,14 +268,41 @@ namespace dml {
           CURTASK.pc += sizeof(int) ;
           uint32_t y = getIntFromArgument(sch.c_task);
           CURTASK.pc += sizeof(int) + 1;
-          std::cout << std::dec << "MOVING TO " << x << " , " << y << "\n";
-          CURTASK.pos.vec = {(float)x , (float)y};
+          CURTASK.e.spatial.abspos = {(float)x , (float)y};
           break;
           }
-
-        case OpCodes::MOVPOSTIME:
+        case OpCodes::MOVEPOSTIME:
           // movPosTime(x, y, t)
+          CURTASK.pc += sizeof(int) * 3 + 1;
           break;
+
+        case OpCodes::MOVEPOSRELTIME:
+          break;
+
+        case OpCodes::MOVEVEL:
+          {
+          uint32_t ang = getIntFromArgument(sch.c_task);
+          CURTASK.pc += (sizeof(int));
+          uint32_t spd = getIntFromArgument(sch.c_task);
+          CURTASK.pc += (sizeof(int)) + 1;
+          CURTASK.e.spatial.absang = ang;
+          CURTASK.e.spatial.absspeed = spd;
+          break;
+          }
+        case OpCodes::MOVEVELTIME:
+          CURTASK.pc += (sizeof(int) * 2) + 1;
+          break;
+
+        case OpCodes::MOVEVELREL:
+          {
+          uint32_t ang = getIntFromArgument(sch.c_task);
+          CURTASK.pc += (sizeof(int));
+          uint32_t spd = getIntFromArgument(sch.c_task);
+          CURTASK.pc += (sizeof(int)) + 1;
+          CURTASK.e.spatial.relang = ang;
+          CURTASK.e.spatial.relspeed = spd;
+          break;
+          }
 
         /* Bullet Management */
         case OpCodes::ETNEW:
@@ -249,7 +320,7 @@ namespace dml {
           {
           uint32_t idx = getIntFromArgument(sch.c_task);
           CURTASK.live_bms[idx] = true;
-          CURTASK.bm[idx].shoot(CURTASK.pos, p.spatial.pos);
+          CURTASK.bm[idx].shoot(CURTASK.e.spatial.abspos, p.spatial.pos);
           CURTASK.pc+= sizeof(int) + 1;
           break;
           }

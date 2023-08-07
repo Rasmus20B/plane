@@ -5,10 +5,10 @@
 namespace plane {
 
   void Enm::draw() {
-    Vector2 p = {spatial.pos.x(), spatial.pos.y()};
+    Vector2 p = {spatial.abspos.x(), spatial.abspos.y()};
     Rectangle ps_hitbox = Rectangle{
-            this->spatial.pos.x(), 
-            this->spatial.pos.y(), 
+            this->spatial.abspos.x(), 
+            this->spatial.abspos.y(), 
             static_cast<float>(sprite.width ), 
             static_cast<float>(sprite.height )
     };
@@ -35,7 +35,7 @@ namespace plane {
 
     e_tmp.attrs.health = health;
 
-    e_tmp.spatial.pos = {x, y};
+    e_tmp.spatial.abspos = {x, y};
 
     switch(e.spatial.movement) {
       case MOVE_LINEAR:
@@ -49,8 +49,8 @@ namespace plane {
           for(auto &i : e.spatial.move_points) {
             pts.push_back({ {gg.x + i.vec.x, gg.y + i.vec.y}, 0});
           }
-          Spline s(pts, e.spatial.speed);
-          e_tmp.spatial.move_points = s.calc_points(0.01, e.spatial.speed, false);
+          Spline s(pts, e.spatial.absspeed);
+          e_tmp.spatial.move_points = s.calc_points(0.01, e.spatial.absspeed, false);
         }
         break;
       default:
@@ -64,31 +64,31 @@ namespace plane {
   void enmUpdatePos(EnmSpace& e) {
     switch(e.flag) {
       case enmMoveFlag::ACCEL:
-        e.speed += e.special1;
+        e.absspeed += e.special1;
         break;
       case enmMoveFlag::ACCEL_DECEL:
         if((e.move_points.size() * 0.5) < e.cur) {
-          e.speed -= e.special1;
-          if(e.speed < 0) {
+          e.absspeed -= e.special1;
+          if(e.absspeed < 0) {
             return;
           }
         } else {
-          e.speed += e.special1;
+          e.absspeed += e.special1;
         }
         break;
       case NA:
-        e.cur += e.speed;
+        e.cur += e.absspeed;
         break;
       default:
         break;
     }
-    if(e.speed >= e.move_points.size() - e.cur) {
-      e.speed -= e.special1;
+    if(e.absspeed >= e.move_points.size() - e.cur) {
+      e.absspeed -= e.special1;
       return;
     }
-    e.pos = e.move_points[e.cur];
-    if(e.cur < e.move_points.size() - e.speed - 1) {
-      e.cur += e.speed;
+    e.abspos = e.move_points[e.cur];
+    if(e.cur < e.move_points.size() - e.absspeed - 1) {
+      e.cur += e.absspeed;
     }
   }
 }

@@ -19,6 +19,19 @@ struct Vec2 {
   Vec2 operator+(const Vec2 rhs) {
     return { this->vec.x + rhs.vec.x, this->vec.y + rhs.vec.y };
   }
+  Vec2 operator+(const float rhs) {
+    return { this->vec.x + rhs, this->vec.y + rhs };
+  }
+  Vec2 operator+=(const Vec2 rhs) {
+     this->vec.x += rhs.vec.x;
+     this->vec.y += rhs.vec.y;
+     return *this;
+  }
+  Vec2 operator+=(const float rhs) {
+     this->vec.x += rhs;
+     this->vec.y += rhs;
+     return *this;
+  }
   Vec2 operator-(const Vec2 rhs) {
     return { this->vec.x - rhs.vec.x, this->vec.y - rhs.vec.y };
   }

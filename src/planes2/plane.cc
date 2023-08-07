@@ -27,6 +27,7 @@ namespace plane {
     gg.y = 0;
     gg.r = (1920.f / 3)  * 2;
     gg.c = config.screen_height;
+
     dml::VM cpu;
 
     cpu.load_script(std::move(prog));
@@ -85,8 +86,8 @@ namespace plane {
         b.draw();
         for(int i = 0; i < es.size(); ++i) {
           Rectangle hitbox = {
-            .x = es[i].spatial.pos.x(),
-            .y = es[i].spatial.pos.y(),
+            .x = es[i].spatial.abspos.x(),
+            .y = es[i].spatial.abspos.y(),
             .width = static_cast<float>(es[i].sprite.width),
             .height = static_cast<float>(es[i].sprite.height)
           };
@@ -103,7 +104,7 @@ namespace plane {
 
         auto s = es[i].shooting.shots.find(frame_count);
         if(s == es[i].shooting.shots.end()) continue;
-        s->second.shoot(es[i].spatial.pos, p.spatial.pos);
+        s->second.shoot(es[i].spatial.abspos, p.spatial.pos);
         bs.push_back(s->second);
         liveBMs[bs.size() - 1] = true;
       }
