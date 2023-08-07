@@ -34,14 +34,15 @@ namespace plane {
 
   struct EnmSpace {
     std::vector<Vec2> move_points;
-    Vec2 abspos;
-    Vec2 relpos;
-    float absspeed;
-    float relspeed;
-    float absang;
-    float relang;
+    Vec2 abspos={0, 0};
+    Vec2 relpos={0,0};
+    float absspeed=0;
+    float relspeed=0;
+    float absang=0;
+    float relang=0;
     float cur; // how long along it's path it is, index for movepoints
     enmMoveType movement;
+    uint32_t time;
 
     enmMoveFlag flag;
     float special1;

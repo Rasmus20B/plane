@@ -4,6 +4,7 @@
 #include "scheduler.h"
 #include <bits/chrono.h>
 #include <chrono>
+#include <cmath>
 #include <cstring>
 #include <iterator>
 #include <ratio>
@@ -79,8 +80,8 @@ namespace dml {
 
       plane::handle_game_input(p.spatial,  p.shooting);
 
+      BeginDrawing();
       if(sch.c_task == 0) {
-        BeginDrawing();
         for(uint32_t i = 0; i < sch.tasks_mask.size(); ++i){
           if(sch.tasks_mask[i] != true) continue;
 
@@ -93,10 +94,14 @@ namespace dml {
           }
 
           // Update Enemy positionsS
-          sch.tasks[i].e.spatial.abspos += sch.tasks[i].e.spatial.absspeed;
-          sch.tasks[i].e.spatial.relpos += sch.tasks[i].e.spatial.relspeed;
+          if(!sch.tasks[i].waitctr || sch.tasks[i].e.spatial.time) {
+            sch.tasks[i].e.spatial.abspos.vec.x += std::round(sch.tasks[i].e.spatial.absspeed * cos(RAD(sch.tasks[i].e.spatial.absang)));
+            sch.tasks[i].e.spatial.abspos.vec.y += std::round(sch.tasks[i].e.spatial.absspeed * sin(RAD(sch.tasks[i].e.spatial.absang)));
+            sch.tasks[i].e.spatial.relpos.vec.x += std::round(sch.tasks[i].e.spatial.relspeed * cos(RAD(sch.tasks[i].e.spatial.relang)));
+            sch.tasks[i].e.spatial.relpos.vec.y += std::round(sch.tasks[i].e.spatial.relspeed * sin(RAD(sch.tasks[i].e.spatial.relang)));
+            sch.tasks[i].e.spatial.time--;
+          }
 
-          std::cout << "updated x : " << sch.tasks[i].e.spatial.abspos.x() << "\n";
 
           // Draw Enemies
           DrawTextureV(CURTASK.e.sprite, {
@@ -105,8 +110,8 @@ namespace dml {
               }, CURTASK.e.col);
         }
         DrawFPS(p.spatial.pos.x, p.spatial.pos.y);
-        EndDrawing();
       }
+      EndDrawing();
 
       if(time_acc >= sch.cur_slice) {
         time_acc = 0.f;
@@ -219,7 +224,6 @@ namespace dml {
           // enmCreate()
           {
           uint32_t addr = getIntFromArgument(sch.c_task);
-          std::cout << "STARTING TASK @ " << std::hex << addr << "\n";
           CURTASK.pc += sizeof(int) + 1;
           if(!sch.add_task(addr)) {
             std::cout << "Unable to add new task\n";
@@ -228,7 +232,6 @@ namespace dml {
           }
         case OpCodes::ENMCREATEA:
           {
-          std::cout << "NYI\n";
           CURTASK.pc+=sizeof(int) +1;
           break;
           }
@@ -290,9 +293,21 @@ namespace dml {
           break;
           }
         case OpCodes::MOVEVELTIME:
-          CURTASK.pc += (sizeof(int) * 2) + 1;
+          {
+          uint32_t time = getIntFromArgument(sch.c_task);
+          CURTASK.pc += (sizeof(int));
+          uint32_t mode = getIntFromArgument(sch.c_task);
+          CURTASK.pc += (sizeof(int));
+          float ang = getIntFromArgument(sch.c_task);
+          CURTASK.pc += (sizeof(int));
+          float spd = getIntFromArgument(sch.c_task);
+          CURTASK.pc += (sizeof(int)) + 1;
+          CURTASK.e.spatial.absang = ang;
+          CURTASK.e.spatial.absspeed = spd;
+          CURTASK.e.spatial.time = time;
+          CURTASK.e.spatial.movement = static_cast<plane::enmMoveType>(mode);
           break;
-
+          }
         case OpCodes::MOVEVELREL:
           {
           uint32_t ang = getIntFromArgument(sch.c_task);
@@ -320,7 +335,7 @@ namespace dml {
           {
           uint32_t idx = getIntFromArgument(sch.c_task);
           CURTASK.live_bms[idx] = true;
-          CURTASK.bm[idx].shoot(CURTASK.e.spatial.abspos, p.spatial.pos);
+          CURTASK.bm[idx].shoot(CURTASK.e.spatial.abspos + CURTASK.e.spatial.relpos, p.spatial.pos);
           CURTASK.pc+= sizeof(int) + 1;
           break;
           }
