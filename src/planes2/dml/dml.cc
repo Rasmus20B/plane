@@ -2,7 +2,6 @@
 
 #include "../input.h"
 #include "scheduler.h"
-#include <bits/chrono.h>
 #include <chrono>
 #include <cmath>
 #include <cstring>
