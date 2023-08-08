@@ -30,6 +30,7 @@ struct BulletMgr {
   Texture2D sprite;
   std::vector<Vec2> positions;
   std::vector<bool> oobs;
+  uint16_t id;
   Vec2 origin;
   float ang1;
   float ang2;

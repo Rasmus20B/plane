@@ -13,6 +13,25 @@
 namespace dml {
 
   
+  bool VM::addBM(plane::BulletMgr bm) {
+    uint16_t i = 0;
+    while(i < this->bullets_mask.size()) {
+      if(this->bullets_mask[i] == false) {
+        bm.id = i;
+        this->bullets[i] = bm;
+        this->bullets_mask[i] = true;
+        std::cout << "ADDING AT: " << i << "\n";
+        return true;
+      }
+      i++;
+    }
+    return false;
+  }
+
+  void VM::removeBM(uint16_t id) {
+    std::cout << "setting " << id << " to false\n";
+    this->bullets_mask[id] = false;
+  }
 
   void VM::load_script(const std::vector<uint8_t>&& progtext) {
     // Load text into the end of memory
@@ -20,11 +39,12 @@ namespace dml {
   }
 
   uint32_t VM::getIntFromStack(const uint32_t t_id){
-    uint32_t num = 
-        (CURTASK.mem[CURTASK.sp-4] << 24)
-      | (CURTASK.mem[CURTASK.sp-3] << 16) 
-      | (CURTASK.mem[CURTASK.sp-2] << 8) 
-      |  CURTASK.mem[CURTASK.sp-1];
+    uint32_t num = 0;
+
+    num += (CURTASK.mem[CURTASK.sp-1] << 24) & 0xFF000000;
+    num += (CURTASK.mem[CURTASK.sp-2] << 16) & 0x00FF0000;
+    num += (CURTASK.mem[CURTASK.sp-3] << 8) & 0x0000FF00;
+    num += CURTASK.mem[CURTASK.sp-4] & 0x000000FF;
     CURTASK.sp -= 4;
     return num;
   }
@@ -43,13 +63,14 @@ namespace dml {
     CURTASK.waitctr = 0;
     CURTASK.sp = 0;
     std::fill(CURTASK.live_bms.begin(), CURTASK.live_bms.end(), false);
+    std::fill(bullets_mask.begin(), bullets_mask.end(), false);
   }
 
   void VM::loadIntToStack(const uint32_t t_id, const uint32_t num) {
-    CURTASK.mem[CURTASK.sp+1] = num << 24;
-    CURTASK.mem[CURTASK.sp+2] = num << 16;
-    CURTASK.mem[CURTASK.sp+3] = num << 8;
-    CURTASK.mem[CURTASK.sp+4] = num;
+    CURTASK.mem[CURTASK.sp+1] = (num << 24) & 0xFF000000;
+    CURTASK.mem[CURTASK.sp+2] = (num << 16) & 0x00FF0000;
+    CURTASK.mem[CURTASK.sp+3] = (num << 8) & 0x0000FF00;
+    CURTASK.mem[CURTASK.sp+4] = num & 0x000000FF;
   }
 
   void VM::loadIntToStack(const uint32_t t_id) {
@@ -77,20 +98,12 @@ namespace dml {
         return;
       }
 
-      plane::handle_game_input(p.spatial,  p.shooting);
 
-      BeginDrawing();
       if(sch.c_task == 0) {
+        plane::handle_game_input(p.spatial,  p.shooting);
+        BeginDrawing();
         for(uint32_t i = 0; i < sch.tasks_mask.size(); ++i){
           if(sch.tasks_mask[i] != true) continue;
-
-          //TODO: Update all live bullet(Should be done completely different )
-          for(uint32_t b = 0; b < sch.tasks[i].bm.size(); ++b) {
-            if(sch.tasks[i].live_bms[b] == true) {
-              sch.tasks[i].bm[b].update();
-              sch.tasks[i].bm[b].draw();
-            }
-          }
 
           // Update Enemy positionsS
           if(!sch.tasks[i].waitctr || sch.tasks[i].e.spatial.time) {
@@ -107,10 +120,38 @@ namespace dml {
               (CURTASK.e.spatial.abspos.x() + CURTASK.e.spatial.relpos.x()) - (CURTASK.e.sprite.width * 0.5f), 
               (CURTASK.e.spatial.abspos.y() + CURTASK.e.spatial.relpos.y()) - (CURTASK.e.sprite.height * 0.5f)
               }, CURTASK.e.col);
+
+        }
+
+        // handle bullets
+        for(uint32_t id = 0; id < this->bullets_mask.size() - 1; ++id) {
+          if(this->bullets_mask[id] == true) {
+            this->bullets[id].update();
+            this->bullets[id].draw();
+
+            if(this->bullets[id].collision_check(
+                  {
+                  .x = p.spatial.pos.x,
+                  .y = p.spatial.pos.y,
+                  .width = (float)p.sprite.width,
+                  .height = (float)p.sprite.height
+                  })) {
+            }
+
+            this->bullets[id].setOutOfBounds();
+
+            bool ded = (std::adjacent_find(bullets[id].oobs.begin(), 
+                  bullets[id].oobs.end(), 
+                  std::not_equal_to<bool>()) == bullets[id].oobs.end());
+            if(ded) {
+              std::cout << "removing :" << id << "\n";
+              removeBM(id);
+            }
+          }
         }
         DrawFPS(p.spatial.pos.x, p.spatial.pos.y);
+        EndDrawing();
       }
-      EndDrawing();
 
       if(time_acc >= sch.cur_slice) {
         time_acc = 0.f;
@@ -118,7 +159,7 @@ namespace dml {
       }
 
 
-      if(CURTASK.waitctr) {
+      if(CURTASK.waitctr && CURTASK.e.spatial.time) {
         CURTASK.waitctr -= 1;
         if(!sch.next_task()) {
           return;
@@ -137,11 +178,11 @@ namespace dml {
       }
 
       auto start_time = std::chrono::high_resolution_clock::now();
-      int opcode = pgtext[CURTASK.pc];
+      uint32_t opcode = pgtext[CURTASK.pc];
       opcode = opcode << 8;
       CURTASK.pc++;
       opcode |= pgtext[CURTASK.pc];
-      std::cout << "THREAD " << std::dec << sch.c_task << " @" << CURTASK.pc << ": " << std::hex << opcode << "\n";
+      // std::cout << "THREAD " << std::dec << sch.c_task << " @" << CURTASK.pc << ": " << std::hex << opcode << "\n";
       OpCodes oc = static_cast<OpCodes>(opcode);
       switch(oc) {
         case OpCodes::NOP:
@@ -155,13 +196,35 @@ namespace dml {
         case OpCodes::JMP:
           // jmp
           {
-          uint32_t n = getIntFromArgument(sch.c_task);
-          CURTASK.pc = n;
+          uint32_t addr = getIntFromArgument(sch.c_task);
+          CURTASK.pc = addr + 1;
           break;
           }
-        case OpCodes::JUMPEQ:
-          CURTASK.pc++;
+        case OpCodes::JUMPEQ: 
+          {
+          uint32_t addr = getIntFromArgument(sch.c_task);
+          CURTASK.pc = addr;
+          uint32_t test = getIntFromStack(sch.c_task);
+          std::cout << "TEST: " << test << "\n";
+          if(test == 0) {
+            CURTASK.pc = addr + 1;
+          } else {
+            CURTASK.pc+=sizeof(int) + 1;
+          }
           break;
+          }
+        case OpCodes::JUMPNEQ:
+          {
+          uint32_t addr = getIntFromArgument(sch.c_task);
+          CURTASK.pc = addr;
+          uint32_t test = getIntFromStack(sch.c_task);
+          if(test >= 0) {
+            CURTASK.pc = addr;
+          } else {
+            CURTASK.pc+=sizeof(int) + 1;
+          }
+          break;
+          }
         case OpCodes::WAIT: {
           // wait
           uint32_t time = getIntFromArgument(sch.c_task);
@@ -175,7 +238,8 @@ namespace dml {
         case OpCodes::PUSHI:
           // push i
           {
-          loadIntToStack(sch.c_task);
+          uint32_t var = getIntFromArgument(sch.c_task);
+          loadIntToStack(sch.c_task, var);
           CURTASK.pc += sizeof(int) + 1;
           break;
           }
@@ -231,7 +295,7 @@ namespace dml {
           }
         case OpCodes::ENMCREATEA:
           {
-          CURTASK.pc+=sizeof(int) +1;
+          CURTASK.pc+=sizeof(int) + 1;
           break;
           }
         case OpCodes::ANMSELECT:
@@ -333,8 +397,7 @@ namespace dml {
         case OpCodes::ETON:
           {
           uint32_t idx = getIntFromArgument(sch.c_task);
-          CURTASK.live_bms[idx] = true;
-          CURTASK.bm[idx].shoot(CURTASK.e.spatial.abspos + CURTASK.e.spatial.relpos, p.spatial.pos);
+          addBM(CURTASK.bm[idx]);
           CURTASK.pc+= sizeof(int) + 1;
           break;
           }

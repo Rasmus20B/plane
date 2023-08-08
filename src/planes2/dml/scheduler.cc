@@ -6,6 +6,7 @@ namespace dml {
     tasks_mask[0] = true;
     Task t;
     t.set_entry(0);
+    c_task = 0;
     tasks[0] = t;
   }
 
@@ -16,24 +17,20 @@ namespace dml {
 
   bool Scheduler::add_task(uint16_t ep) {
 
-    uint16_t i = this->c_task + 1;
-    while(tasks_mask[i]) {
-      if(i >= this->tasks_mask.size() - 1) {
-        i = 0;
+    uint16_t i = 0;
+    while(i < this->tasks_mask.size()) {
+      if(this->tasks_mask[i] == false) {
+        Task t;
+        t.set_entry(ep);
+        this->tasks[i] = t;
+        this->tasks_mask[i] = true;
+        this->n_tasks++;
+        this->cur_slice = this->total_duration / (this->n_tasks) ;
+        return true;
       }
-      if(i == this->c_task) {
-        return false;
-      }
-      i++;
+      ++i;
     }
-    this->tasks_mask[i] = true;
-    Task t;
-    std::fill(t.mem.begin(), t.mem.end(), 0);
-    t.set_entry(ep);
-    this->tasks[i] = t;
-    this->n_tasks++;
-    this->cur_slice = this->total_duration / (this->n_tasks) ;
-    return true;
+    return false;
   }
   
   void Scheduler::del_task() {
@@ -43,7 +40,7 @@ namespace dml {
   }
 
   bool Scheduler::next_task() {
-    uint16_t i = c_task + 1;
+    uint16_t i = (c_task + 1) % this->tasks_mask.size();
     while(!this->tasks_mask[i]) {
       if(i >= this->tasks_mask.size() - 1) {
         i = 0;

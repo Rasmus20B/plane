@@ -28,7 +28,13 @@ struct VM {
   std::atomic_flag power;
 
   std::mutex m;
+  std::array<plane::BulletMgr, 128> bullets;
+  std::array<bool, 128> bullets_mask;
   plane::Player p;
+
+  uint16_t bm_idx = 0;
+  bool addBM(plane::BulletMgr);
+  void removeBM(uint16_t id);
 
   void load_script(const std::vector<uint8_t>&& progtext);
   void init(const uint32_t t_id, const uint32_t start);
