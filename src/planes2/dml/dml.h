@@ -43,12 +43,12 @@ struct VM {
   void render();
   void stop();
 
-  uint32_t getIntFromStack();
-  uint32_t getIntFromStack(const uint32_t t_id);
+  uint32_t popInt();
+  uint32_t popInt(const uint32_t t_id);
   uint32_t getIntFromArgument();
   uint32_t getIntFromArgument(const uint32_t t_id);
-  void loadIntToStack(const uint32_t t_id);
-  void loadIntToStack(const uint32_t t_id, const uint32_t num);
+  void pushInt(const uint32_t t_id);
+  void pushInt(const uint32_t t_id, const uint32_t num);
 };
 
 enum class OpCodes  {

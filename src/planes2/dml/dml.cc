@@ -18,9 +18,9 @@ namespace dml {
     while(i < this->bullets_mask.size()) {
       if(this->bullets_mask[i] == false) {
         bm.id = i;
+        bm.setOrigin(CURTASK.e.spatial.abspos + CURTASK.e.spatial.relpos);
         this->bullets[i] = bm;
         this->bullets_mask[i] = true;
-        std::cout << "ADDING AT: " << i << "\n";
         return true;
       }
       i++;
@@ -29,23 +29,20 @@ namespace dml {
   }
 
   void VM::removeBM(uint16_t id) {
-    std::cout << "setting " << id << " to false\n";
     this->bullets_mask[id] = false;
   }
 
   void VM::load_script(const std::vector<uint8_t>&& progtext) {
-    // Load text into the end of memory
     pgtext = std::move(progtext);
   }
 
-  uint32_t VM::getIntFromStack(const uint32_t t_id){
+  uint32_t VM::popInt(const uint32_t t_id){
     uint32_t num = 0;
-
-    num += (CURTASK.mem[CURTASK.sp-1] << 24) & 0xFF000000;
-    num += (CURTASK.mem[CURTASK.sp-2] << 16) & 0x00FF0000;
-    num += (CURTASK.mem[CURTASK.sp-3] << 8) & 0x0000FF00;
-    num += CURTASK.mem[CURTASK.sp-4] & 0x000000FF;
     CURTASK.sp -= 4;
+    num += (CURTASK.mem[CURTASK.sp+3] << 24) & 0xFF000000;
+    num += (CURTASK.mem[CURTASK.sp+2] << 16) & 0x00FF0000;
+    num += (CURTASK.mem[CURTASK.sp+1] << 8) & 0x0000FF00;
+    num += (CURTASK.mem[CURTASK.sp] & 0x000000FF);
     return num;
   }
 
@@ -59,25 +56,27 @@ namespace dml {
   }
   
   void VM::init(const uint32_t t_id, const uint32_t start) {
-    CURTASK.pc = start;
-    CURTASK.waitctr = 0;
-    CURTASK.sp = 0;
-    std::fill(CURTASK.live_bms.begin(), CURTASK.live_bms.end(), false);
-    std::fill(bullets_mask.begin(), bullets_mask.end(), false);
+    this->sch.tasks[t_id].pc = start;
+    this->sch.tasks[t_id].waitctr = 0;
+    this->sch.tasks[t_id].sp = 0;
+    std::fill(this->bullets_mask.begin(), this->bullets_mask.end(), false);
+    std::fill(this->sch.tasks[t_id].mem.begin(), this->sch.tasks[t_id].mem.end(), 0);
   }
 
-  void VM::loadIntToStack(const uint32_t t_id, const uint32_t num) {
-    CURTASK.mem[CURTASK.sp+1] = (num << 24) & 0xFF000000;
-    CURTASK.mem[CURTASK.sp+2] = (num << 16) & 0x00FF0000;
-    CURTASK.mem[CURTASK.sp+3] = (num << 8) & 0x0000FF00;
-    CURTASK.mem[CURTASK.sp+4] = num & 0x000000FF;
+  void VM::pushInt(const uint32_t t_id, const uint32_t num) {
+    CURTASK.mem[CURTASK.sp] = num & 0x000000FF;
+    CURTASK.mem[CURTASK.sp+1] = (num & 0x0000FF00) >> 8;
+    CURTASK.mem[CURTASK.sp+2] = (num & 0x00FF0000) >> 16;
+    CURTASK.mem[CURTASK.sp+3] = (num & 0xFF000000) >> 24;
+    CURTASK.sp += 4;
   }
 
-  void VM::loadIntToStack(const uint32_t t_id) {
-    CURTASK.mem[CURTASK.sp+1] = this->pgtext[CURTASK.pc+1];
-    CURTASK.mem[CURTASK.sp+2] = this->pgtext[CURTASK.pc+2];
-    CURTASK.mem[CURTASK.sp+3] = this->pgtext[CURTASK.pc+3];
-    CURTASK.mem[CURTASK.sp+4] = this->pgtext[CURTASK.pc+4];
+  void VM::pushInt(const uint32_t t_id) {
+    CURTASK.mem[CURTASK.sp] = this->pgtext[CURTASK.pc+1];
+    CURTASK.mem[CURTASK.sp + 1] = this->pgtext[CURTASK.pc+2];
+    CURTASK.mem[CURTASK.sp + 2] = this->pgtext[CURTASK.pc+3];
+    CURTASK.mem[CURTASK.sp + 3] = this->pgtext[CURTASK.pc+4];
+    CURTASK.sp += 4;
   }
 
   void VM::fetch_execute() {
@@ -86,10 +85,11 @@ namespace dml {
 
   void VM::run() {
 
-    float time_acc = 0.f;
+    double time_acc = 0.f;
 
     sch.set_ts_duration(16.67);
     sch.init();
+    this->init(0, 0);
 
     while(!WindowShouldClose()) {
       ClearBackground(BLACK);
@@ -106,7 +106,7 @@ namespace dml {
           if(sch.tasks_mask[i] != true) continue;
 
           // Update Enemy positionsS
-          if(!sch.tasks[i].waitctr || sch.tasks[i].e.spatial.time) {
+          if(!sch.tasks[i].waitctr) {
             sch.tasks[i].e.spatial.abspos.vec.x += std::round(sch.tasks[i].e.spatial.absspeed * cos(RAD(sch.tasks[i].e.spatial.absang)));
             sch.tasks[i].e.spatial.abspos.vec.y += std::round(sch.tasks[i].e.spatial.absspeed * sin(RAD(sch.tasks[i].e.spatial.absang)));
             sch.tasks[i].e.spatial.relpos.vec.x += std::round(sch.tasks[i].e.spatial.relspeed * cos(RAD(sch.tasks[i].e.spatial.relang)));
@@ -120,7 +120,6 @@ namespace dml {
               (CURTASK.e.spatial.abspos.x() + CURTASK.e.spatial.relpos.x()) - (CURTASK.e.sprite.width * 0.5f), 
               (CURTASK.e.spatial.abspos.y() + CURTASK.e.spatial.relpos.y()) - (CURTASK.e.sprite.height * 0.5f)
               }, CURTASK.e.col);
-
         }
 
         // handle bullets
@@ -182,7 +181,12 @@ namespace dml {
       opcode = opcode << 8;
       CURTASK.pc++;
       opcode |= pgtext[CURTASK.pc];
-      // std::cout << "THREAD " << std::dec << sch.c_task << " @" << CURTASK.pc << ": " << std::hex << opcode << "\n";
+      std::cout << "THREAD " << std::dec << sch.c_task << " @" << CURTASK.pc << ": " << std::hex << opcode << "\n";
+
+      for(int i = 0; i < 20; ++i) {
+        std::cout << std::dec << CURTASK.mem[i] << ", ";
+      }
+      std::cout << "\n";
       OpCodes oc = static_cast<OpCodes>(opcode);
       switch(oc) {
         case OpCodes::NOP:
@@ -197,17 +201,16 @@ namespace dml {
           // jmp
           {
           uint32_t addr = getIntFromArgument(sch.c_task);
-          CURTASK.pc = addr + 1;
+          CURTASK.pc = addr ;
           break;
           }
         case OpCodes::JUMPEQ: 
           {
           uint32_t addr = getIntFromArgument(sch.c_task);
-          CURTASK.pc = addr;
-          uint32_t test = getIntFromStack(sch.c_task);
-          std::cout << "TEST: " << test << "\n";
+          uint32_t test = popInt(sch.c_task);
+          std::cout << test << "\n";
           if(test == 0) {
-            CURTASK.pc = addr + 1;
+            CURTASK.pc = addr ;
           } else {
             CURTASK.pc+=sizeof(int) + 1;
           }
@@ -217,7 +220,7 @@ namespace dml {
           {
           uint32_t addr = getIntFromArgument(sch.c_task);
           CURTASK.pc = addr;
-          uint32_t test = getIntFromStack(sch.c_task);
+          uint32_t test = popInt(sch.c_task);
           if(test >= 0) {
             CURTASK.pc = addr;
           } else {
@@ -239,7 +242,7 @@ namespace dml {
           // push i
           {
           uint32_t var = getIntFromArgument(sch.c_task);
-          loadIntToStack(sch.c_task, var);
+          pushInt(sch.c_task, var);
           CURTASK.pc += sizeof(int) + 1;
           break;
           }
@@ -247,10 +250,11 @@ namespace dml {
           // set i
           {
           uint32_t var = getIntFromArgument(sch.c_task);
-          uint32_t num = getIntFromStack(sch.c_task);
+          uint32_t num = popInt(sch.c_task);
           CURTASK.vars[var] = num;
           CURTASK.pc += sizeof(int) + 1;
-          CURTASK.sp -= 4;
+          CURTASK.sp -= sizeof(int);
+          std::cout << "Setting " << var << " to " << num << "\n";
           break;
           }
         case OpCodes::PUSHF:
@@ -266,13 +270,11 @@ namespace dml {
           {
           // add i 
           uint32_t res = 0;
-          uint32_t o1 = getIntFromStack(sch.c_task);
-          CURTASK.sp -= 4;
-          uint32_t o2 = getIntFromStack(sch.c_task);
-          CURTASK.sp -= 4;
-          res = o1 + o2;
+          while(CURTASK.sp > 0) {
+            res += popInt(sch.c_task);
+          }
 
-          loadIntToStack(sch.c_task, res);
+          pushInt(sch.c_task, res);
           CURTASK.pc++;
           break;
           }
@@ -391,7 +393,7 @@ namespace dml {
           };
           b.setType(plane::BulletSprite::BLADE_01);
           CURTASK.bm[idx] = b;
-          CURTASK.pc+= sizeof(int) + 1;
+          CURTASK.pc += sizeof(int) + 1;
           break;
           }
         case OpCodes::ETON:

@@ -8,7 +8,7 @@
 
 namespace dml {
 struct Task {
-  std::array<char, 2000> mem{};
+  std::array<uint8_t, 200> mem{};
   std::array<float, 16> vars{};
   std::array<plane::BulletMgr, 16> bm;
   std::array<bool, 16> live_bms;

@@ -30,14 +30,14 @@ struct BulletMgr {
   Texture2D sprite;
   std::vector<Vec2> positions;
   std::vector<bool> oobs;
-  uint16_t id;
-  Vec2 origin;
-  float ang1;
-  float ang2;
-  float speed1;
-  float speed2;
-  uint8_t count;
-  uint8_t layers;
+  uint16_t id = 0;
+  Vec2 origin = {0, 0};
+  float ang1 = 0;
+  float ang2 = 0;
+  float speed1 = 0;
+  float speed2 = 0;
+  uint8_t count = 0;
+  uint8_t layers = 0;
   BulletFlag mode;
   BulletSprite type;
 
