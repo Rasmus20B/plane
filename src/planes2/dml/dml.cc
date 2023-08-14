@@ -183,14 +183,9 @@ namespace dml {
       opcode |= pgtext[CURTASK.pc];
       std::cout << "THREAD " << std::dec << sch.c_task << " @" << CURTASK.pc << ": " << std::hex << opcode << "\n";
 
-      for(int i = 0; i < 20; ++i) {
-        std::cout << std::dec << CURTASK.mem[i] << ", ";
-      }
-      std::cout << "\n";
       OpCodes oc = static_cast<OpCodes>(opcode);
       switch(oc) {
         case OpCodes::NOP:
-          // nop
           CURTASK.pc++;
           break;
         case OpCodes::DELETE:
@@ -208,7 +203,6 @@ namespace dml {
           {
           uint32_t addr = getIntFromArgument(sch.c_task);
           uint32_t test = popInt(sch.c_task);
-          std::cout << test << "\n";
           if(test == 0) {
             CURTASK.pc = addr ;
           } else {
@@ -219,12 +213,12 @@ namespace dml {
         case OpCodes::JUMPNEQ:
           {
           uint32_t addr = getIntFromArgument(sch.c_task);
-          CURTASK.pc = addr;
           uint32_t test = popInt(sch.c_task);
-          if(test >= 0) {
+          std::cout << "GOT " << test << "\n";
+          if(test > 0) {
             CURTASK.pc = addr;
           } else {
-            CURTASK.pc+=sizeof(int) + 1;
+            CURTASK.pc += sizeof(int) + 1;
           }
           break;
           }
@@ -253,8 +247,6 @@ namespace dml {
           uint32_t num = popInt(sch.c_task);
           CURTASK.vars[var] = num;
           CURTASK.pc += sizeof(int) + 1;
-          CURTASK.sp -= sizeof(int);
-          std::cout << "Setting " << var << " to " << num << "\n";
           break;
           }
         case OpCodes::PUSHF:
