@@ -12,13 +12,13 @@
 
 namespace dml {
 
-  
   bool VM::addBM(plane::BulletMgr bm) {
     uint16_t i = 0;
     while(i < this->bullets_mask.size()) {
       if(this->bullets_mask[i] == false) {
         bm.id = i;
         bm.setOrigin(CURTASK.e.spatial.abspos + CURTASK.e.spatial.relpos);
+        bm.shoot(bm.origin, p.spatial.pos);
         this->bullets[i] = bm;
         this->bullets_mask[i] = true;
         return true;
@@ -28,7 +28,7 @@ namespace dml {
     return false;
   }
 
-  void VM::removeBM(uint16_t id) {
+  void VM::removeBM(const uint16_t id) {
     this->bullets_mask[id] = false;
   }
 
@@ -182,7 +182,6 @@ namespace dml {
       CURTASK.pc++;
       opcode |= pgtext[CURTASK.pc];
       std::cout << "THREAD " << std::dec << sch.c_task << " @" << CURTASK.pc << ": " << std::hex << opcode << "\n";
-
       OpCodes oc = static_cast<OpCodes>(opcode);
       switch(oc) {
         case OpCodes::NOP:
@@ -245,6 +244,7 @@ namespace dml {
           {
           uint32_t var = getIntFromArgument(sch.c_task);
           uint32_t num = popInt(sch.c_task);
+          std::cout << "setting #" << var << " to " << num << "\n";
           CURTASK.vars[var] = num;
           CURTASK.pc += sizeof(int) + 1;
           break;
