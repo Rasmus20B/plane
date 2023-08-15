@@ -79,6 +79,34 @@ namespace dml {
     CURTASK.sp += 4;
   }
 
+  void VM::handle_bullets() {
+    for(uint32_t id = 0; id < this->bullets_mask.size() - 1; ++id) {
+      if(this->bullets_mask[id] == true) {
+        this->bullets[id].update();
+        this->bullets[id].draw();
+
+        if(this->bullets[id].collision_check(
+              {
+              .x = p.spatial.pos.x,
+              .y = p.spatial.pos.y,
+              .width = (float)p.sprite.width,
+              .height = (float)p.sprite.height
+              })) {
+        }
+
+        this->bullets[id].setOutOfBounds();
+
+        bool ded = (std::adjacent_find(bullets[id].oobs.begin(), 
+              bullets[id].oobs.end(), 
+              std::not_equal_to<bool>()) == bullets[id].oobs.end());
+        if(ded) {
+          std::cout << "removing :" << id << "\n";
+          removeBM(id);
+        }
+      }
+    }
+  }
+
   void VM::fetch_execute() {
     return;
   }
@@ -123,31 +151,7 @@ namespace dml {
         }
 
         // handle bullets
-        for(uint32_t id = 0; id < this->bullets_mask.size() - 1; ++id) {
-          if(this->bullets_mask[id] == true) {
-            this->bullets[id].update();
-            this->bullets[id].draw();
-
-            if(this->bullets[id].collision_check(
-                  {
-                  .x = p.spatial.pos.x,
-                  .y = p.spatial.pos.y,
-                  .width = (float)p.sprite.width,
-                  .height = (float)p.sprite.height
-                  })) {
-            }
-
-            this->bullets[id].setOutOfBounds();
-
-            bool ded = (std::adjacent_find(bullets[id].oobs.begin(), 
-                  bullets[id].oobs.end(), 
-                  std::not_equal_to<bool>()) == bullets[id].oobs.end());
-            if(ded) {
-              std::cout << "removing :" << id << "\n";
-              removeBM(id);
-            }
-          }
-        }
+        handle_bullets();
         DrawFPS(p.spatial.pos.x, p.spatial.pos.y);
         EndDrawing();
       }
@@ -160,9 +164,7 @@ namespace dml {
 
       if(CURTASK.waitctr && CURTASK.e.spatial.time) {
         CURTASK.waitctr -= 1;
-        if(!sch.next_task()) {
-          return;
-        }
+        if(!sch.next_task()) return;
         continue;
       }
 
@@ -189,7 +191,8 @@ namespace dml {
           break;
         case OpCodes::DELETE:
           // delete execution
-          CURTASK.pc++;
+          sch.del_task();
+          if(sch.n_tasks == 0) return;
           break;
         case OpCodes::JMP:
           // jmp

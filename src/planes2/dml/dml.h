@@ -49,6 +49,8 @@ struct VM {
   uint32_t getIntFromArgument(const uint32_t t_id);
   void pushInt(const uint32_t t_id);
   void pushInt(const uint32_t t_id, const uint32_t num);
+
+  void handle_bullets();
 };
 
 enum class OpCodes  {
