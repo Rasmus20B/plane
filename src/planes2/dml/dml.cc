@@ -4,6 +4,7 @@
 #include "scheduler.h"
 #include <chrono>
 #include <cmath>
+#include <cassert>
 #include <cstring>
 #include <iterator>
 #include <ratio>
@@ -36,8 +37,10 @@ namespace dml {
     pgtext = std::move(progtext);
   }
 
+  [[nodiscard]]
   uint32_t VM::popInt(const uint32_t t_id){
     uint32_t num = 0;
+    assert(CURTASK.sp > 0 && "Stack should not be empty before popping");
     CURTASK.sp -= 4;
     num += (CURTASK.mem[CURTASK.sp+3] << 24) & 0xFF000000;
     num += (CURTASK.mem[CURTASK.sp+2] << 16) & 0x00FF0000;
@@ -46,6 +49,7 @@ namespace dml {
     return num;
   }
 
+  [[nodiscard]]
   uint32_t VM::getIntFromArgument(const uint32_t t_id) {
     uint32_t num = 0;
     num += this->pgtext[CURTASK.pc+1] & 0x000000FF;
@@ -100,7 +104,6 @@ namespace dml {
               bullets[id].oobs.end(), 
               std::not_equal_to<bool>()) == bullets[id].oobs.end());
         if(ded) {
-          std::cout << "removing :" << id << "\n";
           removeBM(id);
         }
       }
@@ -110,6 +113,20 @@ namespace dml {
   void VM::fetch_execute() {
     return;
   }
+  
+  void VM::read_header() {
+    constexpr std::array magic = { 0x7f, 0x44, 0x4d, 0x4c };
+    for(int i = 0; i < 4; ++i) {
+      if(magic[i] != pgtext[i]) {
+        std::cerr << "unknown file type\n";
+        break;
+      }
+    }
+
+    // Set pc to the entry point found in header file
+    this->sch.tasks[0].pc = this->pgtext[4] + this->pgtext[5];
+    pgtext.erase(pgtext.begin(), pgtext.begin() + 5);
+  }
 
   void VM::run() {
 
@@ -118,6 +135,8 @@ namespace dml {
     sch.set_ts_duration(16.67);
     sch.init();
     this->init(0, 0);
+
+    read_header();
 
     while(!WindowShouldClose()) {
       ClearBackground(BLACK);
@@ -161,7 +180,6 @@ namespace dml {
         if(!sch.next_task()) return;
       }
 
-
       if(CURTASK.waitctr && CURTASK.e.spatial.time) {
         CURTASK.waitctr -= 1;
         if(!sch.next_task()) return;
@@ -194,6 +212,13 @@ namespace dml {
           sch.del_task();
           if(sch.n_tasks == 0) return;
           break;
+        case OpCodes::RETURN:
+          CURTASK.pc = popInt(sch.c_task) ;
+          break;
+        case OpCodes::CALL:
+          pushInt(sch.c_task, CURTASK.pc + sizeof(int) + 1);
+          CURTASK.pc = getIntFromArgument(sch.c_task);
+          break;
         case OpCodes::JMP:
           // jmp
           {
@@ -201,7 +226,7 @@ namespace dml {
           CURTASK.pc = addr ;
           break;
           }
-        case OpCodes::JUMPEQ: 
+        case OpCodes::JMPEQ: 
           {
           uint32_t addr = getIntFromArgument(sch.c_task);
           uint32_t test = popInt(sch.c_task);
@@ -212,11 +237,11 @@ namespace dml {
           }
           break;
           }
-        case OpCodes::JUMPNEQ:
+        case OpCodes::JMPNEQ:
           {
           uint32_t addr = getIntFromArgument(sch.c_task);
           uint32_t test = popInt(sch.c_task);
-          std::cout << "GOT " << test << "\n";
+          std::cout << std::dec << test << "\n";
           if(test > 0) {
             CURTASK.pc = addr;
           } else {
@@ -231,9 +256,6 @@ namespace dml {
           CURTASK.pc += sizeof(int) + 1;
           break;
           };
-        case OpCodes::RETURN:
-          // Return
-          break;
         case OpCodes::PUSHI:
           // push i
           {
@@ -393,6 +415,7 @@ namespace dml {
           }
         case OpCodes::ETON:
           {
+            std::cout << "SHOOTING BULLET\n";
           uint32_t idx = getIntFromArgument(sch.c_task);
           addBM(CURTASK.bm[idx]);
           CURTASK.pc+= sizeof(int) + 1;
@@ -454,7 +477,7 @@ namespace dml {
           break;
           }
         default:
-          std::cout << "OPCODE NOT IMPLEMENTED\n";
+          std::cout << "OPCODE NOT IMPLEMENTED: " << opcode << "\n";
           return;
       }
       auto dur_taken = std::chrono::high_resolution_clock::now();

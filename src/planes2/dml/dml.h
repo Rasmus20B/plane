@@ -37,6 +37,7 @@ struct VM {
   void removeBM(uint16_t id);
 
   void load_script(const std::vector<uint8_t>&& progtext);
+  void read_header();
   void init(const uint32_t t_id, const uint32_t start);
   void run();
   void fetch_execute();
@@ -59,8 +60,8 @@ enum class OpCodes  {
   RETURN = 10,
   CALL = 11,
   JMP = 12,
-  JUMPEQ = 13,
-  JUMPNEQ = 14,
+  JMPEQ = 13,
+  JMPNEQ = 14,
   CALLASYNC = 15,
   CALLASYNCID = 16,
   KILLASYNC = 17,
