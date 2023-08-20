@@ -13,7 +13,7 @@
 
 namespace dml {
 
-  bool VM::addBM(plane::BulletMgr bm) {
+  bool VM::addBM(plane::BulletMgr bm) noexcept {
     uint16_t i = 0;
     while(i < this->bullets_mask.size()) {
       if(this->bullets_mask[i] == false) {
@@ -29,16 +29,16 @@ namespace dml {
     return false;
   }
 
-  void VM::removeBM(const uint16_t id) {
+  void VM::removeBM(const uint16_t id) noexcept {
     this->bullets_mask[id] = false;
   }
 
-  void VM::load_script(const std::vector<uint8_t>&& progtext) {
+  void VM::load_script(const std::vector<uint8_t>&& progtext) noexcept {
     pgtext = std::move(progtext);
   }
 
   [[nodiscard]]
-  uint32_t VM::popInt(const uint32_t t_id){
+  uint32_t VM::popInt(const uint32_t t_id) noexcept {
     uint32_t num = 0;
     assert(CURTASK.sp > 0 && "Stack should not be empty before popping");
     CURTASK.sp -= 4;
@@ -50,7 +50,7 @@ namespace dml {
   }
 
   [[nodiscard]]
-  uint32_t VM::getIntFromArgument(const uint32_t t_id) {
+  uint32_t VM::getIntFromArgument(const uint32_t t_id) noexcept {
     uint32_t num = 0;
     num += this->pgtext[CURTASK.pc+1] & 0x000000FF;
     num += (this->pgtext[CURTASK.pc+2] << 8) & 0x0000FF00;
@@ -59,7 +59,7 @@ namespace dml {
     return num;
   }
   
-  void VM::init(const uint32_t t_id, const uint32_t start) {
+  void VM::init(const uint32_t t_id, const uint32_t start) noexcept {
     this->sch.tasks[t_id].pc = start;
     this->sch.tasks[t_id].waitctr = 0;
     this->sch.tasks[t_id].sp = 0;
@@ -67,7 +67,7 @@ namespace dml {
     std::fill(this->sch.tasks[t_id].mem.begin(), this->sch.tasks[t_id].mem.end(), 0);
   }
 
-  void VM::pushInt(const uint32_t t_id, const uint32_t num) {
+  void VM::pushInt(const uint32_t t_id, const uint32_t num) noexcept {
     CURTASK.mem[CURTASK.sp] = num & 0x000000FF;
     CURTASK.mem[CURTASK.sp+1] = (num & 0x0000FF00) >> 8;
     CURTASK.mem[CURTASK.sp+2] = (num & 0x00FF0000) >> 16;
@@ -75,7 +75,7 @@ namespace dml {
     CURTASK.sp += 4;
   }
 
-  void VM::pushInt(const uint32_t t_id) {
+  void VM::pushInt(const uint32_t t_id) noexcept {
     CURTASK.mem[CURTASK.sp] = this->pgtext[CURTASK.pc+1];
     CURTASK.mem[CURTASK.sp + 1] = this->pgtext[CURTASK.pc+2];
     CURTASK.mem[CURTASK.sp + 2] = this->pgtext[CURTASK.pc+3];
@@ -110,11 +110,11 @@ namespace dml {
     }
   }
 
-  void VM::fetch_execute() {
+  void VM::fetch_execute() noexcept {
     return;
   }
   
-  void VM::read_header() {
+  void VM::read_header() noexcept {
     constexpr std::array magic = { 0x7f, 0x44, 0x4d, 0x4c };
     for(int i = 0; i < 4; ++i) {
       if(magic[i] != pgtext[i]) {
@@ -128,7 +128,7 @@ namespace dml {
     pgtext.erase(pgtext.begin(), pgtext.begin() + 5);
   }
 
-  void VM::run() {
+  void VM::run() noexcept {
 
     double time_acc = 0.f;
 
@@ -486,7 +486,7 @@ namespace dml {
     }
   }
 
-  void VM::stop() {
+  void VM::stop() noexcept {
     this->power.test_and_set();
   }
 }

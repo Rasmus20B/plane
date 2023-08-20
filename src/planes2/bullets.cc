@@ -26,13 +26,18 @@ namespace plane {
         }
         break;
       case BulletFlag::RING_AIMED:
+        {
+        float angstep = 360.f / (count);
+        float angle = 0;
         for(int i = 0; i < layers; ++i) {
           for(int j = 0; j < count; ++j) {
-            getPos(i, j).x() = origin.x() + (cos(RAD(360.f / j + 1 * i + 1 ) * j + 1 * i + 1) + RAD(ang2) * j + 1);
-            getPos(i, j).y() = origin.y() + (sin(RAD(360.f / j + 1 * i + 1 ) * j + 1 * i + 1) + RAD(ang2) * j + 1);
+            getPos(i, j).x() = origin.x() + sin(RAD(angle)) * 2;
+            getPos(i, j).y() = origin.y() + cos(RAD(angle)) * 2;
           }
+          angle += angstep;
         }
         break;
+        }
       default:
         break;
       }
@@ -117,23 +122,37 @@ namespace plane {
         }
         break;
       case BulletFlag::RING_AIMED:
+        {
+        const float angstep = 360.f / count;
+        float angle = 0;
         for(int i = 0; i < layers; ++i) {
           float lspeed = (speed1 + speed2) / (float(layers + 1) / (i + 1));
+          const float r = sqrt(std::pow(getPos(i, 0).x() - origin.x() + lspeed, 2) + std::pow(getPos(i, 0).y() - origin.y() + lspeed, 2)) ;
           for(int j = 0; j < count; ++j) {
-            getPos(i, j).x() += (cos(RAD(360.f/ ang1 * j  * i ) + (RAD(360.f / ang2) * i  * j )) * lspeed);
-            getPos(i, j).y() += (sin(RAD(360.f/ ang1  * j  * i ) + (RAD(360.f / ang2) * i  * j )) * lspeed);
+            getPos(i, j).x() = origin.x() + cos(RAD( angle )) * r;
+            getPos(i, j).y() = origin.y() + sin(RAD( angle )) * r;
+            angle += angstep;
           }
+          angle = 0;
         }
         break;
+        }
       case BulletFlag::RING_AROUND:
+        {
+        const float angstep = 360.f / count;
+        float angle = 0;
         for(int i = 0; i < layers; ++i) {
           float lspeed = (speed1 + speed2) / (float(layers + 1) / (i + 1));
+          const float r = sqrt(std::pow(getPos(i, 0).x() - origin.x() + lspeed, 2) + std::pow(getPos(i, 0).y() - origin.y() + lspeed, 2)) ;
           for(int j = 0; j < count; ++j) {
-            getPos(i, j).x() += (float)(RAD(ang2) + cos(RAD( 360.0f / (j + 1)) ) ) * lspeed;
-            getPos(i, j).y() += (float)(RAD(ang2) + sin(RAD( 360.0f / (j + 1)) ) ) * lspeed;
+            getPos(i, j).x() = origin.x() + cos(RAD( angle )) * r;
+            getPos(i, j).y() = origin.y() + sin(RAD( angle )) * r;
+            angle += angstep;
           }
+          angle = 0;
         }
         break;
+        }
       default:
         break;
     }
@@ -237,6 +256,9 @@ namespace plane {
     this->setOrigin(esp);
     switch(this->mode) {
       case BulletFlag::AIMED:
+        ang1 += (tar - this->origin).norm().face_velocity();
+        break;
+      case BulletFlag::RING_AIMED:
         ang1 += (tar - this->origin).norm().face_velocity();
         break;
       default:

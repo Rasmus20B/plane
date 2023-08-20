@@ -20,7 +20,6 @@
 
 namespace dml {
 
-
 struct VM {
 #define CURTASK this->sch.tasks[this->sch.c_task]
   std::vector<uint8_t> pgtext{};
@@ -33,23 +32,23 @@ struct VM {
   plane::Player p;
 
   uint16_t bm_idx = 0;
-  bool addBM(plane::BulletMgr);
-  void removeBM(uint16_t id);
+  bool addBM(plane::BulletMgr) noexcept;
+  void removeBM(uint16_t id) noexcept;
 
-  void load_script(const std::vector<uint8_t>&& progtext);
-  void read_header();
-  void init(const uint32_t t_id, const uint32_t start);
-  void run();
-  void fetch_execute();
-  void render();
-  void stop();
+  void load_script(const std::vector<uint8_t>&& progtext) noexcept;
+  void read_header() noexcept;
+  void init(const uint32_t t_id, const uint32_t start) noexcept;
+  void run() noexcept;
+  void fetch_execute() noexcept;
+  void render() noexcept;
+  void stop() noexcept;
 
-  uint32_t popInt();
-  uint32_t popInt(const uint32_t t_id);
-  uint32_t getIntFromArgument();
-  uint32_t getIntFromArgument(const uint32_t t_id);
-  void pushInt(const uint32_t t_id);
-  void pushInt(const uint32_t t_id, const uint32_t num);
+  uint32_t popInt() noexcept;
+  uint32_t popInt(const uint32_t t_id) noexcept;
+  uint32_t getIntFromArgument() noexcept;
+  uint32_t getIntFromArgument(const uint32_t t_id) noexcept;
+  void pushInt(const uint32_t t_id) noexcept;
+  void pushInt(const uint32_t t_id, const uint32_t num) noexcept;
 
   void handle_bullets();
 };
