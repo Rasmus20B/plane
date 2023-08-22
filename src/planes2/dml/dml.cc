@@ -31,7 +31,6 @@ namespace dml {
   }
 
   void VM::removeBM(const uint16_t id) noexcept {
-    std::cout << "REMOVING BULLET\n";
     this->bullets_mask[id] = false;
   }
 
@@ -129,10 +128,6 @@ namespace dml {
         break;
       }
     }
-    std::cout << static_cast<int>(this->pgtext[4]) << "\n";
-    std::cout << static_cast<int>(this->pgtext[5]) << "\n";
-    std::cout << static_cast<int>(this->pgtext[6]) << "\n";
-    std::cout << static_cast<int>(this->pgtext[7]) << "\n";
 
     // Set pc to the entry point found in header file
     this->sch.tasks[0].pc += (this->pgtext[4]) & 0x000000FF;
@@ -140,7 +135,6 @@ namespace dml {
     this->sch.tasks[0].pc += (this->pgtext[6] << 16) & 0x00FF0000;
     this->sch.tasks[0].pc += (this->pgtext[7] << 24) & 0xFF000000;
 
-    std::cout << std::dec << this->sch.tasks[0].pc << "\n";
     pgtext.erase(pgtext.begin(), pgtext.begin() + 8);
   }
 
@@ -241,7 +235,6 @@ namespace dml {
           CURTASK.pc = popInt(sch.c_task) ;
           break;
         case OpCodes::CALL:
-          std::cout << sch.c_task << " is calling \n";
           pushInt(sch.c_task, CURTASK.pc + sizeof(int) + 1);
           CURTASK.pc = getIntFromArgument(sch.c_task) ;
           break;
@@ -267,7 +260,6 @@ namespace dml {
           {
           uint32_t addr = getIntFromArgument(sch.c_task);
           uint32_t test = popInt(sch.c_task);
-          std::cout << std::dec << test << "\n";
           if(test > 0) {
             CURTASK.pc = addr;
           } else {
@@ -295,7 +287,6 @@ namespace dml {
           {
           uint32_t var = getIntFromArgument(sch.c_task);
           uint32_t num = popInt(sch.c_task);
-          std::cout << "setting #" << var << " to " << num << "\n";
           CURTASK.vars[var] = num;
           CURTASK.pc += sizeof(int) + 1;
           break;
@@ -344,7 +335,6 @@ namespace dml {
           float item = getIntFromArgument(sch.c_task);
           CURTASK.pc += sizeof(int) + 1;
 
-          std::cout << "CREATING ENEMY @" << addr << " with x:" << x << ", y: " << y << ". Health: " << health << ", score: " << score << ", and item: " << item << "\n";
           if(!sch.add_task(addr, x, y, health, score, item)) {
             std::cout << "Unable to add new task\n";
           }
@@ -469,7 +459,6 @@ namespace dml {
           }
         case OpCodes::ETON:
           {
-          std::cout << "SHOOTING BULLET from " << sch.c_task << "\n";
           uint32_t idx = getIntFromArgument(sch.c_task);
           addBM(CURTASK.bm[idx]);
           CURTASK.pc+= sizeof(int) + 1;
