@@ -15,6 +15,23 @@ namespace dml {
     this->cur_slice = this->total_duration / this->n_tasks;
   }
 
+  bool Scheduler::add_task(uint16_t ep, float x, float y, float health, float score, float items) {
+    uint16_t i = 0;
+    while(i < this->tasks_mask.size()) {
+      if(this->tasks_mask[i] == false) {
+        Task t;
+        t.set_entry(ep);
+        t.e.spatial.abspos = Vec2{x, y};
+        this->tasks[i] = t;
+        this->tasks_mask[i] = true;
+        this->n_tasks++;
+        this->cur_slice = this->total_duration / (this->n_tasks) ;
+        return true;
+      }
+      ++i;
+    }
+    return false;
+  }
   bool Scheduler::add_task(uint16_t ep) {
 
     uint16_t i = 0;

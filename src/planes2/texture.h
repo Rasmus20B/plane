@@ -9,6 +9,7 @@ struct TextureManager {
   std::vector<Texture2D> eBulletSprites;
   std::vector<Texture2D> pBulletSprites;
   std::vector<Texture2D> fx;
+  std::vector<Texture2D> backgrounds;
 };
 
 int storeTexture(TextureManager& tm, const char* path);

@@ -2,6 +2,7 @@
 
 #include "../input.h"
 #include "scheduler.h"
+#include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <cassert>
@@ -30,16 +31,22 @@ namespace dml {
   }
 
   void VM::removeBM(const uint16_t id) noexcept {
+    std::cout << "REMOVING BULLET\n";
     this->bullets_mask[id] = false;
   }
 
   void VM::load_script(const std::vector<uint8_t>&& progtext) noexcept {
     pgtext = std::move(progtext);
+
+    // LOAD THE BACKGROUND
+    bg = plane::tm.backgrounds[0];
+
   }
 
   [[nodiscard]]
   uint32_t VM::popInt(const uint32_t t_id) noexcept {
     uint32_t num = 0;
+    std::cout << t_id << "\n";
     assert(CURTASK.sp > 0 && "Stack should not be empty before popping");
     CURTASK.sp -= 4;
     num += (CURTASK.mem[CURTASK.sp+3] << 24) & 0xFF000000;
@@ -97,7 +104,7 @@ namespace dml {
               .height = (float)p.sprite.height
               })) {
         }
-
+  
         this->bullets[id].setOutOfBounds();
 
         bool ded = (std::adjacent_find(bullets[id].oobs.begin(), 
@@ -122,10 +129,19 @@ namespace dml {
         break;
       }
     }
+    std::cout << static_cast<int>(this->pgtext[4]) << "\n";
+    std::cout << static_cast<int>(this->pgtext[5]) << "\n";
+    std::cout << static_cast<int>(this->pgtext[6]) << "\n";
+    std::cout << static_cast<int>(this->pgtext[7]) << "\n";
 
     // Set pc to the entry point found in header file
-    this->sch.tasks[0].pc = this->pgtext[4] + this->pgtext[5];
-    pgtext.erase(pgtext.begin(), pgtext.begin() + 5);
+    this->sch.tasks[0].pc += (this->pgtext[4]) & 0x000000FF;
+    this->sch.tasks[0].pc += (this->pgtext[5] << 8) & 0x0000FF00;
+    this->sch.tasks[0].pc += (this->pgtext[6] << 16) & 0x00FF0000;
+    this->sch.tasks[0].pc += (this->pgtext[7] << 24) & 0xFF000000;
+
+    std::cout << std::dec << this->sch.tasks[0].pc << "\n";
+    pgtext.erase(pgtext.begin(), pgtext.begin() + 8);
   }
 
   void VM::run() noexcept {
@@ -141,19 +157,22 @@ namespace dml {
     while(!WindowShouldClose()) {
       ClearBackground(BLACK);
 
+
       if(this->power.test()) {
         return;
       }
 
 
+      auto start_time = std::chrono::high_resolution_clock::now();
       if(sch.c_task == 0) {
         plane::handle_game_input(p.spatial,  p.shooting);
         BeginDrawing();
+        DrawTextureEx(bg, {0, 0}, 0.0f, 1.35f, WHITE);
         for(uint32_t i = 0; i < sch.tasks_mask.size(); ++i){
           if(sch.tasks_mask[i] != true) continue;
 
           // Update Enemy positionsS
-          if(!sch.tasks[i].waitctr) {
+          if(!sch.tasks[i].waitctr && sch.tasks[i].e.spatial.time) {
             sch.tasks[i].e.spatial.abspos.vec.x += std::round(sch.tasks[i].e.spatial.absspeed * cos(RAD(sch.tasks[i].e.spatial.absang)));
             sch.tasks[i].e.spatial.abspos.vec.y += std::round(sch.tasks[i].e.spatial.absspeed * sin(RAD(sch.tasks[i].e.spatial.absang)));
             sch.tasks[i].e.spatial.relpos.vec.x += std::round(sch.tasks[i].e.spatial.relspeed * cos(RAD(sch.tasks[i].e.spatial.relang)));
@@ -163,10 +182,10 @@ namespace dml {
 
 
           // Draw Enemies
-          DrawTextureV(CURTASK.e.sprite, {
-              (CURTASK.e.spatial.abspos.x() + CURTASK.e.spatial.relpos.x()) - (CURTASK.e.sprite.width * 0.5f), 
-              (CURTASK.e.spatial.abspos.y() + CURTASK.e.spatial.relpos.y()) - (CURTASK.e.sprite.height * 0.5f)
-              }, CURTASK.e.col);
+          DrawTextureV(sch.tasks[i].e.sprite, {
+              (sch.tasks[i].e.spatial.abspos.x() + sch.tasks[i].e.spatial.relpos.x()) - (sch.tasks[i].e.sprite.width * 0.5f), 
+              (sch.tasks[i].e.spatial.abspos.y() + sch.tasks[i].e.spatial.relpos.y()) - (sch.tasks[i].e.sprite.height * 0.5f)
+              }, sch.tasks[i].e.col);
         }
 
         // handle bullets
@@ -180,7 +199,13 @@ namespace dml {
         if(!sch.next_task()) return;
       }
 
-      if(CURTASK.waitctr && CURTASK.e.spatial.time) {
+      if(CURTASK.e.spatial.time) {
+        CURTASK.e.spatial.time--;
+        if(!sch.next_task()) return;
+        continue;
+      }
+
+      if(CURTASK.waitctr) {
         CURTASK.waitctr -= 1;
         if(!sch.next_task()) return;
         continue;
@@ -196,7 +221,6 @@ namespace dml {
         continue;
       }
 
-      auto start_time = std::chrono::high_resolution_clock::now();
       uint32_t opcode = pgtext[CURTASK.pc];
       opcode = opcode << 8;
       CURTASK.pc++;
@@ -210,14 +234,16 @@ namespace dml {
         case OpCodes::DELETE:
           // delete execution
           sch.del_task();
+          sch.next_task();
           if(sch.n_tasks == 0) return;
           break;
         case OpCodes::RETURN:
           CURTASK.pc = popInt(sch.c_task) ;
           break;
         case OpCodes::CALL:
+          std::cout << sch.c_task << " is calling \n";
           pushInt(sch.c_task, CURTASK.pc + sizeof(int) + 1);
-          CURTASK.pc = getIntFromArgument(sch.c_task);
+          CURTASK.pc = getIntFromArgument(sch.c_task) ;
           break;
         case OpCodes::JMP:
           // jmp
@@ -306,8 +332,20 @@ namespace dml {
           // enmCreate()
           {
           uint32_t addr = getIntFromArgument(sch.c_task);
+          CURTASK.pc += sizeof(int) ;
+          float x = getIntFromArgument(sch.c_task);
+          CURTASK.pc += sizeof(int) ;
+          float y = getIntFromArgument(sch.c_task);
+          CURTASK.pc += sizeof(int) ;
+          float health = getIntFromArgument(sch.c_task);
+          CURTASK.pc += sizeof(int) ;
+          float score = getIntFromArgument(sch.c_task);
+          CURTASK.pc += sizeof(int) ;
+          float item = getIntFromArgument(sch.c_task);
           CURTASK.pc += sizeof(int) + 1;
-          if(!sch.add_task(addr)) {
+
+          std::cout << "CREATING ENEMY @" << addr << " with x:" << x << ", y: " << y << ". Health: " << health << ", score: " << score << ", and item: " << item << "\n";
+          if(!sch.add_task(addr, x, y, health, score, item)) {
             std::cout << "Unable to add new task\n";
           }
           break;
@@ -357,10 +395,24 @@ namespace dml {
           break;
           }
         case OpCodes::MOVEPOSTIME:
-          // movPosTime(x, y, t)
-          CURTASK.pc += sizeof(int) * 3 + 1;
-          break;
+          {
+          // movPosTime(time, type, x, y)
+          uint32_t time = getIntFromArgument(sch.c_task);
+          CURTASK.pc += sizeof(int) ;
+          uint32_t type = getIntFromArgument(sch.c_task);
+          CURTASK.pc += sizeof(int) ;
+          uint32_t x = getIntFromArgument(sch.c_task);
+          CURTASK.pc += sizeof(int) ;
+          uint32_t y = getIntFromArgument(sch.c_task);
+          CURTASK.pc += sizeof(int) + 1;
 
+          // v = d / t
+          float distance = std::sqrt(std::pow(x - CURTASK.e.spatial.abspos.x(), 2) + std::pow(y - CURTASK.e.spatial.abspos.y(), 2));
+          CURTASK.e.spatial.absspeed = distance / time;
+          CURTASK.e.spatial.absang = 30;
+          CURTASK.e.spatial.time = time;
+          break;
+          }
         case OpCodes::MOVEPOSRELTIME:
           break;
 
@@ -410,12 +462,14 @@ namespace dml {
           };
           b.setType(plane::BulletSprite::BLADE_01);
           CURTASK.bm[idx] = b;
+          std::fill(CURTASK.bm[idx].oobs.begin(), CURTASK.bm[idx].oobs.end(), true);
+          std::fill(CURTASK.bm[idx].positions.begin(), CURTASK.bm[idx].positions.end(), Vec2{0, 0});
           CURTASK.pc += sizeof(int) + 1;
           break;
           }
         case OpCodes::ETON:
           {
-            std::cout << "SHOOTING BULLET\n";
+          std::cout << "SHOOTING BULLET from " << sch.c_task << "\n";
           uint32_t idx = getIntFromArgument(sch.c_task);
           addBM(CURTASK.bm[idx]);
           CURTASK.pc+= sizeof(int) + 1;

@@ -14,5 +14,7 @@ namespace plane {
     tm.fx.push_back(LoadTexture("../assets/explosion.png"));
     tm.eBulletSprites.push_back(LoadTexture("../assets/enemy1.png"));
     tm.actSprites.push_back(LoadTexture("../assets/enemy1.png"));
+    tm.backgrounds.push_back(LoadTexture("../assets/arena.png"));
+    
   }
 }

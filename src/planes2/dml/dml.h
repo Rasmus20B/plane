@@ -27,9 +27,10 @@ struct VM {
   std::atomic_flag power;
 
   std::mutex m;
-  std::array<plane::BulletMgr, 128> bullets;
-  std::array<bool, 128> bullets_mask;
+  std::array<plane::BulletMgr, 500> bullets;
+  std::array<bool, 500> bullets_mask;
   plane::Player p;
+  Texture2D bg;
 
   uint16_t bm_idx = 0;
   bool addBM(plane::BulletMgr) noexcept;
@@ -42,6 +43,7 @@ struct VM {
   void fetch_execute() noexcept;
   void render() noexcept;
   void stop() noexcept;
+  void check_tasks(int s, int e);
 
   uint32_t popInt() noexcept;
   uint32_t popInt(const uint32_t t_id) noexcept;

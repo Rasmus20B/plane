@@ -38,6 +38,19 @@ namespace plane {
         }
         break;
         }
+      case BulletFlag::RING_AROUND:
+        {
+        float angstep = 360.f / (count);
+        float angle = 0;
+        for(int i = 0; i < layers; ++i) {
+          for(int j = 0; j < count; ++j) {
+            getPos(i, j).x() = origin.x() + sin(RAD(angle)) * 2;
+            getPos(i, j).y() = origin.y() + cos(RAD(angle)) * 2;
+          }
+          angle += angstep;
+        }
+        break;
+        }
       default:
         break;
       }
@@ -124,16 +137,18 @@ namespace plane {
       case BulletFlag::RING_AIMED:
         {
         const float angstep = 360.f / count;
-        float angle = 0;
+        float a1 = ang1;
+        float a2 = 0;
         for(int i = 0; i < layers; ++i) {
           float lspeed = (speed1 + speed2) / (float(layers + 1) / (i + 1));
           const float r = sqrt(std::pow(getPos(i, 0).x() - origin.x() + lspeed, 2) + std::pow(getPos(i, 0).y() - origin.y() + lspeed, 2)) ;
           for(int j = 0; j < count; ++j) {
-            getPos(i, j).x() = origin.x() + cos(RAD( angle )) * r;
-            getPos(i, j).y() = origin.y() + sin(RAD( angle )) * r;
-            angle += angstep;
+            getPos(i, j).x() = origin.x() + cos(RAD( a1 )) * r;
+            getPos(i, j).y() = origin.y() + sin(RAD( a1 )) * r;
+            a1 += angstep;
           }
-          angle = 0;
+          a1 = ang1;
+          a2 += ang2;
         }
         break;
         }
