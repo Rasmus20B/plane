@@ -18,7 +18,6 @@ namespace plane {
     std::ifstream instream(level, std::ios::in | std::ios::binary);
     std::vector<uint8_t> prog((std::istreambuf_iterator<char>(instream)), std::istreambuf_iterator<char>());
 
-    SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(0, 0, "Plane");
     SetTargetFPS(60);
 

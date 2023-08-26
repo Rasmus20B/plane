@@ -4,7 +4,7 @@ project(planes)
 find_package(raylib 3.0 REQUIRED) # Requires at least version 3.0
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -mavx")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -mavx")
 
 add_subdirectory(src)
 add_subdirectory(test)

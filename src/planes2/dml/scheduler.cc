@@ -6,6 +6,11 @@ namespace dml {
     tasks_mask[0] = true;
     Task t;
     t.set_entry(0);
+    t.e = std::make_shared<plane::Enm>();
+    std::fill(t.live_cos.begin(), t.live_cos.end(), false);
+    std::fill(t.pc.begin(), t.pc.end(), false);
+    std::fill(t.sp.begin(), t.sp.end(), false);
+    t.live_cos[0] = true;
     c_task = 0;
     tasks[0] = t;
   }
@@ -21,11 +26,15 @@ namespace dml {
       if(this->tasks_mask[i] == false) {
         Task t;
         t.set_entry(ep);
-        t.e.spatial.abspos = Vec2{x, y};
+        t.e = std::make_shared<plane::Enm>();
+        t.e->spatial.abspos = Vec2{x, y};
         this->tasks[i] = t;
         this->tasks_mask[i] = true;
         this->n_tasks++;
         this->cur_slice = this->total_duration / (this->n_tasks) ;
+        std::fill(t.live_cos.begin(), t.live_cos.end(), false);
+        std::fill(t.pc.begin(), t.pc.end(), false);
+        std::fill(t.sp.begin(), t.sp.end(), false);
         return true;
       }
       ++i;
@@ -38,11 +47,15 @@ namespace dml {
     while(i < this->tasks_mask.size()) {
       if(this->tasks_mask[i] == false) {
         Task t;
+        t.e = std::make_shared<plane::Enm>();
         t.set_entry(ep);
         this->tasks[i] = t;
         this->tasks_mask[i] = true;
         this->n_tasks++;
         this->cur_slice = this->total_duration / (this->n_tasks) ;
+        std::fill(t.live_cos.begin(), t.live_cos.end(), false);
+        std::fill(t.pc.begin(), t.pc.end(), false);
+        std::fill(t.sp.begin(), t.sp.end(), false);
         return true;
       }
       ++i;

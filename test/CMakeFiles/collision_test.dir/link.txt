@@ -1,0 +1,1 @@
+/usr/bin/c++   -mavx -O3 -DNDEBUG CMakeFiles/collision_test.dir/collision_test.cc.o CMakeFiles/collision_test.dir/__/src/planes2/collision.cc.o -o collision_test  -Wl,-rpath,/usr/local/lib64 ../lib/libgtest_main.a /usr/local/lib64/libraylib.a ../lib/libgtest.a 

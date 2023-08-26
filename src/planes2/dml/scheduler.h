@@ -1,11 +1,9 @@
+#pragma once
 #include <cstdint>
 #include <array>
 #include <iostream>
 
 #include "task.h"
-
-#pragma once
-
 
 namespace dml {
 struct Scheduler {
@@ -13,7 +11,7 @@ struct Scheduler {
   std::array<Task, 128> tasks;
   std::array<bool, 128> tasks_mask;
   std::mutex m;
-  float total_duration = 0.002;
+  float total_duration;
   float cur_slice = 0;
   uint16_t c_task = 0;
 

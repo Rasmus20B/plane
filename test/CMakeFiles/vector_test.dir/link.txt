@@ -1,0 +1,1 @@
+/usr/bin/c++   -mavx -O3 -DNDEBUG CMakeFiles/vector_test.dir/vector_test.cc.o -o vector_test  -Wl,-rpath,/usr/local/lib64 ../lib/libgtest_main.a /usr/local/lib64/libraylib.a ../lib/libgtest.a 

@@ -15,6 +15,8 @@
 #include <raylib.h>
 
 #include "scheduler.h"
+#include "coroutine.h"
+#include "task.h"
 
 #include "../player.h"
 
@@ -43,7 +45,6 @@ struct VM {
   void fetch_execute() noexcept;
   void render() noexcept;
   void stop() noexcept;
-  void check_tasks(int s, int e);
 
   uint32_t popInt() noexcept;
   uint32_t popInt(const uint32_t t_id) noexcept;
