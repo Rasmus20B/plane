@@ -6,7 +6,7 @@ namespace dml {
     tasks_mask[0] = true;
     Task t;
     t.set_entry(0);
-    t.e = std::make_shared<plane::Enm>();
+    t.e = new plane::Enm;
     std::fill(t.live_cos.begin(), t.live_cos.end(), false);
     std::fill(t.pc.begin(), t.pc.end(), false);
     std::fill(t.sp.begin(), t.sp.end(), false);
@@ -26,8 +26,9 @@ namespace dml {
       if(this->tasks_mask[i] == false) {
         Task t;
         t.set_entry(ep);
-        t.e = std::make_shared<plane::Enm>();
+        t.e = new plane::Enm();
         t.e->spatial.abspos = Vec2{x, y};
+        t.base = true;
         this->tasks[i] = t;
         this->tasks_mask[i] = true;
         this->n_tasks++;
@@ -41,13 +42,38 @@ namespace dml {
     }
     return false;
   }
-  bool Scheduler::add_task(uint16_t ep) {
 
+  bool Scheduler::add_task(uint16_t ep, uint16_t base, plane::Enm& e) {
+    std::cout << &e << "\n";
     uint16_t i = 0;
     while(i < this->tasks_mask.size()) {
       if(this->tasks_mask[i] == false) {
         Task t;
-        t.e = std::make_shared<plane::Enm>();
+        t.e = &e;
+        t.set_entry(ep);
+        t.base = false;
+        this->tasks[base].children.push_back(i);
+        this->tasks[i] = t;
+        this->tasks_mask[i] = true;
+        this->n_tasks++;
+        this->cur_slice = this->total_duration / (this->n_tasks) ;
+        std::fill(t.live_cos.begin(), t.live_cos.end(), false);
+        std::fill(t.pc.begin(), t.pc.end(), false);
+        std::fill(t.sp.begin(), t.sp.end(), false);
+        std::cout << "Added Task: " << i << " asynchronous.\n";
+        return true;
+      }
+      ++i;
+    }
+    return false;
+  }
+
+  bool Scheduler::add_task(uint16_t ep) {
+    uint16_t i = 0;
+    while(i < this->tasks_mask.size()) {
+      if(this->tasks_mask[i] == false) {
+        Task t;
+        t.e = new plane::Enm();
         t.set_entry(ep);
         this->tasks[i] = t;
         this->tasks_mask[i] = true;
@@ -67,6 +93,12 @@ namespace dml {
     this->n_tasks--;
     this->cur_slice = this->total_duration / this->n_tasks;
     tasks_mask[c_task] = false;
+    if(tasks[c_task].children.size() > 0) {
+      for(auto &i : tasks[c_task].children) {
+        tasks_mask[i] = false;
+      }
+      delete tasks[c_task].e;
+    }
   }
 
   bool Scheduler::next_task() {

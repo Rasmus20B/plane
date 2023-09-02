@@ -45,8 +45,9 @@ namespace dml {
   [[nodiscard]]
   uint32_t VM::popInt(const uint32_t t_id) noexcept {
     uint32_t num = 0;
-    std::cout << t_id << "\n";
-    assert(CURTASK.sp[CURTASK.cur_co] > 0 && "Stack should not be empty before popping");
+    if(CURTASK.sp[CURTASK.cur_co] <= 0) {
+      return 0;
+    }
     CURTASK.sp[CURTASK.cur_co] -= 4;
     num += (CURTASK.mem[CURTASK.sp[CURTASK.cur_co]+3] << 24) & 0xFF000000;
     num += (CURTASK.mem[CURTASK.sp[CURTASK.cur_co]+2] << 16) & 0x00FF0000;
@@ -139,33 +140,37 @@ namespace dml {
   }
 
   void VM::render() noexcept{
-        plane::handle_game_input(p.spatial,  p.shooting);
-        BeginDrawing();
-        DrawTextureEx(bg, {0, 0}, 0.0f, 1.35f, WHITE);
-        for(uint32_t i = 0; i < sch.tasks_mask.size(); ++i){
-          if(sch.tasks_mask[i] != true) continue;
+    plane::handle_game_input(p.spatial,  p.shooting);
+    BeginDrawing();
+    DrawTextureEx(bg, {0, 0}, 0.0f, 1.35f, WHITE);
+    for(uint32_t i = 0; i < sch.tasks_mask.size(); ++i){
+      if(sch.tasks_mask[i] == false || sch.tasks[i].base == false) continue;
 
-          // Update Enemy positionsS
-          if(!sch.tasks[i].waitctr[CURTASK.cur_co] && sch.tasks[i].e->spatial.time) {
-            sch.tasks[i].e->spatial.abspos.vec.x += std::round(sch.tasks[i].e->spatial.absspeed * cos(RAD(sch.tasks[i].e->spatial.absang)));
-            sch.tasks[i].e->spatial.abspos.vec.y += std::round(sch.tasks[i].e->spatial.absspeed * sin(RAD(sch.tasks[i].e->spatial.absang)));
-            sch.tasks[i].e->spatial.relpos.vec.x += std::round(sch.tasks[i].e->spatial.relspeed * cos(RAD(sch.tasks[i].e->spatial.relang)));
-            sch.tasks[i].e->spatial.relpos.vec.y += std::round(sch.tasks[i].e->spatial.relspeed * sin(RAD(sch.tasks[i].e->spatial.relang)));
-            sch.tasks[i].e->spatial.time--;
-          }
+      // Update Enemy positionsS
+      if(!sch.tasks[i].waitctr[0] && sch.tasks[i].e->spatial.time) {
+        std::cout << "before: " << sch.tasks[i].e->spatial.abspos.x() << "\n";
+        std::cout << "absspeed: " << sch.tasks[i].e->spatial.absspeed << "\n";
+        std::cout << "absang: " << cos(sch.tasks[i].e->spatial.absang) << "\n";
+        sch.tasks[i].e->spatial.abspos.vec.x += std::round(sch.tasks[i].e->spatial.absspeed * cos(RAD(sch.tasks[i].e->spatial.absang)));
+        sch.tasks[i].e->spatial.abspos.vec.y += std::round(sch.tasks[i].e->spatial.absspeed * sin(RAD(sch.tasks[i].e->spatial.absang)));
+        sch.tasks[i].e->spatial.relpos.vec.x += std::round(sch.tasks[i].e->spatial.relspeed * cos(RAD(sch.tasks[i].e->spatial.relang)));
+        sch.tasks[i].e->spatial.relpos.vec.y += std::round(sch.tasks[i].e->spatial.relspeed * sin(RAD(sch.tasks[i].e->spatial.relang)));
+        std::cout << "after: " << sch.tasks[i].e->spatial.abspos.x() << "\n";
+        sch.tasks[i].e->spatial.time--;
+      }
 
 
-          // Draw Enemies
-          DrawTextureV(sch.tasks[i].e->sprite, {
-              (sch.tasks[i].e->spatial.abspos.x() + sch.tasks[i].e->spatial.relpos.x()) - (sch.tasks[i].e->sprite.width * 0.5f), 
-              (sch.tasks[i].e->spatial.abspos.y() + sch.tasks[i].e->spatial.relpos.y()) - (sch.tasks[i].e->sprite.height * 0.5f)
-              }, sch.tasks[i].e->col);
-        }
+      // Draw Enemies
+      DrawTextureV(sch.tasks[i].e->sprite, {
+          (sch.tasks[i].e->spatial.abspos.x() + sch.tasks[i].e->spatial.relpos.x()) - (sch.tasks[i].e->sprite.width * 0.5f), 
+          (sch.tasks[i].e->spatial.abspos.y() + sch.tasks[i].e->spatial.relpos.y()) - (sch.tasks[i].e->sprite.height * 0.5f)
+          }, sch.tasks[i].e->col);
+    }
 
-        // handle bullets
-        handle_bullets();
-        DrawFPS(p.spatial.pos.x, p.spatial.pos.y);
-        EndDrawing();
+    // handle bullets
+    handle_bullets();
+    DrawFPS(p.spatial.pos.x, p.spatial.pos.y);
+    EndDrawing();
   }
 
   void VM::run() noexcept {
@@ -181,45 +186,55 @@ namespace dml {
     while(!WindowShouldClose()) {
       ClearBackground(BLACK);
 
-
       if(this->power.test()) {
         return;
+      }
+
+      uint32_t async_test = pgtext[CURTASK.pc[CURTASK.cur_co]];
+      async_test <<= 8;
+      async_test |= pgtext[CURTASK.pc[CURTASK.cur_co] + 1];
+
+      if(async_test == static_cast<int>(OpCodes::CALLASYNC)
+            || async_test == static_cast<int>(OpCodes::CALLASYNCID)) {
+
+        // get the address to jump to 
+
+        CURTASK.pc[CURTASK.cur_co] += 1;
+        uint32_t addr = getIntFromArgument(sch.c_task);
+
+        CURTASK.pc[CURTASK.cur_co] += sizeof(int) + 1;
+        std::cout << std::hex << "async @ " << addr << std::dec << "\n";
+
+        // Create a coroutine
+        if(!sch.add_task(addr, sch.c_task, *CURTASK.e)) {
+          std::cout << "Unable to add new task\n";
+        }
+        continue;
       }
 
 
       auto start_time = std::chrono::high_resolution_clock::now();
       if(sch.c_task == 0) {
-        // Every time we get back to task 0 (full resolution), do the rendering
+        /* Every time we get back to task 0 (full revolution), do the rendering */
         render();
       }
 
-
-      // while(CURTASK.cur_co < CURTASK.live_cos.size()) {
-      // 
-      // if(CURTASK.live_cos[CURTASK.cur_co] == false) {
-      //   std::cout << "TASK: " << sch.c_task << ", coroutine: " << CURTASK.cur_co << " NOT live\n";
-      //   CURTASK.cur_co++;
-      //   continue;
-      // }
-      // std::cout << "TASK: " << sch.c_task << ", coroutine: " << CURTASK.cur_co << " IS live\n";
-      //
-      // if(CURTASK.cur_co >= CURTASK.live_cos.size() -1) {
-      //   CURTASK.cur_co = 0;
-      //   break;
-      // }
-
+      /* Check scheduler time limit */
       if(time_acc >= sch.cur_slice) {
         time_acc = 0.f;
         if(!sch.next_task()) return;
         continue;
       }
 
-      if(CURTASK.e->spatial.time) {
+      /* If we are using a move that takes time 
+         we don't fetch execute. We just count down. */
+      if(CURTASK.e->spatial.time && CURTASK.base == true) {
         CURTASK.e->spatial.time--;
         if(!sch.next_task()) return;
         continue;
       }
 
+      /* if we are waiting, we just count down */
       if(CURTASK.waitctr[CURTASK.cur_co]) {
         CURTASK.waitctr[CURTASK.cur_co] -= 1;
         if(!sch.next_task()) return;
@@ -228,6 +243,7 @@ namespace dml {
 
       /* If we reach the end of our sub, then delete the thread */
       if(CURTASK.pc[CURTASK.cur_co] >= this->pgtext.size() ) {
+        std::cout << "T" << sch.c_task << ": Has reached address: " << CURTASK.pc[CURTASK.cur_co] << "\n";
         std::cout << "EOF\n";
         sch.del_task();
         if(!sch.next_task()) {
@@ -235,6 +251,8 @@ namespace dml {
         }
         continue;
       }
+
+      std::cout << "GOT PAST ALL THE CHECKS: T" << sch.c_task << "\n";
 
       uint32_t opcode = pgtext[CURTASK.pc[CURTASK.cur_co]];
       opcode = opcode << 8;
@@ -244,10 +262,10 @@ namespace dml {
       OpCodes oc = static_cast<OpCodes>(opcode);
       switch(oc) {
         case OpCodes::NOP:
+          std::cout << "GETTING TO THE NOP FOR DEBUG\n";
           CURTASK.pc[CURTASK.cur_co]++;
           break;
         case OpCodes::DELETE:
-          // delete execution
           sch.del_task();
           sch.next_task();
           if(sch.n_tasks == 0) return;
@@ -260,7 +278,6 @@ namespace dml {
           CURTASK.pc[CURTASK.cur_co] = getIntFromArgument(sch.c_task) ;
           break;
         case OpCodes::JMP:
-          // jmp
           {
           uint32_t addr = getIntFromArgument(sch.c_task);
           CURTASK.pc[CURTASK.cur_co] = addr ;
@@ -290,19 +307,18 @@ namespace dml {
           }
         case OpCodes::CALLASYNC:
           {
-            pushInt(sch.c_task, CURTASK.pc[CURTASK.cur_co] + sizeof(int) + 1);
-            CURTASK.pc[CURTASK.cur_co] = getIntFromArgument(sch.c_task);
-            break;
+            std::cout << "SHOULDNT GET HERE\n";
+          pushInt(sch.c_task, CURTASK.pc[CURTASK.cur_co] + sizeof(int) + 1);
+          CURTASK.pc[CURTASK.cur_co] = getIntFromArgument(sch.c_task);
+          break;
           }
         case OpCodes::WAIT: {
-          // wait
           uint32_t time = getIntFromArgument(sch.c_task);
           CURTASK.waitctr[CURTASK.cur_co] = time;
           CURTASK.pc[CURTASK.cur_co] += sizeof(int) + 1;
           break;
           };
         case OpCodes::PUSHI:
-          // push i
           {
           uint32_t var = getIntFromArgument(sch.c_task);
           pushInt(sch.c_task, var);
@@ -310,7 +326,6 @@ namespace dml {
           break;
           }
         case OpCodes::SETI:
-          // set i
           {
           uint32_t var = getIntFromArgument(sch.c_task);
           uint32_t num = popInt(sch.c_task);
@@ -319,17 +334,14 @@ namespace dml {
           break;
           }
         case OpCodes::PUSHF:
-          // push f
           {
           break;
           }
         case OpCodes::SETF:
-          // set f
           {
           }
         case OpCodes::ADDI:
           {
-          // add i 
           uint32_t res = 0;
           while(CURTASK.sp[CURTASK.cur_co] > 0) {
             res += popInt(sch.c_task);
@@ -340,14 +352,12 @@ namespace dml {
           break;
           }
         case OpCodes::ADDF: 
-          // add f 
           {
           break;
           }
 
         /* ENEMY CREATION AND ANM SCRIPT MANAGEMENT */
         case OpCodes::ENMCREATE:
-          // enmCreate()
           {
           uint32_t addr = getIntFromArgument(sch.c_task);
           CURTASK.pc[CURTASK.cur_co] += sizeof(int) ;
@@ -426,7 +436,7 @@ namespace dml {
           // v = d / t
           float distance = std::sqrt(std::pow(x - CURTASK.e->spatial.abspos.x(), 2) + std::pow(y - CURTASK.e->spatial.abspos.y(), 2));
           CURTASK.e->spatial.absspeed = distance / time;
-          CURTASK.e->spatial.absang = 30;
+          CURTASK.e->spatial.absang = RAD(30);
           CURTASK.e->spatial.time = time;
           break;
           }
@@ -549,12 +559,10 @@ namespace dml {
         default:
           std::cout << "OPCODE NOT IMPLEMENTED: " << opcode << "\n";
           return;
-
       }
       auto dur_taken = std::chrono::high_resolution_clock::now();
       std::chrono::duration<float, std::milli> acc = dur_taken - start_time;
       time_acc += acc.count();
-
     }
   }
 

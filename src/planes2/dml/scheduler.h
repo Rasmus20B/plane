@@ -18,6 +18,7 @@ struct Scheduler {
   void init();
   void set_ts_duration(float ts);
   bool add_task(uint16_t ep);
+  bool add_task(uint16_t ep, uint16_t base,  plane::Enm& e);
   bool add_task(uint16_t ep, float x, float y, float health, float score, float items);
   void del_task();
   bool next_task();
