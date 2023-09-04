@@ -98,8 +98,8 @@ namespace dml {
 
         if(this->bullets[id].collision_check(
               {
-              .x = p.spatial.pos.x + (p.sprite.width * 0.5f),
-              .y = p.spatial.pos.y + (p.sprite.height * 0.5f),
+              .x = p.spatial.pos.x + (p.sprite.width * 0.5f) - (p.in_sprite.width * 0.5f),
+              .y = p.spatial.pos.y + (p.sprite.height * 0.5f)- (p.in_sprite.height * 0.5f),
               .width = (float)p.in_sprite.width ,
               .height = (float)p.in_sprite.height 
               })) {
@@ -175,10 +175,13 @@ namespace dml {
         {p.spatial.pos.x , 
         p.spatial.pos.y },
         RAYWHITE);
-    DrawCircleV( {
-        p.spatial.pos.x + (p.sprite.width * 0.5f),
-        p.spatial.pos.y + (p.sprite.height * 0.5f)
-        },p.in_sprite.width * 0.5f, RED);
+    DrawTextureV( 
+        p.in_sprite,
+        {
+        p.spatial.pos.x + (p.sprite.width * 0.5f) - (p.in_sprite.width * 0.5f),
+        p.spatial.pos.y + (p.sprite.height * 0.5f) - (p.in_sprite.height * 0.5f)
+        }, 
+        RAYWHITE);
     DrawFPS(0, 0);
     EndDrawing();
   }
