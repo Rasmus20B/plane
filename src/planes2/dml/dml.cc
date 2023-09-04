@@ -98,11 +98,13 @@ namespace dml {
 
         if(this->bullets[id].collision_check(
               {
-              .x = p.spatial.pos.x,
-              .y = p.spatial.pos.y,
-              .width = (float)p.sprite.width,
-              .height = (float)p.sprite.height
+              .x = p.spatial.pos.x + (p.sprite.width * 0.5f),
+              .y = p.spatial.pos.y + (p.sprite.height * 0.5f),
+              .width = (float)p.in_sprite.width ,
+              .height = (float)p.in_sprite.height 
               })) {
+          p.lives--;
+          p.spatial.pos = {200, 800};
         }
   
         this->bullets[id].setOutOfBounds();
@@ -148,14 +150,14 @@ namespace dml {
 
       // Update Enemy positionsS
       if(!sch.tasks[i].waitctr[0] && sch.tasks[i].e->spatial.time) {
-        std::cout << "before: " << sch.tasks[i].e->spatial.abspos.x() << "\n";
-        std::cout << "absspeed: " << sch.tasks[i].e->spatial.absspeed << "\n";
-        std::cout << "absang: " << cos(sch.tasks[i].e->spatial.absang) << "\n";
-        sch.tasks[i].e->spatial.abspos.vec.x += std::round(sch.tasks[i].e->spatial.absspeed * cos(RAD(sch.tasks[i].e->spatial.absang)));
-        sch.tasks[i].e->spatial.abspos.vec.y += std::round(sch.tasks[i].e->spatial.absspeed * sin(RAD(sch.tasks[i].e->spatial.absang)));
-        sch.tasks[i].e->spatial.relpos.vec.x += std::round(sch.tasks[i].e->spatial.relspeed * cos(RAD(sch.tasks[i].e->spatial.relang)));
-        sch.tasks[i].e->spatial.relpos.vec.y += std::round(sch.tasks[i].e->spatial.relspeed * sin(RAD(sch.tasks[i].e->spatial.relang)));
-        std::cout << "after: " << sch.tasks[i].e->spatial.abspos.x() << "\n";
+        // std::cout << "before: " << sch.tasks[i].e->spatial.abspos.x() << "\n";
+        // std::cout << "absspeed: " << sch.tasks[i].e->spatial.absspeed << "\n";
+        // std::cout << "absang: " << cos(sch.tasks[i].e->spatial.absang) << "\n";
+        sch.tasks[i].e->spatial.abspos.vec.x += (sch.tasks[i].e->spatial.absspeed * cos(RAD(sch.tasks[i].e->spatial.absang)));
+        sch.tasks[i].e->spatial.abspos.vec.y += (sch.tasks[i].e->spatial.absspeed * sin(RAD(sch.tasks[i].e->spatial.absang)));
+        sch.tasks[i].e->spatial.relpos.vec.x += (sch.tasks[i].e->spatial.relspeed * cos(RAD(sch.tasks[i].e->spatial.relang)));
+        sch.tasks[i].e->spatial.relpos.vec.y += (sch.tasks[i].e->spatial.relspeed * sin(RAD(sch.tasks[i].e->spatial.relang)));
+        // std::cout << "after: " << sch.tasks[i].e->spatial.abspos.x() << "\n";
         sch.tasks[i].e->spatial.time--;
       }
 
@@ -169,7 +171,15 @@ namespace dml {
 
     // handle bullets
     handle_bullets();
-    DrawFPS(p.spatial.pos.x, p.spatial.pos.y);
+    DrawTextureV(p.sprite, 
+        {p.spatial.pos.x , 
+        p.spatial.pos.y },
+        RAYWHITE);
+    DrawCircleV( {
+        p.spatial.pos.x + (p.sprite.width * 0.5f),
+        p.spatial.pos.y + (p.sprite.height * 0.5f)
+        },p.in_sprite.width * 0.5f, RED);
+    DrawFPS(0, 0);
     EndDrawing();
   }
 
@@ -203,7 +213,6 @@ namespace dml {
         uint32_t addr = getIntFromArgument(sch.c_task);
 
         CURTASK.pc[CURTASK.cur_co] += sizeof(int) + 1;
-        std::cout << std::hex << "async @ " << addr << std::dec << "\n";
 
         // Create a coroutine
         if(!sch.add_task(addr, sch.c_task, *CURTASK.e)) {
@@ -243,7 +252,6 @@ namespace dml {
 
       /* If we reach the end of our sub, then delete the thread */
       if(CURTASK.pc[CURTASK.cur_co] >= this->pgtext.size() ) {
-        std::cout << "T" << sch.c_task << ": Has reached address: " << CURTASK.pc[CURTASK.cur_co] << "\n";
         std::cout << "EOF\n";
         sch.del_task();
         if(!sch.next_task()) {
@@ -252,7 +260,6 @@ namespace dml {
         continue;
       }
 
-      std::cout << "GOT PAST ALL THE CHECKS: T" << sch.c_task << "\n";
 
       uint32_t opcode = pgtext[CURTASK.pc[CURTASK.cur_co]];
       opcode = opcode << 8;
@@ -262,10 +269,10 @@ namespace dml {
       OpCodes oc = static_cast<OpCodes>(opcode);
       switch(oc) {
         case OpCodes::NOP:
-          std::cout << "GETTING TO THE NOP FOR DEBUG\n";
           CURTASK.pc[CURTASK.cur_co]++;
           break;
         case OpCodes::DELETE:
+          std::cout << CURTASK.e->spatial.abspos.x() << " , " << CURTASK.e->spatial.abspos.y() << "\n";
           sch.del_task();
           sch.next_task();
           if(sch.n_tasks == 0) return;
@@ -307,7 +314,6 @@ namespace dml {
           }
         case OpCodes::CALLASYNC:
           {
-            std::cout << "SHOULDNT GET HERE\n";
           pushInt(sch.c_task, CURTASK.pc[CURTASK.cur_co] + sizeof(int) + 1);
           CURTASK.pc[CURTASK.cur_co] = getIntFromArgument(sch.c_task);
           break;
@@ -435,8 +441,14 @@ namespace dml {
 
           // v = d / t
           float distance = std::sqrt(std::pow(x - CURTASK.e->spatial.abspos.x(), 2) + std::pow(y - CURTASK.e->spatial.abspos.y(), 2));
-          CURTASK.e->spatial.absspeed = distance / time;
-          CURTASK.e->spatial.absang = RAD(30);
+          CURTASK.e->spatial.absspeed = distance / (float)time;
+          std::cout << std::dec << CURTASK.e->spatial.abspos.x() << ", " << CURTASK.e->spatial.abspos.y() << " to " << x << ", " << y << "\n";
+          std::cout << "distance: " << distance << " in " << time << " frames" << " @ " << CURTASK.e->spatial.absspeed << "\n";
+          float atest = Vec2{float(x), float(y)}.dot(CURTASK.e->spatial.abspos) / (Vec2{float(x), float(y)}.magnitude() * CURTASK.e->spatial.abspos.magnitude());
+          std::cout << "CALC: " << atest << "\n";
+          // CURTASK.e->spatial.absang =  (acos(RAD(atest)) * 180) / PI;
+          CURTASK.e->spatial.absang =  (atan(atest)) * 180 / PI;
+          std::cout << CURTASK.e->spatial.absang << "\n";
           CURTASK.e->spatial.time = time;
           break;
           }
