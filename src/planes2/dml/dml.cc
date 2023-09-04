@@ -170,7 +170,6 @@ namespace dml {
     }
 
     // handle bullets
-    handle_bullets();
     DrawTextureV(p.sprite, 
         {p.spatial.pos.x , 
         p.spatial.pos.y },
@@ -182,6 +181,7 @@ namespace dml {
         p.spatial.pos.y + (p.sprite.height * 0.5f) - (p.in_sprite.height * 0.5f)
         }, 
         RAYWHITE);
+    handle_bullets();
     DrawFPS(0, 0);
     EndDrawing();
   }
