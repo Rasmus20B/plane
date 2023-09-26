@@ -1,1 +1,0 @@
-/usr/bin/c++   -mavx -O3 -DNDEBUG CMakeFiles/queue_test.dir/queue_test.cc.o -o queue_test  ../lib/libgtest_main.a ../lib/libgtest.a 

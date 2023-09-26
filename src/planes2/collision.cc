@@ -87,19 +87,7 @@ namespace plane {
       }
     };
 #else
-    const float r1x = -cx * ca - cy * sa;
-    const float r1y = -cx * sa + cy * ca;
-    const float r2x = cx * ca - cy * sa;
-    const float r2y = cx * sa + cy * ca;
-
-    return {
-      {
-        {r.x + r1x, r.y + r1y},
-        {r.x + r2x, r.y + r2y},
-        {r.x - r1x, r.y - r1y},
-        {r.x - r2x, r.y - r2y},
-      }
-    };
+    getCorners(r, radian);
 #endif
   }
 
