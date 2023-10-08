@@ -11,5 +11,5 @@ struct Config {
   float screen_height;
 };
 
-static Config config = { 3000, 2000 };
+static Config config = { 640, 480 };
 }

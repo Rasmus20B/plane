@@ -19,15 +19,18 @@ namespace plane {
     std::vector<uint8_t> prog((std::istreambuf_iterator<char>(instream)), std::istreambuf_iterator<char>());
 
     SetConfigFlags(FLAG_MSAA_4X_HINT);
+
+#define TILE_SIZE 26
+    gg.x = config.screen_width / 10;
+    gg.y = 0;
+    // gg.r = (640.f / 3)  * 2; 20
+    gg.r = 16 * 24;
+    gg.c = 16 * 28;
+
     InitWindow(1080, 768, "Plane");
     SetTargetFPS(60);
 
     initTextureManager(tm);
-    gg.x = config.screen_width / 10;
-    gg.y = 0;
-    gg.r = (1920.f / 3)  * 2;
-    gg.c = config.screen_height;
-
     dml::VM cpu;
 
     cpu.load_script(std::move(prog));
