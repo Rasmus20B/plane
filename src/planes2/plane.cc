@@ -2,10 +2,14 @@
 #include "projectile.h"
 #include "virt_screen.h"
 
+#include "../common/display.h"
+
 #include <random>
 #include <raylib.h>
 
 namespace plane {
+
+  Display display(1080, 768);
 
   float rand_f(float max) {
     return static_cast<float>(rand() / static_cast<float>(static_cast<float>(RAND_MAX)/max));
@@ -20,6 +24,7 @@ namespace plane {
 
     SetConfigFlags(FLAG_MSAA_4X_HINT);
 
+
 #define TILE_SIZE 26
     gg.x = config.screen_width / 10;
     gg.y = 0;
@@ -27,7 +32,7 @@ namespace plane {
     gg.r = 16 * 24;
     gg.c = 16 * 28;
 
-    InitWindow(1080, 768, "Plane");
+    InitWindow(display.m_width, display.m_height, "Plane");
     SetTargetFPS(60);
 
     initTextureManager(tm);
