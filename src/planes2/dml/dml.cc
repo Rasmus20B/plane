@@ -8,7 +8,6 @@
 #include <cassert>
 #include <cstring>
 #include <iterator>
-#include <ratio>
 #include <raylib.h>
 #include <thread>
 
@@ -18,7 +17,6 @@ namespace dml {
     uint16_t i = 0;
     while(i < this->bullets_mask.size()) {
       if(this->bullets_mask[i] == false) {
-        bm.id = i;
         bm.setOrigin(CURTASK.e->spatial.abspos + CURTASK.e->spatial.relpos);
         bm.shoot(bm.origin, p.spatial.pos);
         this->bullets[i] = bm;
@@ -70,8 +68,10 @@ namespace dml {
     this->sch.tasks[t_id].pc[CURTASK.cur_co] = start;
     this->sch.tasks[t_id].waitctr[CURTASK.cur_co] = 0;
     this->sch.tasks[t_id].sp[CURTASK.cur_co] = 0;
+    this->bullets_mask.resize(500);
     std::fill(this->bullets_mask.begin(), this->bullets_mask.end(), false);
     std::fill(this->sch.tasks[t_id].mem.begin(), this->sch.tasks[t_id].mem.end(), 0);
+    this->bullets.resize(500);
   }
 
   void VM::pushInt(const uint32_t t_id, const uint32_t num) noexcept {
@@ -90,7 +90,7 @@ namespace dml {
     CURTASK.sp[CURTASK.cur_co] += 4;
   }
 
-  void VM::handle_bullets() {
+  void VM::handle_bullets() noexcept {
     for(uint32_t id = 0; id < this->bullets_mask.size() - 1; ++id) {
       if(this->bullets_mask[id] == true) {
         this->bullets[id].update();
@@ -198,10 +198,6 @@ namespace dml {
 
     while(!WindowShouldClose()) {
       ClearBackground(BLACK);
-
-      if(this->power.test()) {
-        return;
-      }
 
       uint32_t async_test = pgtext[CURTASK.pc[CURTASK.cur_co]];
       async_test <<= 8;
@@ -582,7 +578,6 @@ namespace dml {
   }
 
   void VM::stop() noexcept {
-    this->power.test_and_set();
   }
 }
 

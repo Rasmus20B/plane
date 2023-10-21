@@ -26,11 +26,8 @@ struct VM {
 #define CURTASK this->sch.tasks[this->sch.c_task]
   std::vector<uint8_t> pgtext{};
   Scheduler sch;
-  std::atomic_flag power;
-
-  std::mutex m;
-  std::array<plane::BulletMgr, 500> bullets;
-  std::array<bool, 500> bullets_mask;
+  std::vector<plane::BulletMgr> bullets;
+  std::vector<bool> bullets_mask;
   plane::Player p;
   Texture2D bg;
 
@@ -53,7 +50,7 @@ struct VM {
   void pushInt(const uint32_t t_id) noexcept;
   void pushInt(const uint32_t t_id, const uint32_t num) noexcept;
 
-  void handle_bullets();
+  void handle_bullets() noexcept;
 };
 
 enum class OpCodes  {

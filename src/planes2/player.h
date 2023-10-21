@@ -21,7 +21,7 @@ namespace plane {
 
   struct Player {
     pSpace spatial;
-    short lives = 3;
+    uint8_t lives = 3;
     float b_size = 0;
     float b_max_size = 300;
     uint32_t d_time = 0;

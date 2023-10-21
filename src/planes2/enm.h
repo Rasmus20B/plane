@@ -61,7 +61,7 @@ namespace plane {
 
   struct Enm {
     EnmSpace spatial;
-    EnmShoot shooting;
+    EnmShoot* shooting;
     EnmAttrs attrs;
     Texture2D sprite;
     Color col;

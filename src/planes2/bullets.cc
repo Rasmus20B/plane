@@ -117,9 +117,9 @@ namespace plane {
     switch(mode) {
       case BulletFlag::AIMED:
         for(int i = 0; i < layers; ++i) {
-          // For regular aimed managers, the speeds will be calculated between sp1 and sp2, 
-          // decreasing to sp2 based on current layer
-          float lspeed = (speed1 + speed2) + ((speed1 - speed2) / (float(layers) / (i )));
+          /* For regular aimed managers, the speeds will be calculated between sp1 and sp2, */
+          /* decreasing to sp2 based on current layer */
+          float lspeed = (speed1 + speed2) + ((speed1 - speed2) / (float(layers) / (i)));
           for(int j = 0; j < count; ++j) {
             Vec2 *pos = &getPos(i, j);
             pos->x() += (cos(RAD(ang1) + RAD(ang2) * j) * lspeed);

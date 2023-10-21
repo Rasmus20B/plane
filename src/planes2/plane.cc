@@ -51,94 +51,85 @@ namespace plane {
     bool pause = false;
     Player p;
 
-    /* timeline will be a queue where only the front is checked per frame.
-     * At most 4 enemies 'types' can spawned. 
-     * Queue will give indexes for use in array */
-
-    stage1 s;
-    s.load_enemies();
-    s.load_timeline();
-
-
     return;
-    auto timeline = s.timeline;
-    std::vector<BulletMgr> bs;
-    std::vector<Enm> etypes = s.e;
-    std::vector<Enm> es;
-    std::vector<BulletMgr> player_bullets;
-
-    std::unordered_map<uint32_t, bool> liveBMs;
-    std::unordered_map<uint32_t, bool> livePBs;
-    std::unordered_map<uint32_t, bool> liveENs;
-    liveENs.reserve(timeline.size);
-
-    while(!WindowShouldClose()) {
-      ClearBackground(BLACK);
-      BeginDrawing();
-
-      handle_game_input(p.spatial, p.shooting);
-      auto p_hitbox = p.getPlayerHitbox();
-      DrawTextureV(p.sprite, {p.spatial.pos.x , p.spatial.pos.y }, WHITE);
-
-      // Check Player Bullets
-      for(auto b : player_bullets) {
-        b.update();
-        b.draw();
-        for(int i = 0; i < es.size(); ++i) {
-          Rectangle hitbox = {
-            .x = es[i].spatial.abspos.x(),
-            .y = es[i].spatial.abspos.y(),
-            .width = static_cast<float>(es[i].sprite.width),
-            .height = static_cast<float>(es[i].sprite.height)
-          };
-          if(b.collision_check(hitbox)) {
-            es[i].attrs.health--;
-          }
-        }
-      }
-
-      for(int i = 0; i < es.size(); ++i) {
-        if(!liveENs[i]) continue;
-        enmUpdatePos(es[i].spatial);
-        es[i].draw();
-
-        auto s = es[i].shooting.shots.find(frame_count);
-        if(s == es[i].shooting.shots.end()) continue;
-        s->second.shoot(es[i].spatial.abspos, p.spatial.pos);
-        bs.push_back(s->second);
-        liveBMs[bs.size() - 1] = true;
-      }
-
-      for(int i = 0; i < bs.size(); ++i) {
-        if(!liveBMs[i]) continue;
-        bs[i].update();
-        bs[i].draw();
-        if(bs[i].collision_check(p_hitbox)) {
-          std::cout << "HIT*: " << frame_count << "\n";
-        }
-        bs[i].setOutOfBounds();
-        bool ded = (std::adjacent_find(bs[i].oobs.begin(), 
-              bs[i].oobs.end(), 
-              std::not_equal_to<bool>()) == bs[i].oobs.end());
-        if(ded) {
-          liveBMs.erase(i);
-        }
-      }
-
-
-      while(timeline.front()->first == frame_count) {
-        auto spawns = timeline.pop_and_get()->second;
-        for(auto i : spawns) {
-          liveENs[es.size() ] = true;
-          es.push_back(etypes[i]);
-        }
-      }
-
-      DrawRectangle(gg.x + gg.c, 0, config.screen_width - (gg.c + gg.x), config.screen_height, GRAY);
-      DrawRectangle(0, 0, config.screen_width / 10, config.screen_height, GRAY);
-      frame_count++;
-
-      EndDrawing();
+    // auto timeline = s.timeline;
+    // std::vector<BulletMgr> bs;
+    // std::vector<Enm> etypes = s.e;
+    // std::vector<Enm> es;
+    // std::vector<BulletMgr> player_bullets;
+    //
+    // std::unordered_map<uint32_t, bool> liveBMs;
+    // std::unordered_map<uint32_t, bool> livePBs;
+    // std::unordered_map<uint32_t, bool> liveENs;
+    // liveENs.reserve(timeline.size);
+    //
+    // while(!WindowShouldClose()) {
+    //   ClearBackground(BLACK);
+    //   BeginDrawing();
+    //
+    //   handle_game_input(p.spatial, p.shooting);
+    //   auto p_hitbox = p.getPlayerHitbox();
+    //   DrawTextureV(p.sprite, {p.spatial.pos.x , p.spatial.pos.y }, WHITE);
+    //
+    //   // Check Player Bullets
+    //   for(auto b : player_bullets) {
+    //     b.update();
+    //     b.draw();
+    //     for(int i = 0; i < es.size(); ++i) {
+    //       Rectangle hitbox = {
+    //         .x = es[i].spatial.abspos.x(),
+    //         .y = es[i].spatial.abspos.y(),
+    //         .width = static_cast<float>(es[i].sprite.width),
+    //         .height = static_cast<float>(es[i].sprite.height)
+    //       };
+    //       if(b.collision_check(hitbox)) {
+    //         es[i].attrs.health--;
+    //       }
+    //     }
+    //   }
+    //
+    //   for(int i = 0; i < es.size(); ++i) {
+    //     if(!liveENs[i]) continue;
+    //     enmUpdatePos(es[i].spatial);
+    //     es[i].draw();
+    //
+    //     auto s = es[i].shooting.shots.find(frame_count);
+    //     if(s == es[i].shooting.shots.end()) continue;
+    //     s->second.shoot(es[i].spatial.abspos, p.spatial.pos);
+    //     bs.push_back(s->second);
+    //     liveBMs[bs.size() - 1] = true;
+    //   }
+    //
+    //   for(int i = 0; i < bs.size(); ++i) {
+    //     if(!liveBMs[i]) continue;
+    //     bs[i].update();
+    //     bs[i].draw();
+    //     if(bs[i].collision_check(p_hitbox)) {
+    //       std::cout << "HIT*: " << frame_count << "\n";
+    //     }
+    //     bs[i].setOutOfBounds();
+    //     bool ded = (std::adjacent_find(bs[i].oobs.begin(), 
+    //           bs[i].oobs.end(), 
+    //           std::not_equal_to<bool>()) == bs[i].oobs.end());
+    //     if(ded) {
+    //       liveBMs.erase(i);
+    //     }
+    //   }
+    //
+    //
+    //   while(timeline.front()->first == frame_count) {
+    //     auto spawns = timeline.pop_and_get()->second;
+    //     for(auto i : spawns) {
+    //       liveENs[es.size() ] = true;
+    //       es.push_back(etypes[i]);
+    //     }
+    //   }
+    //
+    //   DrawRectangle(gg.x + gg.c, 0, config.screen_width - (gg.c + gg.x), config.screen_height, GRAY);
+    //   DrawRectangle(0, 0, config.screen_width / 10, config.screen_height, GRAY);
+    //   frame_count++;
+    //
+    //   EndDrawing();
       // bool micro = false; BeginDrawing();
       //   ClearBackground(GetColor(0x052c46ff));
       //
@@ -396,6 +387,6 @@ namespace plane {
 //         DrawText(std::to_string(frame_count).c_str(), config.screen_width / 10, config.screen_height / 10, 20, WHITE);
 //       EndDrawing();
 //       frame_count++;
-    }
+    //}
   }
 }
