@@ -36,7 +36,7 @@ namespace dml {
     pgtext = std::move(progtext);
 
     // LOAD THE BACKGROUND
-    bg = plane::tm.backgrounds[0];
+    bg = plane::tm.backgrounds[1];
 
   }
 
@@ -125,6 +125,7 @@ namespace dml {
   
   void VM::read_header() noexcept {
     constexpr std::array magic = { 0x7f, 0x44, 0x4d, 0x4c };
+    std::cout << "LOADED SCRIPT SUCCESSFULLY\n";
     for(int i = 0; i < 4; ++i) {
       if(magic[i] != pgtext[i]) {
         std::cerr << "unknown file type\n";
@@ -144,7 +145,7 @@ namespace dml {
   void VM::render() noexcept{
     plane::handle_game_input(p.spatial,  p.shooting);
     BeginDrawing();
-    DrawTextureEx(bg, {0, 0}, 0.0f, 1.35f, WHITE);
+    DrawTextureEx(bg, {2 * 16, 1 * 16}, 0.0f, 1., WHITE);
     for(uint32_t i = 0; i < sch.tasks_mask.size(); ++i){
       if(sch.tasks_mask[i] == false || sch.tasks[i].base == false) continue;
 

@@ -87,26 +87,14 @@ namespace plane {
       }
     };
 #else
-    const float r1x = -cx * ca - cy * sa;
-    const float r1y = -cx * sa + cy * ca;
-    const float r2x = cx * ca - cy * sa;
-    const float r2y = cx * sa + cy * ca;
-
-    return {
-      {
-        {r.x + r1x, r.y + r1y},
-        {r.x + r2x, r.y + r2y},
-        {r.x - r1x, r.y - r1y},
-        {r.x - r2x, r.y - r2y},
-      }
-    };
+    getCorners(r, radian);
 #endif
   }
 
   bool checkContains(std::array<Vec2, 4> cs1, std::array<Vec2, 4> cs2) {
     for(int i = 0; i < 4; ++i) {
       Vec2 edge = cs1[(i+1) % 4] - cs1[i];
-      Vector2 axis = {-edge.vec.y, edge.vec.x};
+      const Vector2 axis = {-edge.vec.y, edge.vec.x};
 
       float min1 = std::numeric_limits<float>().max();
       float max1 = std::numeric_limits<float>().min();

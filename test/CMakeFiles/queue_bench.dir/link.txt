@@ -1,1 +1,0 @@
-/usr/bin/c++   -mavx -O3 -DNDEBUG CMakeFiles/queue_bench.dir/queue_benchmark.cc.o -o queue_bench 
