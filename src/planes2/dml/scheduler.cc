@@ -7,10 +7,7 @@ namespace dml {
     Task t;
     t.set_entry(0);
     t.e = new plane::Enm;
-    std::fill(t.live_cos.begin(), t.live_cos.end(), false);
-    std::fill(t.pc.begin(), t.pc.end(), false);
-    std::fill(t.sp.begin(), t.sp.end(), false);
-    t.live_cos[0] = true;
+    std::cout << "after initilization\n";
     c_task = 0;
     tasks[0] = t;
   }
@@ -33,9 +30,6 @@ namespace dml {
         this->tasks_mask[i] = true;
         this->n_tasks++;
         this->cur_slice = this->total_duration / (this->n_tasks) ;
-        std::fill(t.live_cos.begin(), t.live_cos.end(), false);
-        std::fill(t.pc.begin(), t.pc.end(), false);
-        std::fill(t.sp.begin(), t.sp.end(), false);
         return true;
       }
       ++i;
@@ -57,9 +51,6 @@ namespace dml {
         this->tasks_mask[i] = true;
         this->n_tasks++;
         this->cur_slice = this->total_duration / (this->n_tasks) ;
-        std::fill(t.live_cos.begin(), t.live_cos.end(), false);
-        std::fill(t.pc.begin(), t.pc.end(), false);
-        std::fill(t.sp.begin(), t.sp.end(), false);
         std::cout << "Added Task: " << i << " asynchronous.\n";
         return true;
       }
@@ -79,9 +70,6 @@ namespace dml {
         this->tasks_mask[i] = true;
         this->n_tasks++;
         this->cur_slice = this->total_duration / (this->n_tasks) ;
-        std::fill(t.live_cos.begin(), t.live_cos.end(), false);
-        std::fill(t.pc.begin(), t.pc.end(), false);
-        std::fill(t.sp.begin(), t.sp.end(), false);
         return true;
       }
       ++i;

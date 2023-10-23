@@ -18,10 +18,6 @@ struct Task {
     this->vars.resize(16);
     this->bm.resize(16);
     this->live_bms.resize(16);
-    this->pc.resize(1);
-    this->sp.resize(1);
-    this->waitctr.resize(1);
-    this->live_cos.resize(1);
   };
 
   std::vector<uint8_t> mem{};
@@ -29,11 +25,9 @@ struct Task {
   std::vector<plane::BulletMgr> bm;
   std::vector<bool> live_bms;
   plane::Enm* e = nullptr;
-  uint16_t cur_co = 0;
-  std::vector<uint16_t> pc{};
-  std::vector<uint16_t> sp{};
-  std::vector<uint16_t> waitctr{};
-  std::vector<bool> live_cos;
+  uint16_t pc{};
+  uint16_t sp{};
+  uint16_t waitctr{};
   bool base = 0;
   std::vector<uint16_t> children;
 
