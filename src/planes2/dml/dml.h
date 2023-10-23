@@ -18,6 +18,8 @@
 #include "coroutine.h"
 #include "task.h"
 
+#include "../../common/display.h"
+
 #include "../player.h"
 
 namespace dml {
@@ -30,6 +32,7 @@ struct VM {
   std::vector<bool> bullets_mask;
   plane::Player p;
   Texture2D bg;
+  Display display{};
 
   uint16_t bm_idx = 0;
   bool addBM(plane::BulletMgr) noexcept;
@@ -37,8 +40,8 @@ struct VM {
 
   void load_script(const std::vector<uint8_t>&& progtext) noexcept;
   void read_header() noexcept;
-  void init(const uint32_t t_id, const uint32_t start) noexcept;
-  void run() noexcept;
+  void init(const uint32_t t_id, const uint32_t start, const Display& d) noexcept;
+  void run(Display d) noexcept;
   void fetch_execute() noexcept;
   void render() noexcept;
   void stop() noexcept;
