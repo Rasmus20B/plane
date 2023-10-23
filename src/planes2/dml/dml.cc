@@ -64,7 +64,7 @@ namespace dml {
     return num;
   }
   
-  void VM::init(const uint32_t t_id, const uint32_t start) noexcept {
+  void VM::init(const uint32_t t_id, const uint32_t start, const Display& d) noexcept {
     this->sch.tasks[t_id].pc[CURTASK.cur_co] = start;
     this->sch.tasks[t_id].waitctr[CURTASK.cur_co] = 0;
     this->sch.tasks[t_id].sp[CURTASK.cur_co] = 0;
@@ -72,6 +72,7 @@ namespace dml {
     std::fill(this->bullets_mask.begin(), this->bullets_mask.end(), false);
     std::fill(this->sch.tasks[t_id].mem.begin(), this->sch.tasks[t_id].mem.end(), 0);
     this->bullets.resize(500);
+    this->display = d;
   }
 
   void VM::pushInt(const uint32_t t_id, const uint32_t num) noexcept {
@@ -145,7 +146,7 @@ namespace dml {
   void VM::render() noexcept{
     plane::handle_game_input(p.spatial,  p.shooting);
     BeginDrawing();
-    DrawTextureEx(bg, {2 * 16, 1 * 16}, 0.0f, 1., WHITE);
+    DrawTextureEx(bg, {2.f * display.m_tile_size, 1.f * display.m_tile_size}, 0.0f, 1., WHITE);
     for(uint32_t i = 0; i < sch.tasks_mask.size(); ++i){
       if(sch.tasks_mask[i] == false || sch.tasks[i].base == false) continue;
 
@@ -187,13 +188,13 @@ namespace dml {
     EndDrawing();
   }
 
-  void VM::run() noexcept {
+  void VM::run(Display d) noexcept {
 
     double time_acc = 0.f;
 
     sch.set_ts_duration(16.67);
     sch.init();
-    this->init(0, 0);
+    this->init(0, 0, d);
 
     read_header();
 
@@ -272,7 +273,6 @@ namespace dml {
           CURTASK.pc[CURTASK.cur_co]++;
           break;
         case OpCodes::DELETE:
-          std::cout << CURTASK.e->spatial.abspos.x() << " , " << CURTASK.e->spatial.abspos.y() << "\n";
           sch.del_task();
           sch.next_task();
           if(sch.n_tasks == 0) return;

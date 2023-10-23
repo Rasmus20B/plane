@@ -9,7 +9,6 @@
 
 namespace plane {
 
-  Display display(1080, 768);
 
   float rand_f(float max) {
     return static_cast<float>(rand() / static_cast<float>(static_cast<float>(RAND_MAX)/max));
@@ -24,13 +23,12 @@ namespace plane {
 
     SetConfigFlags(FLAG_MSAA_4X_HINT);
 
-
-#define TILE_SIZE 26
-    gg.x = config.screen_width / 10;
+    Display display(1080, 768);
+    gg.x = display.m_width / 10;
     gg.y = 0;
     // gg.r = (640.f / 3)  * 2; 20
-    gg.r = 16 * 24;
-    gg.c = 16 * 28;
+    gg.r = display.m_tile_size * 24;
+    gg.c = display.m_tile_size * 28;
 
     InitWindow(display.m_width, display.m_height, "Plane");
     SetTargetFPS(60);
@@ -39,7 +37,7 @@ namespace plane {
     dml::VM cpu;
 
     cpu.load_script(std::move(prog));
-    cpu.run();
+    cpu.run(display);
 
     return;
 
