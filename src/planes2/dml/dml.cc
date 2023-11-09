@@ -11,6 +11,8 @@
 #include <raylib.h>
 #include <thread>
 
+
+#include <span>
 namespace dml {
 
   bool VM::addBM(plane::BulletMgr bm) noexcept {
@@ -38,6 +40,16 @@ namespace dml {
     // LOAD THE BACKGROUND
     bg = plane::tm.backgrounds[1];
 
+  }
+
+  [[nodiscard]]
+  uint32_t VM::getTopOfStack() noexcept {
+    uint32_t num = 0;
+    num += (CURTASK.mem[3] << 24) & 0xFF000000;
+    num += (CURTASK.mem[2] << 16) & 0x00FF0000;
+    num += (CURTASK.mem[1] << 8) & 0x0000FF00;
+    num += (CURTASK.mem[0] & 0x000000FF);
+    return num;
   }
 
   [[nodiscard]]
@@ -73,6 +85,16 @@ namespace dml {
     std::fill(this->sch.tasks[t_id].mem.begin(), this->sch.tasks[t_id].mem.end(), 0);
     this->bullets.resize(500);
     this->display = d;
+  }
+
+  inline void VM::pushAddrToExecutionStack(const uint32_t t_id, const uint32_t addr) noexcept {
+    CURTASK.execution_stack.push_back(addr);
+  }
+
+  inline uint32_t VM::PopAddrFromExecutionStack(const uint32_t t_id) noexcept {
+    auto tmp = CURTASK.execution_stack.back();
+    CURTASK.execution_stack.pop_back();
+    return tmp;
   }
 
   void VM::pushInt(const uint32_t t_id, const uint32_t num) noexcept {
@@ -278,10 +300,10 @@ namespace dml {
           if(sch.n_tasks == 0) return;
           break;
         case OpCodes::RETURN:
-          CURTASK.pc = popInt(sch.c_task) ;
+          CURTASK.pc = PopAddrFromExecutionStack(sch.c_task) ;
           break;
         case OpCodes::CALL:
-          pushInt(sch.c_task, CURTASK.pc + sizeof(int) + 1);
+          pushAddrToExecutionStack(sch.c_task, CURTASK.pc + sizeof(int) + 1);
           CURTASK.pc = getIntFromArgument(sch.c_task) ;
           break;
         case OpCodes::JMP:
@@ -568,6 +590,10 @@ namespace dml {
           CURTASK.bm[idx].setAim(static_cast<plane::BulletFlag>(aim));
           break;
           }
+
+        case OpCodes::DBGPRINT:
+          std::cout << static_cast<int>(getTopOfStack()) << "\n";
+          break;
         default:
           std::cout << "OPCODE NOT IMPLEMENTED: " << opcode << "\n";
           return;

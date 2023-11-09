@@ -15,12 +15,14 @@ struct Task {
 
   Task() {
     this->mem.resize(200);
+    this->execution_stack.resize(30);
     this->vars.resize(16);
     this->bm.resize(16);
     this->live_bms.resize(16);
   };
 
   std::vector<uint8_t> mem{};
+  std::vector<uint32_t> execution_stack{};
   std::vector<float> vars{};
   std::vector<plane::BulletMgr> bm;
   std::vector<bool> live_bms;

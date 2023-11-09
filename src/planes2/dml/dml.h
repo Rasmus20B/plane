@@ -46,10 +46,13 @@ struct VM {
   void render() noexcept;
   void stop() noexcept;
 
+  uint32_t getTopOfStack() noexcept;
   uint32_t popInt() noexcept;
   uint32_t popInt(const uint32_t t_id) noexcept;
   uint32_t getIntFromArgument() noexcept;
   uint32_t getIntFromArgument(const uint32_t t_id) noexcept;
+  void pushAddrToExecutionStack(const uint32_t t_id, const uint32_t addr) noexcept;
+  uint32_t PopAddrFromExecutionStack(const uint32_t t_id) noexcept;
   void pushInt(const uint32_t t_id) noexcept;
   void pushInt(const uint32_t t_id, const uint32_t num) noexcept;
 
@@ -157,6 +160,8 @@ enum class OpCodes  {
   ETCOPY = 614,
   ETCANCEL = 615,
 
+  // Print the contents of the stack
+  DBGPRINT = 999,
 
 };
 

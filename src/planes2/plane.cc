@@ -17,7 +17,7 @@ namespace plane {
   void main_loop() {
     srand(time(0));
 
-    std::string level = "../assets/level1.dml";
+    std::string level = "../assets/test.dml";
     std::ifstream instream(level, std::ios::in | std::ios::binary);
     std::vector<uint8_t> prog((std::istreambuf_iterator<char>(instream)), std::istreambuf_iterator<char>());
 
