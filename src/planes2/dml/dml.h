@@ -51,8 +51,8 @@ struct VM {
   uint32_t popInt(const uint32_t t_id) noexcept;
   uint32_t getIntFromArgument() noexcept;
   uint32_t getIntFromArgument(const uint32_t t_id) noexcept;
-  void pushAddrToExecutionStack(const uint32_t t_id, const uint32_t addr) noexcept;
-  uint32_t PopAddrFromExecutionStack(const uint32_t t_id) noexcept;
+  inline void pushAddrToExecutionStack(const uint32_t t_id, const uint32_t addr) noexcept;
+  inline std::optional<uint16_t> PopAddrFromExecutionStack(const uint32_t t_id) noexcept;
   void pushInt(const uint32_t t_id) noexcept;
   void pushInt(const uint32_t t_id, const uint32_t num) noexcept;
 

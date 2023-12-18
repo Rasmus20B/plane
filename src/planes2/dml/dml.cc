@@ -8,6 +8,8 @@
 #include <cassert>
 #include <cstring>
 #include <iterator>
+#include <limits>
+#include <optional>
 #include <raylib.h>
 #include <thread>
 
@@ -91,7 +93,10 @@ namespace dml {
     CURTASK.execution_stack.push_back(addr);
   }
 
-  inline uint32_t VM::PopAddrFromExecutionStack(const uint32_t t_id) noexcept {
+  inline std::optional<uint16_t> VM::PopAddrFromExecutionStack(const uint32_t t_id) noexcept {
+    if(CURTASK.execution_stack.empty()) {
+      return std::nullopt;
+    }
     auto tmp = CURTASK.execution_stack.back();
     CURTASK.execution_stack.pop_back();
     return tmp;
@@ -299,8 +304,16 @@ namespace dml {
           sch.next_task();
           if(sch.n_tasks == 0) return;
           break;
-        case OpCodes::RETURN:
-          CURTASK.pc = PopAddrFromExecutionStack(sch.c_task) ;
+        case OpCodes::RETURN: {
+          auto addr = PopAddrFromExecutionStack(sch.c_task);
+          if(addr.has_value()) {
+            CURTASK.pc = addr.value();
+          } else {
+            sch.del_task();
+            sch.next_task();
+            if(sch.n_tasks == 0) return;
+          }
+          }
           break;
         case OpCodes::CALL:
           pushAddrToExecutionStack(sch.c_task, CURTASK.pc + sizeof(int) + 1);
@@ -592,7 +605,7 @@ namespace dml {
           }
 
         case OpCodes::DBGPRINT:
-          std::cout << static_cast<int>(getTopOfStack()) << "\n";
+          std::cout << "RESULT: " << std::dec << static_cast<int>(getTopOfStack()) << "\n";
           break;
         default:
           std::cout << "OPCODE NOT IMPLEMENTED: " << opcode << "\n";

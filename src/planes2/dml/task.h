@@ -15,7 +15,7 @@ struct Task {
 
   Task() {
     this->mem.resize(200);
-    this->execution_stack.resize(30);
+    this->execution_stack.reserve(30);
     this->vars.resize(16);
     this->bm.resize(16);
     this->live_bms.resize(16);
